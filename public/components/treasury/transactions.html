@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">                      
+    <title>Transactions</title>
+    <meta 
+        name="viewport"
+        content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
+
+    <link rel="icon" type="image/x-icon" href="..\..\assets\icons\favicon.ico">
+
+    <!-- Libs -->
+    <link rel="stylesheet" href="..\..\assets\libs\transactions.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+
+</head>
+<body>
+    <div class="search-bar">
+        <a href="..\..\pages\homepage.html">
+            <img class="logo" src="..\..\assets\icons\logo.png" alt="Logo">
+        </a>
+        <input type="text" id="search-input" placeholder="Search for...">
+        <button id="search-button">Search</button>
+    </div>
+
+    <div id="transactions-list" class="transactions-list">
+        <h1>List of transactions</h1>
+
+        <!-- vorrei creare un contenitore per inserire sia remove che sort sulla stessa linea-->
+        <div class="remove-all-transactions">
+            <button id="remove-all-button">Remove All</button>
+        </div>
+        <div class="sort-by-date">
+            <button id="sort-by-date-button">Sort by Date</button>
+        </div>
+
+        <div id="transaction-totals" class="transaction-totals">
+            <div class="total-wrapper">
+                <div class="total-in" id="total-in">Total In: €0.00</div>
+            </div>
+            <div class="total-wrapper">
+                <div class="total-out" id="total-out">Total Out: €0.00</div>
+            </div>
+            <div class="total-wrapper">
+                <div class="net-total" id="net-total">Net Total: €0.00</div>
+            </div>
+        </div>
+        
+        <ul id="transaction-items" class="transaction-items">
+            <li>           
+                <span>${transaction.code}</span>
+                <span>${transaction.name}</span>
+                <span>${transaction.cash}€</span>
+                <button class="edit-button" data-code="${transaction.code}">Edit</button>
+                <button class="remove-button" data-code="${transaction.code}">Remove</button>
+            </li>
+        </ul>
+    </div>
+
+
+
+    <div id="transaction-form" class="transaction-form hidden">
+        <div class="edit-transaction-header">
+            <h3>Transaction Information</h3>
+        </div>
+        <div class="edit-transaction-container">
+            <div class="edit-transaction-content">
+                <form class="objective-data-form">
+                    
+                    <label for="transaction-code">Code:</label>
+                    <input type="number" id="transaction-code" min="1" class="objective-data-input">
+
+                    <label for="transaction-name">Name:</label>
+                    <input type="text" id="transaction-name" class="objective-data-input">
+
+                    <label for="transaction-type">Type:</label>
+                    <select id="transaction-type">
+                        <option value="none"> </option>
+                        <option value="IN">Incoming</option>                        
+                        <option value="OUT">Outgoing</option>                 
+                    </select>
+
+                    <label for="transaction-cash">Amount in €:</label>
+                    <input type="number" id="transaction-cash" class="objective-data-input">
+
+                    <label for="transaction-category">Category:</label>
+                    <select id="transaction-category">
+                        <option value="Event">Event</option>                        
+                        <option value="Office">Office</option>
+                        <option value="Refund">Refund</option>
+                        <option value="Membership fee">Membership fee</option>
+                        <option value="Merchandising">Merchandising</option>
+                        <option value="Other">Other</option>                     
+                    </select>
+
+                    <label for="transaction-channel">Channel:</label>
+                    <select id="transaction-channel">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank transfer">Bank transfer</option>
+                        <option value="Digital payment">Digital payment</option>
+                        <option value="Payment terminal">Payment terminal</option>                    
+                    </select>
+
+                    <label for="transaction-date">Date:</label>
+                    <input type="date" id="transaction-date" class="objective-data-input">
+
+                    <label for="transaction-note">Note:</label>
+                    <textarea id="transaction-note" class="objective-data-input"></textarea>                    
+                    
+                    <button type="button" id="confirm-transaction">Add Transaction</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="transaction-edit-form" class="transaction-edit-form hidden">
+        <div class="edit-transaction-header">
+            <h3>Transaction Information</h3>
+        </div>
+        <div class="edit-transaction-container">
+            <div class="edit-transaction-content">
+                <form class="objective-data-form">
+
+                    <label for="edit-transaction-code">Code:</label>
+                    <input type="number" id="edit-code" min="1" class="objective-data-input">
+
+                    <label for="edit-transaction-name">Name:</label>
+                    <input type="text" id="edit-name" class="objective-data-input">
+
+                    <label for="edit-transaction-type">Type:</label>
+                    <select id="edit-type">
+                        <option value="none"> </option>
+                        <option value="IN">Incoming</option>                        
+                        <option value="OUT">Outgoing</option>                 
+                    </select>
+
+                    <label for="edit-transaction-cash">Amount in €:</label>
+                    <input type="number" id="edit-cash" class="objective-data-input">
+
+                    <label for="edit-transaction-category">Category</label>
+                    <select id="edit-category">
+                        <option value="Event">Event</option>                        
+                        <option value="Office">Office</option>
+                        <option value="Refund">Refund</option>
+                        <option value="Membership fee">Membership fee</option>
+                        <option value="Merchandising">Merchandising</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <label for="edit-transaction-channel">Channel</label>
+                    <select id="edit-channel">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank transfer">Bank transfer</option>
+                        <option value="Digital payment">Digital payment</option>
+                        <option value="Payment terminal">Payment terminal</option>
+                    </select>
+
+                    <label for="edit-transaction-date">Date:</label>
+                    <input type="date" id="edit-date" class="objective-data-input">
+
+                    <label for="edit-transaction-note">Note:</label>
+                    <textarea id="edit-note" class="objective-data-input"></textarea>
+        
+                    <button type="button" id="save-edit-button" class="save-button">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Tasto per aprire il menu a tendina -->
+    <div id="add-menu" class="add-menu">
+        <button class="add-button">+</button>
+        <div class="menu-items">
+            <button id="add-transaction-button" class="menu-item">Add new transaction</button>
+        </div>
+    </div>
+
+    <script>
+        // Funzione per mostrare o nascondere il menu a tendina
+        function toggleUserMenu() {
+            const menu = document.getElementById('add-menu');
+            const menuItems = document.querySelector('.menu-items');
+            menuItems.style.display = menuItems.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        document.getElementById('add-transaction-button').addEventListener('click', toggleUserMenu);
+    </script>
+
+        
+    
+    <script src="transactions.js"></script>
+    
+</body>
+</html>

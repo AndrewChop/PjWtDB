@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">                      
+    <title>Events</title>
+    <meta 
+        name="viewport"
+        content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
+
+    <link rel="icon" type="image/x-icon" href="..\..\assets\icons\favicon.ico">
+
+    <!-- Libs -->
+    <link rel="stylesheet" href="..\..\assets\libs\events.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+
+</head>
+<body>
+    <div class="search-bar">
+        <a href="..\..\pages\homepage.html">
+            <img class="logo" src="..\..\assets\icons\logo.png" alt="Logo">
+        </a>
+        <input type="text" id="search-input" placeholder="Search for...">
+        <button id="search-button">Search</button>
+    </div>
+
+    <div id="events-list" class="events-list">
+        <h1>List of events</h1>
+
+        
+        <div class="remove-all-events">
+            <button id="remove-all-button">Remove All</button>
+        </div>
+        <div class="sort-by-date">
+            <button id="sort-by-date-button">Sort by Date</button>
+        </div>
+        
+        <ul id="event-items" class="event-items">
+            <li>
+                <span>${event.code}</span>
+                <span>${event.name} ${event.place}</span>
+                <span>${event.date}</span>
+                <button class="edit-button" data-code="${event.code}">Edit</button>
+                <button class="remove-button" data-code="${event.code}">Remove</button>
+            </li>
+        </ul>
+    </div>
+
+
+
+    <div id="event-form" class="event-form hidden">
+        <div class="edit-event-header">
+            <h3>Event Information</h3>
+        </div>
+        <div class="edit-event-container">
+            <div class="edit-event-content">
+                <form class="objective-data-form">
+                    <label for="event-code">Code:</label>
+                    <input type="number" id="event-code" min="1" class="objective-data-input">
+
+                    <label for="event-name">Name:</label>
+                    <input type="text" id="event-name" class="objective-data-input">
+
+                    <label for="event-place">Place:</label>
+                    <input type="text" id="event-place" class="objective-data-input">
+
+                    <label for="event-address">Address:</label>
+                    <input type="text" id="event-address" class="objective-data-input">
+
+                    <label for="event-date">Date:</label>
+                    <input type="date" id="event-date" class="objective-data-input">
+
+                    <label for="event-time">Time:</label>
+                    <input type="time" id="event-time" class="objective-data-input">
+
+                    <label for="event-description">Description:</label>
+                    <textarea id="event-description" class="objective-data-input"></textarea>
+
+                    <label for="event-type">Type</label>
+                    <select id="event-type">
+                        <option value="Culture">Culture</option>
+                        <option value="Social Inclusion">Social Inclusion</option>
+                        <option value="Education & Youth">Education & Youth</option>
+                        <option value="Health & Well-being">Health & Well-being</option>
+                        <option value="Skills & Employability">Skills & Employability</option>
+                        <option value="Environmental Sustainability">Environmental Sustainability</option>                     
+                    </select>
+                    
+                    <label for="event-price">Price:</label>
+                    <input type="text" id="event-price" class="objective-data-input">
+
+                    <label for="event-number-participant">Number participants:</label>
+                    <input type="text" id="event-number-participant" class="objective-data-input">
+
+                    <button type="button" id="confirm-event">Add Event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="event-edit-form" class="event-edit-form hidden">
+        <div class="edit-event-header">
+            <h3>Event Information</h3>
+        </div>
+        <div class="edit-event-container">
+            <div class="edit-event-content">
+                <form class="objective-data-form">                    
+                    <label for="edit-event-code">Code:</label>
+                    <input type="number" id="edit-code" min="1" class="objective-data-input">
+
+                    <label for="edit-event-name">Event name:</label>
+                    <input type="text" id="edit-name" class="objective-data-input">
+
+                    <label for="edit-event-place">Place:</label>
+                    <input type="text" id="edit-place" class="objective-data-input">
+
+                    <label for="edit-event-address">Address:</label>
+                    <input type="text" id="edit-address" class="objective-data-input">
+
+                    <label for="edit-event-date">Date:</label>
+                    <input type="date" id="edit-date" class="objective-data-input">
+
+                    <label for="edit-event-time">Time:</label>
+                    <input type="time" id="edit-time" class="objective-data-input">
+
+                    <label for="edit-event-description">Description:</label>
+                    <textarea id="edit-description" class="objective-data-input"></textarea>
+
+                    <label for="edit-event-type">Type</label>
+                    <select id="edit-type">
+                        <option value="Culture">Culture</option>
+                        <option value="Social Inclusion">Social Inclusion</option>
+                        <option value="Education & Youth">Education & Youth</option>
+                        <option value="Health & Well-being">Health & Well-being</option>
+                        <option value="Skills & Employability">Skills & Employability</option>
+                        <option value="Environmental Sustainability">Environmental Sustainability</option>                     
+                    </select>
+
+                    <label for="edit-event-price">Price:</label>
+                    <input type="text" id="edit-price" class="objective-data-input">
+
+                    <label for="edit-event-number-participant">Number participants:</label>
+                    <input type="text" id="edit-number-participant" class="objective-data-input">
+        
+                    <button type="button" id="save-edit-button" class="save-button">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Tasto per aprire il menu a tendina -->
+    <div id="add-menu" class="add-menu">
+        <button class="add-button">+</button>
+        <div class="menu-items">
+            <button id="add-event-button" class="menu-item">Add new event</button>
+        </div>
+    </div>
+
+    <script>
+        // Funzione per mostrare o nascondere il menu a tendina
+        function toggleUserMenu() {
+            const menu = document.getElementById('add-menu');
+            const menuItems = document.querySelector('.menu-items');
+            menuItems.style.display = menuItems.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        document.getElementById('add-event-button').addEventListener('click', toggleUserMenu);
+    </script>
+
+        
+    
+    <script src="events.js"></script>
+    
+</body>
+</html>

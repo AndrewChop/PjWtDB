@@ -1,0 +1,213 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Reset del margine e del padding del corpo della pagina */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #4e73df;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Imposta il contenitore principale come un flex container con orientamento verticale */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Barra superiore con il profilo utente */
+.topbar {
+    display: flex;
+    justify-content: flex-end; 
+    align-items: center; 
+    position: absolute;
+    margin-top: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    background-color: #4e73df;
+    padding: 10px;
+}
+
+/* Link del profilo utente */
+.profile-link {
+    text-decoration: none; /* Rimuove la sottolineatura dai link */
+    color: white;
+    font-weight: bold;
+}
+
+/* Immagine del profilo */
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; 
+    margin: 10px; 
+    cursor: pointer; 
+}
+
+
+/* Menu a tendina del profilo utente */
+.dropdown-content {
+    display: none; 
+    position: absolute; 
+    background-color: #4e73df;
+    min-width: 100px;
+    top: 70px;
+    right: 0;
+    border-radius: 5px; 
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    padding: 5px 0px 5px 0px;
+}
+
+
+/* Mostra il menu a tendina quando si passa il mouse sopra .profile-link */
+.profile-link:hover .dropdown-content {
+    display: block;
+}
+
+/* Stile della lista del menu a tendina */
+.profile-dropdown ul {
+    list-style: none; /* Rimuove i punti elenco */
+    padding: 0; 
+    margin: 0;
+}
+
+/* Stile degli elementi della lista del menu a tendina */
+.profile-dropdown li {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Stile dei link nel menu a tendina */
+.profile-dropdown a {
+    text-decoration: none;
+    color: white;
+    display: block;
+}
+
+
+
+/* Contenuto principale */
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+/* Contenitore dei pulsanti principali */
+.button-container {
+    display: flex;
+    justify-content: space-around;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pulsanti principali */
+.main-button {
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    padding: 40px;
+    margin: 20px;
+    font-size: 20px;  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+/* Icona all'interno del pulsante */
+.main-button i {
+    font-size: 100px; 
+    margin-bottom: 20px;
+}
+
+/* Testo all'interno del pulsante */
+.main-button span {
+    font-weight: bold; 
+    font-size: 24px;
+}
+
+/* Mostra il menu a tendina quando si passa il mouse sopra il pulsante */
+.main-button:hover .dropdown-content {
+    display: block;
+}
+
+/* Stile del menu a tendina */
+.main-button .dropdown-content {
+    display: none; 
+    position: absolute; 
+    background-color: #4e73df; 
+    min-width: 150px; 
+    top: 90%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); 
+}
+
+/* Stile della lista del menu a tendina */
+.main-button .dropdown-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* Stile degli elementi della lista del menu a tendina */
+.main-button .dropdown-content li {
+    padding: 10px;
+}
+
+/* Stile dei link nel menu a tendina */
+.main-button .dropdown-content a {
+    color: white;
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+}
+
+
+/* Media query per schermi più piccoli*/
+@media (max-width: 768px) {
+    .main-button {
+        font-size: 16px;
+        padding: 30px;
+    }
+
+    .main-button i {
+        font-size: 80px;
+        margin-bottom: 10px;
+    }
+
+    .main-button span {
+        font-size: 18px;
+    }
+
+    .main-button .dropdown-content {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-button {
+        font-size: 14px;
+        padding: 20px;
+    }
+
+    .main-button i {
+        font-size: 60px;
+        margin-bottom: 5px;
+    }
+
+    .main-button span {
+        font-size: 16px;
+    }
+
+    .main-button .dropdown-content {
+        min-width: 100px;
+    }
+}

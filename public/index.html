@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>SWEN</title>
+    <meta 
+        name="viewport"
+        content="viewport-fit=cover, width=device-width, initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
+
+    <link rel="icon" type="image/x-icon" href=".\assets\icons\favicon.ico">
+
+    <!-- Libs -->
+    <link rel="stylesheet" href="./assets/libs/style.css" />
+
+    
+</head>
+<body>    
+    <div class="background">
+
+        <div class="login-box">
+            <div class="logo-container">
+                <img src=".\assets\icons\logo.png" alt="Logo" class="logo">
+            </div>
+
+            <input type="text" class="input-box username" placeholder="Username">
+            <input type="password" class="input-box password" placeholder="Password" onkeyup="handleKeyPress(event)">
+            <button class="login-button" onclick="checkCredentials()">LOGIN</button>
+
+            <div class="remember-container">
+                <input type="checkbox" class="remember-checkbox" id="rememberMe">
+                <label for="rememberMe" class="remember-label">Remember me</label>                
+            </div>
+
+            <div id="success-banner" class="banner">Authentication successful! Credentials are correct.</div>
+
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+
+</body>
+</html>

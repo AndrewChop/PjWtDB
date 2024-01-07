@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <meta 
+        name="viewport"
+        content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
+
+    <link rel="icon" type="image/x-icon" href="..\..\assets\icons\favicon.ico">
+
+    <!-- Libs -->
+    <link rel="stylesheet" href="..\..\assets\libs\profile.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="profile.js"></script>
+
+</head>
+<body>
+    <div class="main-content" id="main-content">
+    
+        <div id="profile-form" class="profile-form">
+            <div class="edit-profile-header">
+                <a href="..\..\pages\homepage.html">
+                    <img class="logo" src="..\..\assets\icons\logo.png" alt="Logo">
+                </a>
+                <h3>Personal Information</h3>
+            </div>
+            <div class="edit-profile-container">
+                <div class="edit-profile-content">
+                    <form class="personal-data-form">
+                        <label for="user-card-number">Number ESNcard:</label>
+                    <input type="text" id="user-card-number" class="personal-data-input">
+
+                    <label for="user-email">Email:</label>
+                    <input type="email" id="user-email" class="personal-data-input">
+
+                    <label for="user-name">Name:</label>
+                    <input type="text" id="user-name" class="personal-data-input">
+
+                    <label for="user-surname">Surname:</label>
+                    <input type="text" id="user-surname" class="personal-data-input">
+
+                    <label for="user-gender">Gender:</label>
+                    <select id="user-gender">
+                        <option value="None"></option>
+                        <option value="Man">Man</option>
+                        <option value="Woman">Woman</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to specify">Prefer not to specify</option>
+                    </select>
+
+                    <label for="user-birth-date">Birth date:</label>
+                    <input type="date" id="user-birth-date" class="personal-data-input">
+
+                    <label for="user-nationality">Nationality:</label>
+                    <input type="text" id="user-nationality" class="personal-data-input">
+
+                    <label for="user-phone">Phone Number:</label>
+                    <input type="text" id="user-phone" class="personal-data-input">
+
+                    <label for="user-study-field">Study Field:</label>
+                    <input type="text" id="user-study-field" class="personal-data-input">
+
+                    <label for="user-origin-university">Home University:</label>
+                    <input type="text" id="user-origin-university" class="personal-data-input">
+
+                    <label for="user-student-number">Student Number:</label>
+                    <input type="text" id="user-student-number" class="personal-data-input">
+
+                    <label for="user-country-origin">Home Country:</label>
+                    <input type="text" id="user-country-origin" class="personal-data-input">
+
+                    <label for="user-city-origin">City of Origin:</label>
+                    <input type="text" id="user-city-origin" class="personal-data-input">
+
+                    <label for="user-address-origin">Address City of Origin:</label>
+                    <input type="text" id="user-address-origin" class="personal-data-input">
+                    
+
+                    <label for="user-document-type">Document Type:</label>
+                    <select id="user-document-type">
+                        <option value="none"></option>
+                        <option value="passport">Passport</option>
+                        <option value="identity-card">Identity Card</option>
+                        <option value="driver-license">Driver License</option>
+                    </select>
+
+                    <label for="user-number-doc">Number Document:</label>
+                    <input type="text" id="user-number-doc" class="personal-data-input">
+
+                    <label for="user-expiration-date">Expiration Date:</label>
+                    <input type="date" id="user-expiration-date" class="personal-data-input">
+
+                    <label for="user-issued-by">Issued By:</label>
+                    <input type="text" id="user-issued-by" class="personal-data-input">
+
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="save-button">
+            <button type="button" id="save-button">Save</button>
+        </div>
+    </div>
+
+    
+</body>
+</html>

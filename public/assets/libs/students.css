@@ -1,0 +1,212 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.search-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    padding: 40px;
+    width: 100vw; 
+    background-color: white;  
+    height: 50px;
+}
+
+#search-input {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+}
+  
+#search-button, #add-student-button {
+    padding: 10px 20px;
+    background-color: #4e73df;
+    color: white;
+    font-weight: bolder;
+    border: none;
+    cursor: pointer;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.student-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.student-list h3 {
+    text-align: left;
+}
+
+.remove-all-students {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+#remove-all-button {
+    margin-left: auto;
+}
+
+.student-items {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+}
+
+.student-items li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin: 5px 0;
+}
+
+.student-items li span {
+    flex: 1;
+}
+
+.edit-button,
+.remove-button {
+    margin-left: 10px;
+}
+
+
+
+/* Stile del form per l'aggiunta di uno studente */
+.personal-data-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 95%;
+    margin: 10px; 
+    font-weight: bold;     
+    padding: 20px;  
+}
+
+.personal-data-input {
+    width: 95%;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
+
+.edit-student-header {
+    width: 100vw; 
+    padding: 20px; 
+    background-color: #4e73df; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+    color: white;
+    font-weight: bolder;
+    text-align: left;
+}
+
+.edit-student-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    max-width: 100%;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.edit-student-content {
+    width: 100vw;
+    max-width: 100%;
+}
+
+#confirm-student {
+    width: auto; 
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#save-edit-button {
+    width: auto; 
+    padding: 5px 10px;
+    cursor: pointer;
+}
+/* Stilizza il div per il pulsante "Remove All" */
+.remove-all-students {
+    text-align: right; /* Allinea il testo a destra */
+    margin-right: 10px; /* Aggiungi uno spazio tra il titolo e il pulsante */
+}
+
+/* Stilizza il pulsante "Remove All" */
+#remove-all-button {
+    padding: 5px 10px; /* Aggiungi spaziatura interna al pulsante (personalizzabile) */
+    cursor: pointer; /* Cambia il cursore al passaggio del mouse */
+}
+
+
+/* CSS per il menu a tendina del botton + */
+.add-menu {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+}
+  
+.add-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #4e73df; 
+    color: white;
+    font-size: 24px;
+    font-weight: bolder;
+    border: none;
+    cursor: pointer;
+}
+  
+.menu-items {
+    display: none;
+    position: absolute;
+    bottom: 70px;
+    left: -50px;
+    background-color: #4e73df;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+}
+  
+.menu-item {
+    display: block;
+    margin: 5px 0;
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bolder;
+}
+
+  
