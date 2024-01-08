@@ -7,9 +7,18 @@ async function main() {
     data: {
       email: 'alice@prisma.io',
       name: 'Alice',
+      cardNumber: '123456789',
+      surname: '',
+      birthDate: '',
+      nationality: '',
+      countryOfOrigin: 'Country',
+      cityOfOrigin: 'City',
+
+      // Add other missing properties here
     },
   });
   console.log('Nuovo utente:', newUser);
+
 }
 
 main()
