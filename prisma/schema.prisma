@@ -11,27 +11,84 @@ datasource db {
 }
 
 model User {
-  id                   Int       @id @default(autoincrement())
-  cardNumber           String    @unique
-  email                String    @unique
-  name                 String
-  surname              String
-  gender               Gender?
-  birthDate            DateTime
-  nationality          String
+  id                   Int            @id @default(autoincrement())
+  cardNumber           String?        @unique
+  email                String         @unique
+  password             String         // Assumi di memorizzare una password hashata
+  name                 String?
+  surname              String?
+  gender               Gender?        // Mantiene il campo come opzionale
+  birthDate            DateTime?      // Rendilo opzionale
+  nationality          String?
   phoneNumber          String?
   studyField           String?
   originUniversity     String?
+  hostUniversity       University?    // Assicurati che anche l'enum University gestisca un valore nulla
+  exchangeDuration     Int?           // Rendilo opzionale
   studentNumber        String?
-  countryOfOrigin      String
-  cityOfOrigin         String
+  countryOfOrigin      String?
+  cityOfOrigin         String?
   addressCityOfOrigin  String?
-  documentType         DocumentType?
+  documentType         DocumentType?  // Mantiene il campo come opzionale
   documentNumber       String?
-  documentExpiration   DateTime?
+  documentExpiration   DateTime?      // Rendilo opzionale
   documentIssuer       String?
+  role                 UserRole       // Campo per distinguere il ruolo dell'utente
+
+  // Relazioni
+  eventsOrganized      Event[]        @relation("UserEvents")
 
   @@map("users")
+}
+
+model Event {
+  id            Int      @id @default(autoincrement())
+  code          Int
+  name          String
+  place         String
+  address       String
+  date          DateTime
+  time          String
+  description   String
+  eventType     EventType
+  price         Float
+  participants  Int
+  organizerId   Int
+
+  organizer     User     @relation("UserEvents", fields: [organizerId], references: [id])
+
+  @@map("events")
+}
+
+model Treasury {
+  id            Int             @id @default(autoincrement())
+  code          Int
+  name          String
+  transactionType TransactionType
+  amount        Float
+  category      Category
+  channel       Channel
+  date          DateTime
+  note          String?
+  
+  // ... aggiungi relazioni se necessario ...
+
+  @@map("treasuries")
+}
+
+model Discount {
+  id            Int       @id @default(autoincrement())
+  code          Int
+  name          String
+  discountType  String
+  rate          Int
+  expirationDate DateTime
+  description   String
+  link          String?
+  
+  // ... aggiungi relazioni se necessario ...
+
+  @@map("discounts")
 }
 
 enum Gender {
@@ -42,8 +99,50 @@ enum Gender {
   PREFER_NOT_TO_SPECIFY
 }
 
+enum University {
+  UNIVERSITA_DI_PISA
+  SCUOLA_SUPERIORE_SANT_ANNA
+  SCUOLA_NORMALE_SUPERIORE
+}
+
 enum DocumentType {
   PASSPORT
   IDENTITY_CARD
   DRIVER_LICENSE
+}
+
+enum UserRole {
+  STUDENT
+  VOLUNTEER
+  ADMIN
+}
+
+enum EventType {
+  CULTURE
+  SOCIAL_INCLUSION
+  EDUCATION_YOUTH
+  HEALTH_WELLBEING
+  SKILLS_EMPLOYABILITY
+  ENVIRONMENTAL_SUSTAINABILITY
+}
+
+enum TransactionType {
+  IN
+  OUT
+}
+
+enum Category {
+  EVENT
+  OFFICE
+  REFUND
+  MEMBERSHIP_FEE
+  MERCHANDISING
+  OTHER
+}
+
+enum Channel {
+  CASH
+  BANK_TRANSFER
+  DIGITAL_PAYMENT
+  PAYMENT_TERMINAL
 }

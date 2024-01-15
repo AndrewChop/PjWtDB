@@ -1,24 +1,11 @@
 import { PrismaClient } from '@prisma/client';
+import app from '../app'; // Importa app da app.js
 
 const prisma = new PrismaClient();
+const port = 3000;
 
 async function main() {
-  const newUser = await prisma.user.create({
-    data: {
-      email: 'alice@prisma.io',
-      name: 'Alice',
-      cardNumber: '123456789',
-      surname: '',
-      birthDate: '',
-      nationality: '',
-      countryOfOrigin: 'Country',
-      cityOfOrigin: 'City',
-
-      // Add other missing properties here
-    },
-  });
-  console.log('Nuovo utente:', newUser);
-
+    // La tua logica esistente con Prisma...
 }
 
 main()
@@ -28,3 +15,9 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+// Avvia il server
+app.listen(port, () => {
+  console.log(`Server in ascolto su http://localhost:${port}`);
+});
+

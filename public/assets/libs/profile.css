@@ -78,3 +78,32 @@ body, html {
     cursor: pointer;
 }
 
+.admin-panel, .volunteer-tools {
+    margin: 10px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.admin-panel {
+    background-color: #ffcccc;
+}
+
+.volunteer-tools {
+    background-color: #ccffcc;
+}
+
+.admin-panel h2, .volunteer-tools h2 {
+    margin-top: 0;
+}
+
+.admin-panel a, .volunteer-tools a {
+    display: block;
+    margin: 10px 0;
+    color: #333;
+    text-decoration: none;
+}
+
+.admin-panel a:hover, .volunteer-tools a:hover {
+    text-decoration: underline;
+}

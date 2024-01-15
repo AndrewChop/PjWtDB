@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete your profile</title>
+    <meta 
+        name="viewport"
+        content="viewport-fit=cover, width=device-width, initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
+
+    <link rel="icon" type="image/x-icon" href="..\assets\icons\favicon.ico">
+
+    <link rel="stylesheet" href="../assets/libs/complete.css" />
+
+</head>
+<body>
+    <div class="container">
+        <h1>Complete Your Profile</h1>
+        <form id="profile-form">
+            <label for="card-number">ESNcard Number:</label>
+            <input type="text" id="card-number" name="cardNumber" required>
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="surname">Surname:</label>
+            <input type="text" id="surname" name="surname" required>
+
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender">
+                <option value="None"></option>
+                <option value="Man">Man</option>
+                <option value="Woman">Woman</option>
+                <option value="Non-binary">Non-binary</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to specify">Prefer not to specify</option>
+            </select>
+
+            <label for="birth-date">Birth Date:</label>
+            <input type="date" id="birth-date" name="birthDate" required>
+
+            <label for="nationality">Nationality:</label>
+            <input type="text" id="nationality" name="nationality" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phoneNumber">
+
+            <label for="study-field">Study Field:</label>
+            <input type="text" id="study-field" name="studyField">
+
+            <label for="origin-university">Home University:</label>
+            <input type="text" id="origin-university" name="originUniversity">
+
+            <label for="host-university">Host University:</label>
+            <select id="host-university" name="hostUniversity">
+                <option value="none"></option>
+                <option value="Università di Pisa">Università di Pisa</option>
+                <option value="Scuola Superiore Sant'Anna">Scuola Superiore Sant'Anna</option>
+                <option value="Scuola Normale Superiore">Scuola Normale Superiore</option>
+            </select>
+
+            <label for="exchange-duration">Exchange Duration (months):</label>
+            <input type="number" id="exchange-duration" name="exchangeDuration">
+
+            <label for="student-number">Student Number:</label>
+            <input type="text" id="student-number" name="studentNumber">
+
+            <label for="country-origin">Home Country:</label>
+            <input type="text" id="country-origin" name="countryOfOrigin">
+
+            <label for="city-origin">City of Origin:</label>
+            <input type="text" id="city-origin" name="cityOfOrigin">
+
+            <label for="address-origin">Address City of Origin:</label>
+            <input type="text" id="address-origin" name="addressCityOfOrigin">
+
+            <label for="document-type">Document Type:</label>
+            <select id="document-type" name="documentType">
+                <option value="none"></option>
+                <option value="passport">Passport</option>
+                <option value="identity-card">Identity Card</option>
+                <option value="driver-license">Driver License</option>
+            </select>
+
+            <label for="number-doc">Number Document:</label>
+            <input type="text" id="number-doc" name="documentNumber">
+
+            <label for="expiration-date">Expiration Date:</label>
+            <input type="date" id="expiration-date" name="documentExpiration">
+
+            <label for="issued-by">Issued By:</label>
+            <input type="text" id="issued-by" name="documentIssuer">
+
+            <button type="submit" class="submit-btn">Complete Profile</button>
+        </form>
+    </div>
+
+    <script src="complete-profile.js"></script>
+</body>
+</html>
