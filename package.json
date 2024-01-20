@@ -16,7 +16,7 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "@prisma/client": "^5.7.1",
+    "@prisma/client": "^5.8.1",
     "@types/node": "^20.10.7",
     "prisma": "^5.7.1",
     "ts-node": "^10.9.2",

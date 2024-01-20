@@ -15,24 +15,29 @@ app.use(express.json());
 // Serve i file statici dalla cartella 'public'
 app.use(express.static('public'));
 
-// Endpoint per la registrazione degli utenti (prima fase)
 app.post('/api/register', async (req, res) => {
     console.log('Richiesta ricevuta su /api/register');
     const { email, password } = req.body;
+
     try {
+        // Verifica se esiste già un utente con la stessa email
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email già in uso' });
+            // Se l'utente esiste, invia un messaggio di errore
+            return res.status(409).json({ message: 'Email già in uso' });
         }
+
+        // Se non esiste, procedi con la creazione dell'utente
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const newUser = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
-                role: 'STUDENT'
+                role: 'PENDING'
             }
         });
 
+        // Crea e invia il token JWT
         const token = jwt.sign({ userId: newUser.id, role: newUser.role }, JWT_SECRET, { expiresIn: '1h' });
         res.json({ token, userId: newUser.id });
     } catch (error) {
@@ -40,6 +45,7 @@ app.post('/api/register', async (req, res) => {
         res.status(500).json({ message: 'Errore nella registrazione', error: error.message });
     }
 });
+
 
 // Endpoint per l'aggiornamento del profilo utente (seconda fase)
 app.post('/api/user/update', verifyToken, async (req, res) => {
@@ -145,9 +151,81 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
         });
         res.json({ message: 'Profilo aggiornato con successo' });
     } catch (error) {
-        res.status(500).json({ message: 'Errore' });
+        console.error('Errore dettagliato nell\'aggiornamento del profilo:', error);
+        res.status(500).json({ message: 'Errore nell\'aggiornamento del profilo', error: error.message });
+    }    
+});
+
+// Endpoint per ottenere i dati dell'utente
+app.get('/api/user/data', verifyToken, async (req, res) => {
+    try {
+        // Ottieni l'ID dell'utente dal token JWT
+        const userId = req.user.userId;
+
+        // Trova l'utente nel database
+        const user = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            return res.status(404).send('Utente non trovato');
+        }
+
+        // Invia i dati dell'utente al client
+        res.json({
+            cardNumber: user.cardNumber,
+            email: user.email,
+            role: user.role,
+            name: user.name,
+            surname: user.surname,
+            gender: user.gender,
+            birthdate: user.birthDate,
+            nationality: user.nationality,
+            phoneNumber: user.phoneNumber,
+            studyField: user.studyField,
+            originUniversity: user.originUniversity,
+            hostUniversity: user.hostUniversity,
+            exchangeDuration: user.exchangeDuration,
+            studentNumber: user.studentNumber,
+            countryOfOrigin: user.countryOfOrigin,
+            cityOfOrigin: user.cityOfOrigin,
+            addressCityOfOrigin: user.addressCityOfOrigin,
+            documentType: user.documentType,
+            documentNumber: user.documentNumber,
+            documentExpiration: user.documentExpiration,
+            documentIssuer: user.documentIssuer
+        });
+    } catch (error) {
+        console.error('Errore nel recupero dei dati utente:', error);
+        res.status(500).send('Errore interno del server');
     }
 });
+
+app.get('/api/users/pending', verifyToken, async (req, res) => {
+    if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
+        const pendingUsers = await prisma.user.findMany({
+            where: { role: 'PENDING' }
+        });
+        res.json(pendingUsers);
+    } else {
+        res.status(403).send('Accesso non autorizzato');
+    }
+});
+
+app.post('/api/users/approve', verifyToken, async (req, res) => {
+    const { userId, newRole } = req.body;
+    if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { role: newRole }
+        });
+        res.json({ message: 'Utente approvato con successo' });
+        // Qui potresti inviare una notifica all'utente
+    } else {
+        res.status(403).send('Accesso non autorizzato');
+    }
+});
+
 
 // Endpoint per ottenere e filtrare gli utenti
 app.get('/api/users', verifyToken, async (req, res) => {

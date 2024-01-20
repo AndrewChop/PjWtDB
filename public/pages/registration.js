@@ -29,7 +29,11 @@ document.getElementById('registration-form').addEventListener('submit', function
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Errore nella registrazione');
+            if (response.status === 409) {
+                throw new Error('Email già in uso. Prova con un altro indirizzo email.');
+            } else {
+                throw new Error('Errore nella registrazione');
+            }
         }
         return response.json();
     })

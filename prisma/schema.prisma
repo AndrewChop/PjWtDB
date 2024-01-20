@@ -15,6 +15,7 @@ model User {
   cardNumber           String?        @unique
   email                String         @unique
   password             String         // Assumi di memorizzare una password hashata
+  role                 UserRole       // Campo per distinguere il ruolo dell'utente
   name                 String?
   surname              String?
   gender               Gender?        // Mantiene il campo come opzionale
@@ -33,7 +34,7 @@ model User {
   documentNumber       String?
   documentExpiration   DateTime?      // Rendilo opzionale
   documentIssuer       String?
-  role                 UserRole       // Campo per distinguere il ruolo dell'utente
+  isApproved Boolean   @default(false)
 
   // Relazioni
   eventsOrganized      Event[]        @relation("UserEvents")
@@ -92,6 +93,7 @@ model Discount {
 }
 
 enum Gender {
+  NONE
   MAN
   WOMAN
   NON_BINARY
@@ -100,12 +102,14 @@ enum Gender {
 }
 
 enum University {
+  NONE
   UNIVERSITA_DI_PISA
   SCUOLA_SUPERIORE_SANT_ANNA
   SCUOLA_NORMALE_SUPERIORE
 }
 
 enum DocumentType {
+  NONE
   PASSPORT
   IDENTITY_CARD
   DRIVER_LICENSE

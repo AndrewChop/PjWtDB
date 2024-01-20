@@ -46,7 +46,11 @@ document.getElementById('profile-form').addEventListener('submit', function(even
     .then(data => {
         // Qui puoi gestire la risposta del server, ad esempio reindirizzando l'utente
         alert('Profilo completato con successo!');
-        window.location.href = '../index.html'; // Reindirizza ad esempio alla homepage
+        if (formData.role === 'STUDENT') {
+            window.location.href = 'homepage_student.html';
+        } else {
+            window.location.href = 'homepage.html';
+        }
     })
     .catch(error => {
         alert(error.message);
