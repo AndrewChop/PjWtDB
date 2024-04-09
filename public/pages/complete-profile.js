@@ -11,7 +11,7 @@ document.getElementById('profile-form').addEventListener('submit', function(even
         name: document.getElementById('name').value,
         surname: document.getElementById('surname').value,
         gender: document.getElementById('gender').value,
-        birthDate: document.getElementById('birth-date').value,
+        birthDate: document.getElementById('birthdate').value,
         nationality: document.getElementById('nationality').value,
         phoneNumber: document.getElementById('phone').value,
         studyField: document.getElementById('study-field').value,
@@ -48,8 +48,14 @@ document.getElementById('profile-form').addEventListener('submit', function(even
         alert('Profilo completato con successo!');
         if (formData.role === 'STUDENT') {
             window.location.href = 'homepage_student.html';
-        } else {
+        } else if (formData.role === 'VOLUNTEER' || formData.role === 'ADMIN') {
             window.location.href = 'homepage.html';
+        } else if (formData.role === 'PENDING') { 
+            alert('La tua registrazione è in attesa di approvazione. Si prega di controllare più tardi o contattare l\'amministratore per ulteriori informazioni.');
+            window.location.href = '../index.html';
+        } else if (formData.role === 'REJECTED') {
+            alert('La tua registrazione è stata rifiutata. Si prega di controllare più tardi o contattare l\'amministratore per ulteriori informazioni.');
+            window.location.href = '../index.html';
         }
     })
     .catch(error => {

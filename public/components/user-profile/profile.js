@@ -65,9 +65,11 @@ async function saveChanges() {
 
     if (!response.ok) {
         console.error('Failed to update user data:', response);
+        alert('Failed to update user data');
         return;
     }
 
     alert('Profile updated successfully');
+    loadUserData();
 }
 

@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 app.post('/api/register', async (req, res) => {
-    console.log('Richiesta ricevuta su /api/register');
+    console.log('Richiesta ricevuta su /api/register', req.body);
     const { email, password } = req.body;
 
     try {
@@ -49,6 +49,7 @@ app.post('/api/register', async (req, res) => {
 
 // Endpoint per l'aggiornamento del profilo utente (seconda fase)
 app.post('/api/user/update', verifyToken, async (req, res) => {
+    console.log('Richiesta ricevuta su /api/user/update', req.body);
     const userId = req.user.userId; // ottenuto dal token JWT
     const {
         cardNumber,
@@ -106,6 +107,7 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
 
 // Endpoint per il login
 app.post('/api/login', async (req, res) => {
+    console.log('Richiesta ricevuta su /api/login', req.body);
     const { email, password } = req.body;
 
     try {
@@ -114,6 +116,14 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ message: 'Credenziali non valide' });
         }
 
+        if (user.role === 'PENDING') {
+            return res.status(403).json({ message: 'Utente in attesa di approvazione' });
+        }
+
+        if (user.role === 'REJECTED') {
+            return res.status(403).json({ message: 'Utente rifiutato' });
+        }
+        
         const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
     } catch (error) {
@@ -123,6 +133,7 @@ app.post('/api/login', async (req, res) => {
 
 // Middleware per verificare il token JWT
 function verifyToken(req, res, next) {
+    console.log('Richiesta ricevuta su /api/user/update', req.headers);
     console.log("Verifica del token JWT...");
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -141,14 +152,20 @@ function verifyToken(req, res, next) {
 
 // Endpoint per l'aggiornamento del profilo utente (seconda fase)
 app.post('/api/user/update', verifyToken, async (req, res) => {
+    console.log('Richiesta di aggiornamento profilo ricevuta:', req.body);
     const userId = req.user.userId; // ottenuto dal token JWT
     const profileData = req.body;
 
+    console.log('Inizio aggiornamento profilo per l\'utente con ID:', userId);
+    console.log('Dati profilo:', profileData);
+
     try {
-        await prisma.user.update({
+        console.log('Aggiornamento profilo per l\'utente con ID:', userId);
+        const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: profileData
         });
+        console.log('Profilo aggiornato con successo', updatedUser);
         res.json({ message: 'Profilo aggiornato con successo' });
     } catch (error) {
         console.error('Errore dettagliato nell\'aggiornamento del profilo:', error);
@@ -201,7 +218,9 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
     }
 });
 
+// Endpoint per ottenere i dati degli utenti in attesa di approvazione
 app.get('/api/users/pending', verifyToken, async (req, res) => {
+    console.log('Richiesta ricevuta su /api/users/pending');
     if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
         const pendingUsers = await prisma.user.findMany({
             where: { role: 'PENDING' }
@@ -212,7 +231,9 @@ app.get('/api/users/pending', verifyToken, async (req, res) => {
     }
 });
 
+// Endpoint per approvare o rifiutare un utente
 app.post('/api/users/approve', verifyToken, async (req, res) => {
+    console.log('Richiesta ricevuta su /api/users/approve', req.body);
     const { userId, newRole } = req.body;
     if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
         await prisma.user.update({
@@ -225,6 +246,22 @@ app.post('/api/users/approve', verifyToken, async (req, res) => {
         res.status(403).send('Accesso non autorizzato');
     }
 });
+
+// Endpoint per rifiutare un utente
+app.post('/api/users/reject', verifyToken, async (req, res) => {
+    console.log('Richiesta ricevuta su /api/users/reject', req.body);
+    const { userId } = req.body;
+    if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { role: 'REJECTED' }
+        });
+        res.json({ message: 'Utente rifiutato con successo' });
+        // Qui potresti inviare una notifica all'utente
+    } else {
+        res.status(403).send('Accesso non autorizzato');
+    }
+})
 
 
 // Endpoint per ottenere e filtrare gli utenti
@@ -250,6 +287,7 @@ app.get('/api/users', verifyToken, async (req, res) => {
 
 // Endpoint per ottenere il ruolo dell'utente
 app.get('/api/user/role', verifyToken, (req, res) => {
+    console.log('Richiesta ricevuta su /api/user/role');
     res.json({ role: req.user.role });
 });
 

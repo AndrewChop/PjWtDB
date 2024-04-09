@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPendingUsers();
 });
 
+// Funzione per caricare la lista degli utenti
 function loadPendingUsers() {
     fetch('/api/users/pending', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
@@ -14,6 +15,7 @@ function loadPendingUsers() {
     .catch(error => console.error('Errore:', error));
 }
 
+// Funzione per visualizzare la lista degli utenti
 function displayPendingUsers(users) {
     const userList = document.getElementById('user-items');
     users.forEach(user => {
@@ -30,6 +32,7 @@ function displayPendingUsers(users) {
     });
 }
 
+// Funzione per modificare un utente
 function editUser(cardNumber) {
     // Trova l'utente corrispondente al numero di carta fornito
     const userToEdit = users.find(user => user.cardNumber === cardNumber);
@@ -61,7 +64,7 @@ function editUser(cardNumber) {
     document.getElementById('user-edit-form').style.display = 'block';
 }
 
-
+// Funzione per accettare un utente
 function acceptUser(userId) {
     fetch('/api/users/approve', {
         method: 'POST',
@@ -83,7 +86,7 @@ function acceptUser(userId) {
     .catch(error => console.error('Errore:', error));
 }
 
-
+// Funzione per rifiutare un utente
 function rejectUser(userId) {
     fetch('/api/users/reject', {
         method: 'POST',
@@ -105,7 +108,7 @@ function rejectUser(userId) {
     .catch(error => console.error('Errore:', error));
 }
 
-
+// Funzione per salvare le modifiche
 async function saveEdit() {
     const editedUserData = {
         cardNumber: document.getElementById('edit-card-number').value,

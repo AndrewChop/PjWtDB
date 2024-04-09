@@ -116,6 +116,8 @@ enum DocumentType {
 }
 
 enum UserRole {
+  REJECTED
+  PENDING
   STUDENT
   VOLUNTEER
   ADMIN
