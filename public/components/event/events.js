@@ -51,6 +51,26 @@ document.addEventListener('DOMContentLoaded', function () {
         eventForm.classList.add('hidden');
     }
 
+    
+    // Function to hide the event edit form
+    function hideEditForm() {
+        const eventEditForm = document.getElementById('event-edit-form');
+        eventEditForm.classList.add('hidden');
+    }
+
+    // Add event listener to the cancel button in the event add form
+    const cancelEventButton = document.getElementById('cancel-event');
+    cancelEventButton.addEventListener('click', () => {
+        const eventForm = document.getElementById('event-form');
+        eventForm.classList.add('hidden');
+    });
+
+    // Add event listener to the cancel button in the event edit form
+    const cancelEditButton = document.getElementById('cancel-edit-button');
+    cancelEditButton.addEventListener('click', () => {
+        hideEditForm();
+    });
+
     // Gestione dell'evento di aggiunta evento
     addEventButton.addEventListener('click', () => {
         showEventForm(); 
@@ -143,7 +163,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const formattedDate = formatDateToItalian(event.date);
             eventItem.innerHTML = `
                 <span>${event.code}</span>
-                <span>${event.name} ${event.place}</span>
+                <span>${event.name}</span>
+                <span>${event.place}</span>
                 <span>${formattedDate}</span>
                 <button class="edit-button" data-code="${event.code}">Edit</button>
                 <button class="remove-button" data-code="${event.code}">Remove</button>

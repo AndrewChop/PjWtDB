@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupProfileLink();
+    //loadUsersByRole('volunteers');
+    //loadUsersByRole('students');
     setupLogoutLink();
-    checkUserRoleAndAdjustUI();
+    //checkUserRoleAndAdjustUI();
+    console.log('Pagina caricata correttamente');
 });
 
 function setupProfileLink() {
@@ -9,10 +12,34 @@ function setupProfileLink() {
     if (profileLink) {
         profileLink.addEventListener('click', function(e) {
             e.preventDefault();
-            loadProfilePage();
+            //loadProfilePage(); reindirizzo direttamente alla pagina senza fare una richiesta AJAX
+            window.location.href = '../components/user-profile/profile.html';
         });
     }
 }
+/*
+async function loadUsersByRole(role) {
+    try {
+      const response = await fetch(`/api/users/${role}`);
+      const users = await response.json();
+      const userListElement = document.getElementById(`${role}List`);
+      if (userListElement) {
+        const userList = userListElement.querySelector('ul');
+        userList.innerHTML = ''; // Rimuovi gli elementi esistenti
+        users.forEach(user => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${user.name} ${user.surname}`;
+          userList.appendChild(listItem);
+        });
+      } else {
+        console.error("Elemento con id non trovato");
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento degli utenti:', error);
+    }
+}
+*/
+  
 
 function setupLogoutLink() {
     const logoutLink = document.getElementById('logoutLink');
@@ -23,10 +50,9 @@ function setupLogoutLink() {
         });
     }
 }
-
+/*
 function loadProfilePage() {
     // Qui puoi usare AJAX per caricare il contenuto HTML della pagina del profilo
-    // Assicurati che il file profile.html esista nel percorso corretto
     fetch('../components/user-profile/profile.html')
         .then(response => response.text())
         .then(html => {
@@ -34,15 +60,28 @@ function loadProfilePage() {
             // Potresti voler chiamare una funzione per popolare i dati dell'utente qui
         })
         .catch(error => console.error('Errore nel caricamento della pagina del profilo:', error));
-}
+}*/
 
 function performLogout() {
     // Rimuovi il token JWT dallo storage locale
-    localStorage.removeItem('jwtToken');
+    if (typeof localStorage!== 'undefined' && localStorage!== null) {
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            localStorage.removeItem('jwtToken');
+        } else {
+            console.warn("Token non trovato");
+        }
+    } else {
+        console.warn("LocalStorage non disponibile");
+    }
+
     // Reindirizza l'utente alla pagina di login
-    window.location.href = '../index.html';
+    if (typeof window!== 'undefined' && window!== null) {
+        window.location.href = '../index.html';
+    }
 }
 
+/*
 function checkUserRoleAndAdjustUI() {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
@@ -60,10 +99,11 @@ function checkUserRoleAndAdjustUI() {
     })
     .then(data => {
         const userRole = data.role;
-        adjustUIBasedOnRole(userRole);
+        //adjustUIBasedOnRole(userRole); DA IMPLEMENTARE
     })
     .catch(error => console.error('Errore:', error));
 }
+
 
 function adjustUIBasedOnRole(role) {
     // Implementa qui le modifiche dell'UI basate sul ruolo
@@ -76,132 +116,4 @@ function adjustUIBasedOnRole(role) {
         //document.getElementById('volunteerTools').style.display = 'none';
     }
 }
-
-
-
-
-
-
-
-/*document.addEventListener('DOMContentLoaded', function() {
-  // Ottieni elementi del menu
-  const profileLink = document.getElementById("profileLink");
-  const logoutLink = document.getElementById("logoutLink");
-
-  // Aggiungi un event listener al link "Profile"
-  if (profileLink) {
-    profileLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        loadProfileEditPage();
-    });
-  }
-
-  // Aggiungi un event listener al link "Logout"
-  if (logoutLink) {
-    logoutLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        logoutUser();
-    });
-  }
-
-  // Carica la pagina di modifica del profilo con AJAX
-  function loadProfileEditPage() {
-      fetch('../components/user-profile/profile.html')
-          .then(response => response.text())
-          .then(html => {
-              // Assicurati che l'elemento 'profileEdit' esista nel tuo HTML
-              document.getElementById('profileEdit').innerHTML = html;
-          })
-          .catch(error => console.error('Errore nel caricamento:', error));
-  }
-
-  // Funzione per effettuare il logout
-  function logoutUser() {
-      localStorage.removeItem('jwtToken');
-      window.location.href = '../index.html';
-  }
-});*/
-
-
-
-
-/*document.addEventListener('DOMContentLoaded', function() {
-  // Ottieni elementi del menu
-  const userProfile = document.getElementById("userProfile");
-  const profileLink = document.getElementById("profileLink");
-  const logoutLink = document.getElementById("logoutLink");
-  const dropdownContent = document.querySelector(".dropdown-content");
-
-  // Verifica se gli elementi esistono prima di aggiungere event listener
-  if (profileLink) {
-      profileLink.addEventListener('click', function(e) {
-          e.preventDefault();
-          loadProfileEditPage();
-      });
-  }
-
-  if (logoutLink) {
-      logoutLink.addEventListener('click', function(e) {
-          e.preventDefault();
-          logoutUser();
-      });
-  }
-
-  // Carica la pagina di modifica del profilo con AJAX
-  function loadProfileEditPage() {
-      fetch('../components/user-profile/profile.html')
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error('Non è stato possibile caricare la pagina del profilo');
-              }
-              return response.text();
-          })
-          .then(html => {
-              document.getElementById('profileEdit').innerHTML = html;
-          })
-          .catch(error => {
-              console.error('Errore nel caricamento della pagina del profilo:', error);
-          });
-  }
-
-  // Funzione per effettuare il logout
-  function logoutUser() {
-      // Rimozione del token JWT dal localStorage
-      localStorage.removeItem('jwtToken');
-      // Reindirizzamento alla pagina di login
-      window.location.href = '../index.html';
-  }
-});*/
-
-
-
-
-
-/*/ Ottieni elementi del menu
-const userProfile = document.getElementById("userProfile");
-const profileLink = document.getElementById("profileLink");
-const logoutLink = document.getElementById("logoutLink");
-const dropdownContent = document.querySelector(".dropdown-content");
-
-// Aggiungi un event listener al link "Profile" per gestire l'apertura della pagina di modifica del profilo
-profileLink.addEventListener('click', (e) => {
-  e.preventDefault(); // Previeni l'azione predefinita del link
-  // Nascondi i dettagli del profilo
-  document.getElementById('profileDetails').style.display = 'none';
-  // Carica la pagina di modifica del profilo (profile.html) con AJAX
-  loadProfileEditPage();
-});
-
-// Funzione per caricare la pagina di modifica del profilo con AJAX
-function loadProfileEditPage() {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', 'profile.html', true);
-  xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-          // Mostra la pagina di modifica del profilo e nascondi i dettagli
-          document.getElementById('profileEdit').innerHTML = xhr.responseText;
-          document.getElementById('profileEdit').style.display = 'block';
-      }
-  };
-  xhr.send();
-}*/
+*/

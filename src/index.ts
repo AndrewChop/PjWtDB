@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 const port = 3000;
 
 async function main() {
-    // La tua logica esistente con Prisma...
+    // La logica esistente con Prisma...
 }
 
 main()

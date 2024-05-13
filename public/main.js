@@ -9,15 +9,18 @@ function checkCredentials() {
     })
     .then(response => {
         if (!response.ok) {
+            console.log('Attenzione', response.status, response.statusText);
             throw new Error('Credenziali non valide');
         }
         return response.json();
     })
     .then(data => {
+        console.log(data);
         localStorage.setItem('jwtToken', data.token); // Salvataggio del token nel localStorage
         window.location.href = "./pages/homepage.html";
     })
     .catch(error => {
+        console.log('Qui si è verificato un errore:', error);
         console.error('Errore:', error);
         alert("Invalid credentials. Please try again.");
     });

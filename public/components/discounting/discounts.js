@@ -44,6 +44,29 @@ document.addEventListener('DOMContentLoaded', function () {
         discountForm.classList.add('hidden');
     }
 
+
+    
+    // Function to hide the discount edit form
+    function hideEditForm() {
+        const discountEditForm = document.getElementById('discount-edit-form');
+        discountEditForm.classList.add('hidden');
+    }
+
+    // Add event listener to the cancel button in the discount add form
+    const cancelDiscountButton = document.getElementById('cancel-discount');
+    cancelDiscountButton.addEventListener('click', () => {
+        const discountForm = document.getElementById('discount-form');
+        discountForm.classList.add('hidden');
+    });
+
+    // Add event listener to the cancel button in the discount edit form
+    const cancelEditButton = document.getElementById('cancel-edit-button');
+    cancelEditButton.addEventListener('click', () => {
+        hideEditForm();
+    });
+
+
+
     // Gestione dell'evento di aggiunta evento
     addDiscountButton.addEventListener('click', () => {
         showDiscountForm(); 

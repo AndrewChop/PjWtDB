@@ -14,7 +14,7 @@ model User {
   id                   Int            @id @default(autoincrement())
   cardNumber           String?        @unique
   email                String         @unique
-  password             String         // Assumi di memorizzare una password hashata
+  password             String
   role                 UserRole       // Campo per distinguere il ruolo dell'utente
   name                 String?
   surname              String?
@@ -34,7 +34,6 @@ model User {
   documentNumber       String?
   documentExpiration   DateTime?      // Rendilo opzionale
   documentIssuer       String?
-  isApproved Boolean   @default(false)
 
   // Relazioni
   eventsOrganized      Event[]        @relation("UserEvents")
@@ -116,8 +115,8 @@ enum DocumentType {
 }
 
 enum UserRole {
-  REJECTED
-  PENDING
+  //REJECTED
+  //PENDING
   STUDENT
   VOLUNTEER
   ADMIN

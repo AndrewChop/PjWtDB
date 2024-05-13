@@ -1,3 +1,12 @@
+function handleCancelButtonClick() {
+    window.location.href = '../index.html';
+  }
+  
+document.getElementById('cancel-button').addEventListener('click', handleCancelButtonClick);
+
+//const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+
 document.getElementById('registration-form').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -5,24 +14,29 @@ document.getElementById('registration-form').addEventListener('submit', function
     const password = document.getElementById('psw').value;
     const passwordRepeat = document.getElementById('psw-repeat').value;
 
+    /*if (!passwordRegex.test(password)) {
+        alert('La password deve contenere almeno 8 caratteri, un carattere maiuscolo e un numero.');
+        return;
+    }*/
+
     // Validazione della password e dell'email
     if (password !== passwordRepeat) {
         alert("Le password non coincidono.");
         return;
     }
-
+/*
     if (!validateEmail(email)) {
         alert("Formato email non valido.");
         return;
     }
-
+*/
     // Feedback di caricamento all'utente
     const submitButton = document.querySelector('.signupbtn');
     submitButton.textContent = 'Registrazione in corso...';
     submitButton.disabled = true;
 
     // Invio dei dati al server
-    fetch('/api/register', {
+    fetch('http://localhost:3000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

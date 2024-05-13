@@ -5,18 +5,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadUserData() {
     const token = localStorage.getItem('jwtToken');
+    if (!token) {
+        console.error('Token non disponibile');
+        alert('Non sei autenticato. Effettua il login.');
+        return; 
+    }
+    console.log(token);
+
     const response = await fetch('/api/user/data', {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
     });
 
     if (!response.ok) {
-        console.error('Failed to load user data:', response);
+        if (response.status === 401) {
+            alert('Sessione scaduta o non valida. Si prega di rieffettuare il login.');
+            window.location.href = '/login.html'; // Reindirizza all'login
+        } else {
+            console.error('Failed to load user data:', response);
+        }
         return;
+    } else {
+        console.log('User data loaded successfully');
+        const userData = await response.json();
+        populateForm(userData);
     }
 
-    const userData = await response.json();
-    populateForm(userData);
 }
 
 function populateForm(userData) {
@@ -24,6 +38,9 @@ function populateForm(userData) {
         const input = document.getElementById(`user-${key}`);
         if (input) {
             input.value = userData[key];
+            if (input.value) {
+                input.classList.add('input-filled');
+            }
         }
     }
 }
@@ -37,25 +54,23 @@ async function saveChanges() {
         name: document.getElementById('user-name').value,
         surname: document.getElementById('user-surname').value,
         gender: document.getElementById('user-gender').value,
-        birthdate: document.getElementById('user-birthdate').value,
+        birthDate: document.getElementById('user-birthdate').value,
         nationality: document.getElementById('user-nationality').value,
         phoneNumber: document.getElementById('user-phone-number').value,
         studyField: document.getElementById('user-study-field').value,
         originUniversity: document.getElementById('user-origin-university').value,
-        hostUniversity: document.getElementById('user-host-university').value,
-        exchangeDuration: document.getElementById('user-exchange-duration').value,
         studentNumber: document.getElementById('user-student-number').value,
         countryOfOrigin: document.getElementById('user-country-origin').value,
         cityOfOrigin: document.getElementById('user-city-origin').value,
         addressCityOfOrigin: document.getElementById('user-address-origin').value,
         documentType: document.getElementById('user-document-type').value,
         documentNumber: document.getElementById('user-number-doc').value,
-        documentExpiration: document.getElementById('user-expiration').value,
+        documentExpiration: document.getElementById('user-expiration-date').value,
         documentIssuer: document.getElementById('user-issued-by').value
     };
 
     const response = await fetch('/api/user/update', {
-        method: 'POST',
+        method: 'POST', 
         headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -67,9 +82,11 @@ async function saveChanges() {
         console.error('Failed to update user data:', response);
         alert('Failed to update user data');
         return;
+    } else {
+        console.log('Profile updated successfully');
+        alert('Profile updated successfully');
+        loadUserData();
     }
 
-    alert('Profile updated successfully');
-    loadUserData();
 }
 
