@@ -34,15 +34,25 @@ async function loadUserData() {
 }
 
 function populateForm(userData) {
-    for (let key in userData) {
-        const input = document.getElementById(`user-${key}`);
-        if (input) {
-            input.value = userData[key];
-            if (input.value) {
-                input.classList.add('input-filled');
-            }
-        }
-    }
+    document.getElementById('user-card-number').value = userData.cardNumber;
+    document.getElementById('user-email').value = userData.email;
+    document.getElementById('user-role').value = userData.role;
+    document.getElementById('user-name').value = userData.name;
+    document.getElementById('user-surname').value = userData.surname;
+    document.getElementById('user-gender').value = userData.gender;
+    document.getElementById('user-birth-date').value = userData.birthDate;
+    document.getElementById('user-nationality').value = userData.nationality;
+    document.getElementById('user-phone-number').value = userData.phoneNumber;
+    document.getElementById('user-study-field').value = userData.studyField;
+    document.getElementById('user-origin-university').value = userData.originUniversity;
+    document.getElementById('user-student-number').value = userData.studentNumber;
+    document.getElementById('user-country-origin').value = userData.countryOfOrigin;
+    document.getElementById('user-city-origin').value = userData.cityOfOrigin;
+    document.getElementById('user-address-origin').value = userData.addressCityOfOrigin;
+    document.getElementById('user-document-type').value = userData.documentType;
+    document.getElementById('user-number-doc').value = userData.documentNumber;
+    document.getElementById('user-expiration-date').value = userData.documentExpiration;
+    document.getElementById('user-issued-by').value = userData.documentIssuer;
 }
 
 async function saveChanges() {
@@ -54,7 +64,7 @@ async function saveChanges() {
         name: document.getElementById('user-name').value,
         surname: document.getElementById('user-surname').value,
         gender: document.getElementById('user-gender').value,
-        birthDate: document.getElementById('user-birthdate').value,
+        birthDate: document.getElementById('user-birth-date').value,
         nationality: document.getElementById('user-nationality').value,
         phoneNumber: document.getElementById('user-phone-number').value,
         studyField: document.getElementById('user-study-field').value,
@@ -68,6 +78,8 @@ async function saveChanges() {
         documentExpiration: document.getElementById('user-expiration-date').value,
         documentIssuer: document.getElementById('user-issued-by').value
     };
+
+    console.log(userData);
 
     const response = await fetch('/api/user/update', {
         method: 'POST', 
