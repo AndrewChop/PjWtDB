@@ -44,6 +44,29 @@ document.addEventListener('DOMContentLoaded', function () {
         transactionForm.classList.add('hidden');
     }
 
+
+
+    // Function to hide the transaction edit form
+    function hideEditForm() {
+        const transactionEditForm = document.getElementById('transaction-edit-form');
+        transactionEditForm.classList.add('hidden');
+    }
+
+    // Add event listener to the cancel button in the transaction add form
+    const cancelTransactionButton = document.getElementById('cancel-transaction');
+    cancelTransactionButton.addEventListener('click', () => {
+        const transactionForm = document.getElementById('transaction-form');
+        transactionForm.classList.add('hidden');
+    });
+
+    // Add event listener to the cancel button in the transaction edit form
+    const cancelEditButton = document.getElementById('cancel-edit-button');
+    cancelEditButton.addEventListener('click', () => {
+        hideEditForm();
+    });
+
+
+
     // Gestione dell'evento di aggiunta evento
     addTransactionButton.addEventListener('click', () => {
         showTransactionForm(); 

@@ -43,25 +43,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const studentForm = document.getElementById('student-form');
         studentForm.classList.add('hidden');
     }
-    
-    // Function to hide the student edit form
-    function hideEditForm() {
-        const studentEditForm = document.getElementById('student-edit-form');
-        studentEditForm.classList.add('hidden');
-    }
-
-    // Add event listener to the cancel button in the student add form
-    const cancelStudentButton = document.getElementById('cancel-student');
-    cancelStudentButton.addEventListener('click', () => {
-        const studentForm = document.getElementById('student-form');
-        studentForm.classList.add('hidden');
-    });
-
-    // Add event listener to the cancel button in the student edit form
-    const cancelEditButton = document.getElementById('cancel-edit-button');
-    cancelEditButton.addEventListener('click', () => {
-        hideEditForm();
-    });
 
     // Gestione dell'evento di aggiunta studente
     addStudentButton.addEventListener('click', () => {
@@ -192,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const studentItem = document.createElement('li');
             studentItem.innerHTML = `
                 <span>${student.name} ${student.surname}</span>
-                <span>${student.email}</span>
                 <span>${student.cardNumber}</span>
                 <button class="edit-button" data-cardNumber="${student.cardNumber}">Edit</button>
                 <button class="remove-button" data-cardNumber="${student.cardNumber}">Remove</button>

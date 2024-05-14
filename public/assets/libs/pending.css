@@ -1,0 +1,149 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.search-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    padding: 40px;
+    width: 100vw; 
+    background-color: white;  
+    height: 50px;
+}
+
+#search-input {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+}
+  
+#search-button, #add-user-button {
+    padding: 10px 20px;
+    background-color: #4e73df;
+    color: white;
+    font-weight: bolder;
+    border: none;
+    cursor: pointer;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.user-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.user-list h3 {
+    text-align: left;
+}
+
+.accept-all-volunteers {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+#accept-all-button {
+    margin-left: auto;
+}
+
+.user-items {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+}
+
+.user-items li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin: 5px 0;
+}
+
+.user-items li span {
+    flex: 1;
+}
+
+.edit-button,
+.accept-button,
+.reject-button {
+    margin-left: 10px;
+}
+
+.personal-data-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 95%;
+    margin: 10px; 
+    font-weight: bold;     
+    padding: 20px;  
+}
+
+.personal-data-input {
+    width: 95%;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
+
+.edit-profile-header {
+    width: 100vw; 
+    padding: 20px; 
+    background-color: #4e73df; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+    color: white;
+    font-weight: bolder;
+    text-align: left;
+}
+
+.edit-profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    max-width: 100%;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.edit-profile-content {
+    width: 100vw;
+    max-width: 100%;
+}
+
+#confirm-user {
+    width: auto; 
+    padding: 5px 10px;
+    cursor: pointer;
+}
+

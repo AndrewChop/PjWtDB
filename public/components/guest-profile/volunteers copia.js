@@ -1,58 +1,11 @@
- // Funzione per mostrare il form di inserimento utente
- function showUserForm() {
-    const userForm = document.getElementById('profile-form');
-    userForm.classList.remove('hidden');
-}
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const userItems = document.getElementById('user-items');
     const addUserButton = document.getElementById('add-user-button');
-    
+
     // Lista degli utenti 
     let users = [];
-
-    // Carica i volontari dall'API e li visualizza nella lista
-    async function loadVolunteersFromAPI() {
-        const response = await fetch('/api/users/volunteers');
-        const volunteers = await response.json();
-        volunteers.forEach(volunteer => {
-            addVolunteerToList(volunteer);
-        });
-    }
-
-    // Funzione per aggiungere un volontario alla lista visualizzata
-    function addVolunteerToList(volunteer) {
-        const volunteerList = document.getElementById('volunteerList');
-        const listItem = document.createElement('li');
-        listItem.textContent = `${volunteer.name} ${volunteer.surname}`;
-        volunteerList.appendChild(listItem);
-    }
-
-    // Rimuove un volontario usando l'API
-    function removeUser(userId) {
-        fetch(`/api/users/${userId}`, {
-            method: 'DELETE'
-        }).then(() => {
-            console.log('User removed');
-            loadVolunteersFromAPI(); // Ricarica la lista dopo la rimozione
-        }).catch(error => console.error('Error removing user:', error));
-    }
-
-    // Aggiorna un volontario usando l'API
-    function updateUser(userId, userData) {
-        fetch(`/api/users/${userId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        }).then(() => {
-            console.log('User updated');
-            loadVolunteersFromAPI(); // Ricarica la lista dopo l'aggiornamento
-        }).catch(error => console.error('Error updating user:', error));
-    }
-
-
-
 
     // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterUsers(query) {
@@ -79,30 +32,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-   
+    // Funzione per mostrare il form di inserimento utente
+    function showUserForm() {
+        const userForm = document.getElementById('profile-form');
+        userForm.classList.remove('hidden');
+    }
 
     // Funzione per nascondere il form di inserimento utente
     function hideUserForm() {
         const userForm = document.getElementById('profile-form');
         userForm.classList.add('hidden');
     }
-    // Funzione per nascondere il form di modifica utente
-    function hideEditForm() {
-        const userEditForm = document.getElementById('user-edit-form');
-        userEditForm.classList.add('hidden');
-    }
-
-    // Aggiungi un gestore di eventi per il click sul pulsante "Cancel" nel form di inserimento utente
-    const cancelButton = document.getElementById('cancel-user');
-    cancelButton.addEventListener('click', () => {
-        hideUserForm();
-    });
-
-    // Aggiungi un gestore di eventi per il click sul pulsante "Cancel" nel form di modifica utente
-    const cancelEditButton = document.getElementById('cancel-edit-button');
-    cancelEditButton.addEventListener('click', () => {
-        hideEditForm();
-    });
 
     // Gestione dell'evento di aggiunta utente
     addUserButton.addEventListener('click', () => {
@@ -185,22 +125,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // Funzione per renderizzare la lista degli utenti
     function renderUserList(userList) {
         const userItems = document.getElementById('user-items');
-        if (users.length === 0) {
-            userItems.innerHTML = "<p>Nessun utente trovato.</p>";
-            } else {
-                userItems.innerHTML = '';
-                userList.forEach(user => {
-                    const userItem = document.createElement('li');
-                    userItem.innerHTML = `
-                        <span>${user.name} ${user.surname}</span>
-                        <span>${user.email}</span>
-                        <span>${user.cardNumber}</span>
-                        <button class="edit-button" data-cardNumber="${user.cardNumber}">Edit</button>
-                        <button class="remove-button" data-cardNumber="${user.cardNumber}">Remove</button>
-                    `;
-                    userItems.appendChild(userItem);
-                });
-            }
+        userItems.innerHTML = '';
+
+        userList.forEach(user => {
+            const userItem = document.createElement('li');
+            userItem.innerHTML = `
+                <span>${user.name} ${user.surname}</span>
+                <span>${user.cardNumber}</span>
+                <button class="edit-button" data-cardNumber="${user.cardNumber}">Edit</button>
+                <button class="remove-button" data-cardNumber="${user.cardNumber}">Remove</button>
+            `;
+            userItems.appendChild(userItem);
+        });
     }
     
     // Inizializza la lista degli utenti
@@ -263,10 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (userToEdit) {
                 populateEditForm(userToEdit);
-                const userIndex = users.findIndex(u => u.cardNumber === userToEdit.cardNumber);
-                if (userIndex!== -1) {
-                    users[userIndex] = userToEdit;
-                }
             }
         }
     }
@@ -347,13 +279,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (indexOfUserToRemove !== -1) {
                 // Rimuovi lo studente dall'array
                 users.splice(indexOfUserToRemove, 1);
+
+                // Aggiorna la lista degli studenti
+                renderUserList(users);
+
                 // Salva l'array aggiornato nella localStorage
                 saveUserListToLocalStorage(users);
-            } else {
-                console.error("Utente non trovato nell'array"); 
             }
-            // Aggiorna la lista degli studenti
-            renderUserList(users);
         }
     }
 

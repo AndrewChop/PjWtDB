@@ -38,7 +38,7 @@ textarea {
     margin-right: 10px;
 }
   
-#search-button, #add-student-button {
+#search-button, #add-transaction-button {
     padding: 10px 20px;
     background-color: #4e73df;
     color: white;
@@ -136,7 +136,7 @@ textarea {
     display: none;
 }
 
-/* Stile del form per l'aggiunta di uno studente */
+/* Stile del form per l'aggiunta di una transazione */
 .objective-data-form {
     display: flex;
     flex-direction: column;
@@ -148,7 +148,7 @@ textarea {
 }
 
 .objective-data-input {
-    width: 95%;
+    width: 103%;
     padding: 5px;
     margin-bottom: 20px;
 }
@@ -180,16 +180,25 @@ textarea {
     max-width: 100%;
 }
 
-#confirm-transaction {
-    width: auto; 
-    padding: 5px 10px;
-    cursor: pointer;
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 103%;
+    margin-top: 20px;
 }
 
-.save-button {
+#confirm-transaction, #cancel-transaction {
     width: auto; 
-    padding: 5px 10px;
+    padding: 7px 10px;
     cursor: pointer;
+    margin-left: 10px;
+}
+
+#save-edit-button, #cancel-edit-button {
+    width: auto; 
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
 
@@ -237,3 +246,53 @@ textarea {
 }
 
 
+
+.menu-items li {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    width: 50px;
+}
+
+.menu-items li:hover {
+    background-color: #3b5998;
+}
+
+.menu-items a {
+    color: white;
+    text-decoration: none;
+}
+
+.transaction-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+body.hidden {
+    overflow: hidden;
+}
+
+.transaction-edit-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}

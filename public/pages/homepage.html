@@ -14,12 +14,13 @@
 
     <!-- Libs -->
     <link rel="stylesheet" href="..\assets\libs\homepage.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
     <script src="homepage.js"></script>
 
 </head>
 <body>
     <div class="container">
+
         <div class="topbar">
             <div class="profile-link" id="userProfile">
                 <img class="profile-image" src="..\assets\profile\profile.jpg" alt="Profile">
@@ -41,17 +42,36 @@
                 </div>
             </div>
         </div>
+
+        <div id="profileContent" class="profile-content"></div>
+        
         <div class="main-content">
             <div class="button-container">
                 <button class="main-button" id="usersButton">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
+                        <div class="dropdown-content">
+                            <ul>
+                                <li id="volunteerList">
+                                    <a href="..\components\guest-profile\volunteers.html">Volunteers</a>
+                                    <ul class="volunteer-names"></ul> 
+                                </li>
+                                <li id="studentList">
+                                    <a href="..\components\guest-profile\students.html">Students</a>
+                                    <ul class="student-names"></ul> 
+                                </li>
+                            </ul>
+                        </div>
+                      
+                    <!-- Dropdown Content 
                     <div class="dropdown-content">
                         <ul>
-                            <li><a href="..\components\guest-profile\volunteers.html">Volunteers</a></li>
-                            <li><a href="..\components\guest-profile\students.html">Students</a></li>
+                            <li id="volunteerList"><a href="..\components\guest-profile\volunteers.html">Volunteers</a></li>
+                            <li id="studentList"><a href="..\components\guest-profile\students.html">Students</a></li>
+                            // <li><a href="..\components\guest-profile\pending.html">Pending</a></li>
                         </ul>
-                    </div>
+                    </div>-->
+
                 </button>
                 <button class="main-button" id="projectsButton">
                     <i class="fas fa-project-diagram"></i>
@@ -85,5 +105,3 @@
     </div>
 </body>
 </html>
-
-

@@ -15,7 +15,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0;
     padding: 40px;
     width: 100vw; 
     background-color: white;  
@@ -111,7 +110,7 @@ body {
 }
 
 .personal-data-input {
-    width: 95%;
+    width: 103%;
     padding: 5px;
     margin-bottom: 20px;
 }
@@ -144,17 +143,27 @@ body {
     max-width: 100%;
 }
 
-#confirm-student {
-    width: auto; 
-    padding: 5px 10px;
-    cursor: pointer;
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 103%;
+    margin-top: 20px;
 }
 
-#save-edit-button {
+#confirm-student, #cancel-student {
     width: auto; 
-    padding: 5px 10px;
+    padding: 7px 10px;
     cursor: pointer;
+    margin-left: 10px;
 }
+
+#save-edit-button, #cancel-edit-button {
+    width: auto; 
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
 /* Stilizza il div per il pulsante "Remove All" */
 .remove-all-students {
     text-align: right; /* Allinea il testo a destra */
@@ -209,4 +218,53 @@ body {
     font-weight: bolder;
 }
 
-  
+
+.menu-items li {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    width: 50px;
+}
+
+.menu-items li:hover {
+    background-color: #3b5998;
+}
+
+.menu-items a {
+    color: white;
+    text-decoration: none;
+}
+
+.student-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+body.hidden {
+    overflow: hidden;
+}
+
+.student-edit-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}

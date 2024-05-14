@@ -41,7 +41,7 @@
         <ul id="event-items" class="event-items">
             <li>
                 <span>${event.code}</span>
-                <span>${event.name} ${event.place}</span>
+                <span>${event.name}</span>
                 <span>${event.date}</span>
                 <button class="edit-button" data-code="${event.code}">Edit</button>
                 <button class="remove-button" data-code="${event.code}">Remove</button>
@@ -94,8 +94,11 @@
 
                     <label for="event-number-participant">Number participants:</label>
                     <input type="text" id="event-number-participant" class="objective-data-input">
-
-                    <button type="button" id="confirm-event">Add Event</button>
+                    
+                    <div class="button-container">
+                        <button type="button" id="cancel-event">Cancel</button>
+                        <button type="button" id="confirm-event">Add Event</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -145,7 +148,10 @@
                     <label for="edit-event-number-participant">Number participants:</label>
                     <input type="text" id="edit-number-participant" class="objective-data-input">
         
-                    <button type="button" id="save-edit-button" class="save-button">Save</button>
+                    <div class="button-container">
+                        <button type="button" id="cancel-edit-button">Cancel</button>
+                        <button type="button" id="save-edit-button">Save</button>
+                    </div>
                 </form>
             </div>
         </div>

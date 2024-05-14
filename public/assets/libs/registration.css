@@ -1,0 +1,90 @@
+body, html {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Roboto;
+    background-color: #4e73df;
+    background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+}
+
+.container {
+    background-color: transparent;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 400px;
+    margin: auto;
+}
+
+.container h1 {
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.container p, .container label {
+    color: white;
+    margin-bottom: 10px;
+}
+
+input[type=text], input[type=password] {
+    width: calc(100% - 20px); /* Sottrai il padding dal 100% della larghezza */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #f1f1f1;
+    box-sizing: border-box; /* Include padding e bordi nella larghezza totale */
+}
+
+
+input[type=text]:focus, input[type=password]:focus {
+    background-color: #ddd;
+    outline: none;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.clearfix button {
+    width: 48%;
+    float: left;
+}
+
+.cancelbtn {
+    background-color: #f44336;
+}
+
+.signupbtn {
+    background-color: #4CAF50;
+}
+
+a {
+    color: dodgerblue;
+}
+
+@media screen and (max-width: 300px) {
+    .clearfix button {
+        width: 100%;
+    }
+}
