@@ -3,6 +3,7 @@
     const userForm = document.getElementById('profile-form');
     userForm.classList.remove('hidden');
 }
+
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
@@ -176,7 +177,28 @@ document.addEventListener('DOMContentLoaded', function () {
         users.push(user);
         renderUserList(users);
         saveUserListToLocalStorage(users);
-    }
+        hideUserForm();
+
+        // Pulisci i campi del form
+        document.getElementById('user-card-number').value = '';
+        document.getElementById('user-email').value = '';
+        document.getElementById('user-name').value = '';
+        document.getElementById('user-surname').value = '';
+        document.getElementById('user-gender').value = '';
+        document.getElementById('user-birth-date').value = '';
+        document.getElementById('user-nationality').value = '';
+        document.getElementById('user-phone').value = '';
+        document.getElementById('user-study-field').value = '';
+        document.getElementById('user-origin-university').value = '';
+        document.getElementById('user-student-number').value = '';
+        document.getElementById('user-address-origin').value = '';
+        document.getElementById('user-city-origin').value = '';
+        document.getElementById('user-country-origin').value = '';
+        document.getElementById('user-document-type').value = '';
+        document.getElementById('user-number-doc').value = '';
+        document.getElementById('user-expiration-date').value = '';
+        document.getElementById('user-issued-by').value = '';
+}
     
     function saveUserListToLocalStorage(userList) {
         localStorage.setItem('userList', JSON.stringify(userList));
@@ -209,50 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderUserList(users);
 
     
-    
-    // Funzione per popolare il form di modifica con i dettagli dell'utente selezionato
-    function populateEditForm(user) {
-        const editCardNumber = document.getElementById('edit-card-number');
-        const editEmail = document.getElementById('edit-email');
-        const editName = document.getElementById('edit-name');
-        const editSurname = document.getElementById('edit-surname');
-        const editGender = document.getElementById('edit-gender');
-        const editBirthDate = document.getElementById('edit-birth-date');
-        const editNationality = document.getElementById('edit-nationality');
-        const editPhone = document.getElementById('edit-phone');
-        const editStudyField = document.getElementById('edit-study-field');
-        const editOriginUniversity = document.getElementById('edit-origin-university');
-        const editStudentNumber = document.getElementById('edit-student-number');
-        const editAddressOrigin = document.getElementById('edit-address-origin');
-        const editCityOrigin = document.getElementById('edit-city-origin');
-        const editCountryOrigin = document.getElementById('edit-country-origin');
-        const editDocumentType = document.getElementById('edit-document-type');
-        const editNumberDoc = document.getElementById('edit-number-doc');
-        const editExpirationDate = document.getElementById('edit-expiration-date');
-        const editIssuedBy = document.getElementById('edit-issued-by');
-
-        editCardNumber.value = user.cardNumber;
-        editEmail.value = user.email;
-        editName.value = user.name;
-        editSurname.value = user.surname;
-        editGender.value = user.gender;
-        editBirthDate.value = user.birthDate;
-        editNationality.value = user.nationality;
-        editPhone.value = user.phone;
-        editStudyField.value = user.studyField;
-        editOriginUniversity.value = user.originUniversity;
-        editStudentNumber.value = user.studentNumber;
-        editAddressOrigin.value = user.addressOrigin;
-        editCityOrigin.value = user.cityOrigin;
-        editCountryOrigin.value = user.countryOrigin;
-        editDocumentType.value = user.documentType;
-        editNumberDoc.value = user.numberDoc;
-        editExpirationDate.value = user.expirationDate;
-        editIssuedBy.value = user.issuedBy;
-        
-        const userEditForm = document.getElementById('user-edit-form');
-        userEditForm.classList.remove('hidden');
-    }
 
     // Gestore di eventi per il click sul pulsante "Edit"
     function handleUserItemClick(event) {
@@ -262,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const userToEdit = users.find(user => user.cardNumber === cardNumber);
             
             if (userToEdit) {
-                populateEditForm(userToEdit);
+                populateEditForm(userToEdit, cardNumber);
                 const userIndex = users.findIndex(u => u.cardNumber === userToEdit.cardNumber);
                 if (userIndex!== -1) {
                     users[userIndex] = userToEdit;
@@ -274,6 +252,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Aggiungi un gestore di eventi alla lista degli utenti per gestire il click sugli elementi utente
     userItems.addEventListener('click', handleUserItemClick);
+
+        // Funzione per popolare il form di modifica con i dettagli dell'utente selezionato
+        function populateEditForm(user, cardNumber) {
+            const editCardNumber = document.getElementById('edit-card-number');
+            const editEmail = document.getElementById('edit-email');
+            const editName = document.getElementById('edit-name');
+            const editSurname = document.getElementById('edit-surname');
+            const editGender = document.getElementById('edit-gender');
+            const editBirthDate = document.getElementById('edit-birth-date');
+            const editNationality = document.getElementById('edit-nationality');
+            const editPhone = document.getElementById('edit-phone');
+            const editStudyField = document.getElementById('edit-study-field');
+            const editOriginUniversity = document.getElementById('edit-origin-university');
+            const editStudentNumber = document.getElementById('edit-student-number');
+            const editAddressOrigin = document.getElementById('edit-address-origin');
+            const editCityOrigin = document.getElementById('edit-city-origin');
+            const editCountryOrigin = document.getElementById('edit-country-origin');
+            const editDocumentType = document.getElementById('edit-document-type');
+            const editNumberDoc = document.getElementById('edit-number-doc');
+            const editExpirationDate = document.getElementById('edit-expiration-date');
+            const editIssuedBy = document.getElementById('edit-issued-by');
+    
+            editCardNumber.value = user.cardNumber;
+            editEmail.value = user.email;
+            editName.value = user.name;
+            editSurname.value = user.surname;
+            editGender.value = user.gender;
+            editBirthDate.value = user.birthDate;
+            editNationality.value = user.nationality;
+            editPhone.value = user.phone;
+            editStudyField.value = user.studyField;
+            editOriginUniversity.value = user.originUniversity;
+            editStudentNumber.value = user.studentNumber;
+            editAddressOrigin.value = user.addressOrigin;
+            editCityOrigin.value = user.cityOrigin;
+            editCountryOrigin.value = user.countryOrigin;
+            editDocumentType.value = user.documentType;
+            editNumberDoc.value = user.numberDoc;
+            editExpirationDate.value = user.expirationDate;
+            editIssuedBy.value = user.issuedBy;
+            
+            const userEditForm = document.getElementById('user-edit-form');
+            userEditForm.classList.remove('hidden');
+        }
 
     // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
