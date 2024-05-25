@@ -16,7 +16,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.7",

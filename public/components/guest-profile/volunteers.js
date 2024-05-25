@@ -13,14 +13,116 @@ document.addEventListener('DOMContentLoaded', function () {
     // Lista degli utenti 
     let users = [];
 
+    
+    
+    // Connessione al WebSocket server
+    const socket = new WebSocket('ws://192.168.1.38:3000');
+
+    socket.onopen = function () {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = function (event) {
+        const message = JSON.parse(event.data);
+        if (message.type === 'UPDATE_USER') {
+            console.log('Received update:', message.payload);
+            // Update the users list and re-render it
+            const updatedUser = message.payload;
+            const indexOfUserToUpdate = users.findIndex(user => user.id === updatedUser.id);
+            if (indexOfUserToUpdate !== -1) {
+                users[indexOfUserToUpdate] = updatedUser;
+            } else {
+                users.push(updatedUser);
+            }
+            renderUserList(users);
+        }
+    };
+
+    socket.onclose = function () {
+        console.log('WebSocket connection closed');
+    };
+
+
+    async function loadVolunteersFromAPI() {
+        try {
+            const token = localStorage.getItem('jwt');
+            const response = await fetch('/api/users/volunteers', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const users = await response.json();
+            renderUserList(users);
+        } catch (error) {
+            console.error('Failed to load users from API:', error);
+        }
+    }
+    
+
+/*
+    // Carica gli utenti dall'API e li visualizza nella lista, considerando il ruolo dell'utente
+    async function loadVolunteersFromAPI() {
+        try {
+            // Effettua la richiesta al server includendo il token di autenticazione nell'header
+            const response = await fetch('/api/users', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`, // Assumi che il token sia salvato in localStorage
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const users = await response.json();
+            
+            // Renderizza la lista degli utenti in base ai dati ricevuti
+            renderUserList(users);
+        } catch (error) {
+            console.error('Failed to load users from API:', error);
+        }
+    }
+
+*/
+
+async function loadVolunteersFromAPI() {
+    try {
+        const token = localStorage.getItem('jwt');
+        const response = await fetch('/api/users/volunteers', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const users = await response.json();
+        renderUserList(users);
+    } catch (error) {
+        console.error('Failed to load users from API:', error);
+    }
+}
+
+/*
     // Carica i volontari dall'API e li visualizza nella lista
     async function loadVolunteersFromAPI() {
         const response = await fetch('/api/users/volunteers');
-        const volunteers = await response.json();
+        users = await response.json();
+        renderUserList(users);
+        /*const volunteers = await response.json();
         volunteers.forEach(volunteer => {
             addVolunteerToList(volunteer);
-        });
-    }
+        });*/
+   // }
 
     // Funzione per aggiungere un volontario alla lista visualizzata
     function addVolunteerToList(volunteer) {
@@ -209,21 +311,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const userItems = document.getElementById('user-items');
         if (users.length === 0) {
             userItems.innerHTML = "<p>Nessun utente trovato.</p>";
-            } else {
-                userItems.innerHTML = '';
-                userList.forEach(user => {
-                    const userItem = document.createElement('li');
-                    userItem.innerHTML = `
-                        <span>${user.name} ${user.surname}</span>
-                        <span>${user.email}</span>
-                        <span>${user.cardNumber}</span>
-                        <button class="edit-button" data-cardNumber="${user.cardNumber}">Edit</button>
-                        <button class="remove-button" data-cardNumber="${user.cardNumber}">Remove</button>
-                    `;
-                    userItems.appendChild(userItem);
-                });
-            }
+        } else {
+            userItems.innerHTML = '';
+            userList.forEach(user => {
+                const userItem = document.createElement('li');
+                userItem.innerHTML = `
+                    <span>${user.name} ${user.surname}</span>
+                    <span>${user.email}</span>
+                    <span>${user.cardNumber}</span>
+                    <button class="edit-button" data-cardNumber="${user.cardNumber}">Edit</button>
+                    <button class="remove-button" data-cardNumber="${user.cardNumber}">Remove</button>
+                `;
+                userItems.appendChild(userItem);
+            });
+        }
     }
+
+    // Inizializza la lista degli utenti
+    loadVolunteersFromAPI();
     
     // Inizializza la lista degli utenti
     // @mc l'inizializzazione deve avvenire su users, se no non si valorizza mai

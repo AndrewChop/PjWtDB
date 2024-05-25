@@ -17,8 +17,6 @@ document.getElementById('profile-form').addEventListener('submit', function(even
         phoneNumber: document.getElementById('phone').value,
         studyField: document.getElementById('study-field').value,
         originUniversity: document.getElementById('origin-university').value,
-        hostUniversity: document.getElementById('host-university').value,
-        exchangeDuration: document.getElementById('exchange-duration').value,
         studentNumber: document.getElementById('student-number').value,
         countryOfOrigin: document.getElementById('country-origin').value,
         cityOfOrigin: document.getElementById('city-origin').value,

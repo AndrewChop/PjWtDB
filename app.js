@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
+const http = require('http');
+const WebSocket = require('ws');
+
 
 // Verificare che la chiave sia stata caricata correttamente
 console.log('La chiave segreta JWT è:', process.env.JWT_SECRET);
@@ -22,12 +25,52 @@ app.use(express.json());
 // Serve i file statici dalla cartella 'public'
 app.use(express.static('public'));
 
-// Configura il middleware CORS
+/*// Configura il middleware CORS
 app.use(cors({
-    origin: 'http://localhost:3000', // Permette solo richieste da questa origine
+    origin: 'http://192.168.1.38:3000', // Permette solo richieste da questa origine
     methods: ['GET', 'POST'], // Metodi consentiti
     credentials: true // Permette credenziali come cookies, autorizzazione headers ecc.
 }));    
+*/
+
+
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('Nuova connessione WebSocket');
+    ws.on('message', (message) => {
+        console.log('Messaggio ricevuto:', message);
+    });
+
+    ws.on('close', () => {
+        console.log('Connessione WebSocket chiusa');
+    });
+
+    ws.send('Benvenuto nel server Websocket!');
+    
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+});
+
+function broadcast(data) {
+    try {
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify(data));
+            }
+        });
+    } catch (error) {
+        console.error('Errore durante la trasmissione dei dati:', error);
+    }
+}
+
+
+
+
+
 
 // Definizioni delle Route
 app.post('/api/register', async (req, res) => {
@@ -80,17 +123,8 @@ app.post('/api/login', async (req, res) => {
         if (!process.env.JWT_SECRET) {
             console.error('JWT_SECRET is not defined');
             throw new Error('Internal server error');
-        }
-/*
-        if (user.role === 'PENDING') {
-            return res.status(403).json({ message: 'Utente in attesa di approvazione' });
-        }
-
-        if (user.role === 'REJECTED') {
-            return res.status(403).json({ message: 'Utente rifiutato' });
-        }
-*/        
-        const token = jwt.sign({ userId: user.id /*, role: user.role */}, process.env.JWT_SECRET);
+        }    
+        const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET);
         res.json({ token });
     } catch (error) {
         console.error('Errore dettagliato nel login:', error);
@@ -162,6 +196,7 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
             }
         });
         res.json({ message: 'Profilo aggiornato con successo', user: updatedUser });
+        broadcast({ type: 'UPDATE_USER', payload: updatedUser});
     } catch (error) {
         console.error('Errore dettagliato nell\'aggiornamento del profilo:', error);
         res.status(500).json({ message: 'Errore nell\'aggiornamento del profilo', error: error.message });
@@ -174,23 +209,28 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
 function verifyToken(req, res, next) {
     console.log('Richiesta ricevuta su /api/user/update', req.headers);
     console.log("Verifica del token JWT...");
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Accesso non autorizzato: header Authorization mancante.' });
+    }
+    const token = authHeader.split(' ')[1];
     console.log('Token ricevuto:', token);
 
     if (!token) {
         console.log('Token non fornito');
-        return next(new Error('Token not provided'));
+        return res.status(401).send('Accesso non autorizzato. Token non fornito.');
+        //return next(new Error('Token non fornito'));
         //return res.status(403).send('Token non fornito');
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('Token decodificato:', decoded);
         req.user = decoded;
         next();
     } catch (error) {
         console.error('Token non valido:', error);
-        res.status(401).send('Token non valido');
+        return res.status(401).send('Accesso non autorizzato. Token non valido');
     }
 }
 /*
@@ -310,6 +350,33 @@ app.post('/api/users/reject', verifyToken, async (req, res) => {
 })
 */
 
+// Endpoint per ottenere e filtrare gli utenti basato sul ruolo dell'utente autenticato
+app.get('/api/users', verifyToken, async (req, res) => {
+    try {
+        let users;
+        if (req.user.role === 'ADMIN') {
+            // Se l'utente è admin, ritorna tutti gli utenti
+            users = await prisma.user.findMany();
+        } else {
+            // Se l'utente non è admin, ritorna solo l'utente autenticato e altri utenti non admin
+            users = await prisma.user.findMany({
+                where: {
+                    OR: [
+                        { id: req.user.userId }, // Include l'utente autenticato
+                        { role: 'VOLUNTEER' } // Include altri utenti con ruolo 'VOLUNTEER'
+                    ]
+                }
+            });
+        }
+        res.json(users);
+    } catch (error) {
+        console.error('Errore nel recupero degli utenti:', error);
+        res.status(500).json({ message: 'Errore nel recupero degli utenti', error: error.message });
+    }
+});
+
+
+/*
 // Endpoint per ottenere e filtrare gli utenti
 app.get('/api/users', verifyToken, async (req, res) => {
     const roleFilter = req.query.role;
@@ -330,6 +397,8 @@ app.get('/api/users', verifyToken, async (req, res) => {
         res.status(500).json({ message: 'Errore nel recupero degli utenti' });
     }
 });
+
+*/
 
 // Endpoint per ottenere il ruolo dell'utente
 app.get('/api/user/role', verifyToken, (req, res) => {
@@ -364,6 +433,6 @@ app.get('/api/users/volunteers', async (req, res) => {
 });
 
 
-app.listen(port, '0.0.0.0', () => {
+server.listen(port, '0.0.0.0', () => {
     console.log(`Server in ascolto su http://192.168.1.38:${port}`);
 });
