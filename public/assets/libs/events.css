@@ -68,23 +68,22 @@ textarea {
     text-align: left;
 }
 
-.remove-all-events {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-}
 
-.sort-by-date {
+
+.button-container {
     display: flex;
-    align-items: center;
     justify-content: flex-end;
-    width: 100%;
+    width: 103%;
+    margin-top: 20px;
+    margin-right: 26px;
 }
 
 #remove-all-button,
 #sort-by-date-button {
-    margin-left: 10px;
+    width: auto; 
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-right: 10px;
 }
 
 .event-items {
@@ -133,7 +132,7 @@ textarea {
 }
 
 .edit-event-header {
-    width: 100vw; 
+    width: 100%; 
     padding: 20px; 
     background-color: #4e73df; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 

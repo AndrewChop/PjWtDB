@@ -30,7 +30,6 @@
     <div id="discounts-list" class="discounts-list">
         <h1>List of discounts</h1>
 
-        <!-- vorrei creare un contenitore per inserire sia remove che sort sulla stessa linea-->
         <div class="remove-all-discounts">
             <button id="remove-all-button">Remove All</button>
         </div>
@@ -64,7 +63,11 @@
                     <input type="text" id="discount-name" class="objective-data-input">
 
                     <label for="discount-type">Type:</label>
-                    <input type="text" id="discount-type" class="objective-data-input">
+                    <select id="discount-type">
+                        <option value="PERCENTAGE">Percentage</option>
+                        <option value="FIXED">Fixed</option>
+                        <option value="QUANTITY">Quantity</option>
+                    </select>
 
                     <label for="discount-rate">Rate in %:</label>
                     <input type="number" id="discount-rate" min="1" max="100" class="objective-data-input">
@@ -102,8 +105,12 @@
                     <input type="text" id="edit-name" class="objective-data-input">
 
                     <label for="edit-discount-type">Type:</label>
-                    <input type="text" id="edit-type" class="objective-data-input">
-
+                    <select id="edit-type">
+                        <option value="PERCENTAGE">Percentage</option>
+                        <option value="FIXED">Fixed</option>
+                        <option value="QUANTITY">Quantity</option>
+                    </select>
+                    
                     <label for="edit-discount-rate">Rate in %:</label>
                     <input type="number" id="edit-rate" min="1" max="100" class="objective-data-input">
 
@@ -124,8 +131,6 @@
             </div>
         </div>
     </div>
-
-
 
     <!-- Tasto per aprire il menu a tendina -->
     <div id="add-menu" class="add-menu">

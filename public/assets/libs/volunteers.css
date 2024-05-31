@@ -68,7 +68,10 @@ body {
 }
 
 #remove-all-button {
-    margin-left: auto;
+    width: auto; 
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
 .user-items {

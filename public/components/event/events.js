@@ -15,14 +15,13 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Funzione per filtrare la lista degli eventi in base alla ricerca
     function filterEvents(query) {
-        console.log('filterEvents IN', query, events); // @mc console.log per debugging di esempio
-        // @mc qua facevi filtro su "events", ma non l'avevi mai inizializzato
+        console.log('filterEvents IN', query, events);
         const filteredEvents = events.filter(event => {            
             const formattedDate = formatDateToItalian(event.date);
-            const eventDetails = `${event.name} ${event.place} ${formattedDate}`;
+            const eventDetails = `${event.name} ${event.type} ${formattedDate}`;
             return eventDetails.toLowerCase().includes(query.toLowerCase()) || event.code.toLowerCase().includes(query.toLowerCase());
         });
-        console.log('filterEvents OUT', filteredEvents); // @mc console.log per debugging di esempio
+        console.log('filterEvents OUT', filteredEvents);
         renderEventList(filteredEvents);
     }
 
@@ -50,22 +49,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const eventForm = document.getElementById('event-form');
         eventForm.classList.add('hidden');
     }
-
     
-    // Function to hide the event edit form
+    // Funzione per nascondere il form di modifica evento
     function hideEditForm() {
         const eventEditForm = document.getElementById('event-edit-form');
         eventEditForm.classList.add('hidden');
     }
 
-    // Add event listener to the cancel button in the event add form
+    // Aggiungere un ascoltatore di eventi al pulsante di annullamento nel modulo di aggiunta di eventi
     const cancelEventButton = document.getElementById('cancel-event');
     cancelEventButton.addEventListener('click', () => {
         const eventForm = document.getElementById('event-form');
         eventForm.classList.add('hidden');
     });
 
-    // Add event listener to the cancel button in the event edit form
+    // Aggiungere un ascoltatore di eventi al pulsante di annullamento nel modulo di modifica di eventi
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
@@ -89,8 +87,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const eventType = document.getElementById('event-type').value.trim();
         const eventPrice = document.getElementById('event-price').value.trim();
         const eventNumberParticipant = document.getElementById('event-number-participant').value.trim();
-
-
 
         if (eventCode && eventName && eventPlace && eventAddress && eventDate && eventTime && eventDescription && eventType && eventPrice && eventNumberParticipant) {
             const newEvent = {
@@ -164,7 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
             eventItem.innerHTML = `
                 <span>${event.code}</span>
                 <span>${event.name}</span>
-                <span>${event.place}</span>
+                <span>${event.type}</span>
+                <span>€${event.price}</span>
                 <span>${formattedDate}</span>
                 <button class="edit-button" data-code="${event.code}">Edit</button>
                 <button class="remove-button" data-code="${event.code}">Remove</button>
@@ -174,11 +171,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // Inizializza la lista degli eventi
-    // @mc l'inizializzazione deve avvenire su events, se no non si valorizza mai
     events = JSON.parse(localStorage.getItem('eventList')) || [];
     renderEventList(events);
-
-    
     
     // Funzione per popolare il form di modifica con i dettagli dello evento selezionato
     function populateEditForm(event) {
@@ -204,6 +198,9 @@ document.addEventListener('DOMContentLoaded', function () {
         editPrice.value = event.price;
         editNumberParticipant.value = event.numberParticipant;
                 
+        const saveEditButton = document.getElementById('save-edit-button');
+        saveEditButton.setAttribute('data-code', event.code);
+    
         const eventEditForm = document.getElementById('event-edit-form');
         eventEditForm.classList.remove('hidden');
     }
@@ -221,55 +218,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
     // Aggiungi un gestore di eventi alla lista degli eventi per gestire il click sugli elementi evento
     eventItems.addEventListener('click', handleEventItemClick);
 
-    // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
     saveEditButton.addEventListener('click', () => {
-        // Ottieni i dettagli modificati dallo evento nel form di modifica
-        const editedCode = document.getElementById('edit-code').value.trim();
-        const editedName = document.getElementById('edit-name').value.trim();
-        const editedPlace = document.getElementById('edit-place').value.trim();
-        const editedAddress = document.getElementById('edit-address').value.trim();
-        const editedDate = document.getElementById('edit-date').value.trim();
-        const editedTime = document.getElementById('edit-time').value.trim();
-        const editedDescription = document.getElementById('edit-description').value.trim();
-        const editedType = document.getElementById('edit-type').value.trim();
-        const editedPrice = document.getElementById('edit-price').value.trim();
-        const editedNumberParticipant = document.getElementById('edit-number-participant').value.trim();
-       
-        // Crea un oggetto utente con i dettagli modificati
         const editedEvent = {
-            code: editedCode,
-            name: editedName,
-            place: editedPlace,
-            address: editedAddress,
-            date: editedDate,
-            time: editedTime,
-            description: editedDescription,
-            type: editedType,
-            price: editedPrice,
-            numberParticipant: editedNumberParticipant
+            code: document.getElementById('edit-code').value.trim(),
+            name: document.getElementById('edit-name').value.trim(),
+            place: document.getElementById('edit-place').value.trim(),
+            address: document.getElementById('edit-address').value.trim(),
+            date: document.getElementById('edit-date').value.trim(),
+            time: document.getElementById('edit-time').value.trim(),
+            description: document.getElementById('edit-description').value.trim(),
+            type: document.getElementById('edit-type').value,
+            price: document.getElementById('edit-price').value.trim(),
+            numberParticipant: document.getElementById('edit-number-participant').value.trim()
         };
-
-        // Sovrascrivi lo evento modificato nell'array "events"
-        // @mc qui "eventIndex" era inesistente (la console ti segnalava un errore); ho usato il cardNumber come ID per identificare l'utente
-        const indexOfEventToEdit = events.findIndex(x => x.name === editedEvent.name);
-        if(indexOfEventToEdit !== -1) events[indexOfEventToEdit] = editedEvent;
-
-        // Chiudi il form di modifica
-        const eventEditForm = document.getElementById('event-edit-form');
-        eventEditForm.classList.add('hidden');
-
-        // Aggiorna la lista degli utenti con le modifiche
-        renderEventList(events);
-
-        // Salva l'array aggiornato nella localStorage
-        saveEventListToLocalStorage(events);
+    
+        const index = events.findIndex(event => event.code === editedEvent.code); // Assicurati che 'code' sia un identificativo unico
+        if (index !== -1) {
+            events[index] = editedEvent;
+            renderEventList(events);
+            saveEventListToLocalStorage(events);
+        } else {
+            console.log('Evento non trovato');
+        }
+    
+        hideEditForm();
     });
-
+ 
     // Gestore di eventi per il click sul pulsante "Remove"
     function handleRemoveButtonClick(event) {
         if (event.target.classList.contains('remove-button')) {
@@ -326,12 +304,6 @@ document.addEventListener('DOMContentLoaded', function () {
         // Aggiorna la lista degli eventi ordinata
         renderEventList(events);
     });
-
-    
-
-
-
-
 
     const addButton = document.querySelector('.add-button');
     const menuItems = document.querySelector('.menu-items');

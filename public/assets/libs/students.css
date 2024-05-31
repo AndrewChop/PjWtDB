@@ -66,10 +66,14 @@ body {
     align-items: center;
     justify-content: flex-end;
     width: 100%;
+    
 }
 
 #remove-all-button {
-    margin-left: auto;
+    width: auto; 
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
 .student-items {
@@ -117,7 +121,7 @@ body {
 
 
 .edit-student-header {
-    width: 100vw; 
+    width: 100%; 
     padding: 20px; 
     background-color: #4e73df; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 

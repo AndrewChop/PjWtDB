@@ -4,18 +4,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const transactionItems = document.getElementById('transaction-items');
     const addTransactionButton = document.getElementById('add-transaction-button');
 
-    // Lista degli eventi
+    // Lista delle transazioni
     let transactions = [];
 
-    // Funzione per filtrare la lista degli eventi in base alla ricerca
+    // Funzione per filtrare la lista delle transazioni in base alla ricerca
     function filterTransactions(query) {
-        console.log('filterTransactions IN', query, transactions); // @mc console.log per debugging di esempio
-        // @mc qua facevi filtro su "events", ma non l'avevi mai inizializzato
+        console.log('filterTransactions IN', query, transactions);
         const filteredTransactions = transactions.filter(transaction => {
             const transactionDetail = `${transaction.name} ${transaction.cash}`;
             return transactionDetail.toLowerCase().includes(query.toLowerCase()) || transaction.code.toLowerCase().includes(query.toLowerCase());
         });
-        console.log('filterTransactions OUT', filteredTransactions); // @mc console.log per debugging di esempio
+        console.log('filterTransactions OUT', filteredTransactions);
         renderTransactionList(filteredTransactions);
     }
 
@@ -32,47 +31,43 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Funzione per mostrare il form di inserimento evento
+    // Funzione per mostrare il form di inserimento transazione
     function showTransactionForm() {
         const transactionForm = document.getElementById('transaction-form');
         transactionForm.classList.remove('hidden');
     }
 
-    // Funzione per nascondere il form di inserimento evento
+    // Funzione per nascondere il form di inserimento transazione
     function hideTransactionForm() {
         const transactionForm = document.getElementById('transaction-form');
         transactionForm.classList.add('hidden');
     }
 
-
-
-    // Function to hide the transaction edit form
+    // Funzione per nascondere il form di modifica transazione
     function hideEditForm() {
         const transactionEditForm = document.getElementById('transaction-edit-form');
         transactionEditForm.classList.add('hidden');
     }
 
-    // Add event listener to the cancel button in the transaction add form
+    // Aggiungi ascoltatore di eventi al pulsante di annullamento nel modulo di aggiunta della transazione
     const cancelTransactionButton = document.getElementById('cancel-transaction');
     cancelTransactionButton.addEventListener('click', () => {
         const transactionForm = document.getElementById('transaction-form');
         transactionForm.classList.add('hidden');
     });
 
-    // Add event listener to the cancel button in the transaction edit form
+    // Aggiungi ascoltatore di eventi al pulsante di annullamento nel modulo di modifica della transazione
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
     });
 
-
-
-    // Gestione dell'evento di aggiunta evento
+    // Gestione dell'evento di aggiunta transazione
     addTransactionButton.addEventListener('click', () => {
         showTransactionForm(); 
     });
 
-    // Pulsante per confermare l'aggiunta dell'evento
+    // Pulsante per confermare l'aggiunta della transazione
     const confirmAddTransactionButton = document.getElementById('confirm-transaction');
     confirmAddTransactionButton.addEventListener('click', () => {
         const transactionCode = document.getElementById('transaction-code').value.trim();
@@ -82,14 +77,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const transactionCategory = document.getElementById('transaction-category').value.trim();
         const transactionChannel = document.getElementById('transaction-channel').value.trim();        
         const transactionDate = document.getElementById('transaction-date').value.trim();
-        const transactionNote = document.getElementById('transaction-note').value.trim();
-        
+        const transactionNote = document.getElementById('transaction-note').value.trim();        
         
     // Verifica se il codice della transazione esiste già
     const isCodeExists = transactions.some(transaction => transaction.code === transactionCode);
 
         if (isCodeExists) {
-            const confirmation = confirm('Il codice della transazione esiste già. Vuoi reinserire i dati?');
+            const confirmation = confirm('The transaction code already exists. Do you want to re-enter the data?');
             
             if (confirmation) {
                 // L'utente ha confermato di voler reinserire i dati
@@ -115,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
             hideTransactionForm();
             resetTransactionFormFields();
         } else {
-            alert('Per favore, inserisci tutti i campi della transazione.');
+            alert('Please enter all transaction fields.');
         }
     });
 
@@ -141,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
         transactionNote.value = '';
     }
 
-    // Funzione per aggiungere un nuovo evento alla lista
+    // Funzione per aggiungere una nuova transazione alla lista
     function addNewTransaction(transaction) {
         transactions.push(transaction);
         renderTransactionList(transactions);
@@ -153,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('transactionList', JSON.stringify(transactionList));
     }
 
-    // Funzione per renderizzare la lista degli eventi
+    // Funzione per renderizzare la lista delle transazioni
     function renderTransactionList(transactionList) {
         const transactionItems = document.getElementById('transaction-items');
         transactionItems.innerHTML = '';
@@ -163,7 +157,9 @@ document.addEventListener('DOMContentLoaded', function () {
             transactionItem.innerHTML = `
                 <span>${transaction.code}</span>
                 <span>${transaction.name}</span>
+                <span>${transaction.type}</span>
                 <span>${transaction.cash}€</span>
+                <span>${transaction.date}</span>
                 <button class="edit-button" data-code="${transaction.code}">Edit</button>
                 <button class="remove-button" data-code="${transaction.code}">Remove</button>
             `;
@@ -171,14 +167,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Inizializza la lista degli eventi
-    // @mc l'inizializzazione deve avvenire su events, se no non si valorizza mai
+    // Inizializza la lista delle transazioni
     transactions = JSON.parse(localStorage.getItem('transactionList')) || [];
     renderTransactionList(transactions);
     updateTotalsDisplay();
     
     
-    // Funzione per popolare il form di modifica con i dettagli dello evento selezionato
+    // Funzione per popolare il form di modifica con i dettagli della transazione selezionata
     function populateEditForm(transaction) {
         const editCode = document.getElementById('edit-code');
         const editName = document.getElementById('edit-name');
@@ -215,14 +210,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
-    // Aggiungi un gestore di eventi alla lista degli eventi per gestire il click sugli elementi evento
+    // Aggiungi un gestore di eventi alla lista delle transazioni per gestire il click sugli elementi transazione
     transactionItems.addEventListener('click', handleTransactionItemClick);
 
     // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
     saveEditButton.addEventListener('click', () => {
-        // Ottieni i dettagli modificati dallo evento nel form di modifica
+        // Ottieni i dettagli modificati dalla transazione nel form di modifica
         const editedCode = document.getElementById('edit-code').value.trim();
         const editedName = document.getElementById('edit-name').value.trim();
         const editedType = document.getElementById('edit-type').value.trim();
@@ -232,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const editedDate = document.getElementById('edit-date').value.trim();
         const editedNote = document.getElementById('edit-note').value.trim();
         
-        // Crea un oggetto utente con i dettagli modificati
+        // Crea un oggetto transazioni con i dettagli modificati
         const editedTransaction = {
             code: editedCode,
             name: editedName,
@@ -244,8 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
             note: editedNote
         };
 
-        // Sovrascrivi lo evento modificato nell'array "events"
-        // @mc qui "eventIndex" era inesistente (la console ti segnalava un errore); ho usato il cardNumber come ID per identificare l'utente
+        // Sovrascrivi la transazione modificata nell'array "transactions"
         const indexOfTransactionToEdit = transactions.findIndex(x => x.code === editedTransaction.code);
         if(indexOfTransactionToEdit !== -1) transactions[indexOfTransactionToEdit] = editedTransaction;
 
@@ -253,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const transactionEditForm = document.getElementById('transaction-edit-form');
         transactionEditForm.classList.add('hidden');
 
-        // Aggiorna la lista degli utenti con le modifiche
+        // Aggiorna la lista delle transazioni con le modifiche
         renderTransactionList(transactions);
         updateTotalsDisplay();
 
@@ -266,14 +259,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (transaction.target.classList.contains('remove-button')) {
             const code = event.target.getAttribute('data-code');
 
-            // Trova l'indice dello evento da rimuovere nell'array "events"
+            // Trova l'indice dello transazione da rimuovere nell'array "transactions"
             const indexOfTransactionToRemove = transactions.findIndex(transaction => transaction.code === code);
 
             if (indexOfTransactionToRemove !== -1) {
-                // Rimuovi lo evento dall'array
+                // Rimuovi lo transazione dall'array
                 transactions.splice(indexOfTransactionToRemove, 1);
 
-                // Aggiorna la lista degli eventi
+                // Aggiorna la lista delle transazioni
                 renderTransactionList(transactions);
                 updateTotalsDisplay();
 
@@ -283,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Aggiungi un gestore di eventi alla lista degli eventi per gestire il click sul pulsante "Remove"
+    // Aggiungi un gestore di eventi alla lista delle transazioni per gestire il click sul pulsante "Remove"
     transactionItems.addEventListener('click', handleRemoveButtonClick);
     
     // Trova il pulsante "Remove All" nell'HTML
@@ -306,17 +299,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Aggiungi un gestore di eventi per il clic sul pulsante
     sortByDateButton.addEventListener('click', () => {
         if (isSortedAscending) {
-            // Ordina gli eventi per data in ordine crescente
+            // Ordina le transazioni per data in ordine crescente
             transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
         } else {
-            // Ordina gli eventi per data in ordine decrescente
+            // Ordina le transazioni per data in ordine decrescente
             transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
         // Inverti lo stato di ordinamento
         isSortedAscending = !isSortedAscending;
 
-        // Aggiorna la lista degli eventi ordinata
+        // Aggiorna la lista 
         renderTransactionList(transactions);
     });
 
@@ -350,10 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const netTotal = totalIn - totalOut;
         netTotalElement.textContent = `Net Total: €${netTotal.toFixed(2)}`;
     }
-
-
-
-   
+  
     const addButton = document.querySelector('.add-button');
     const menuItems = document.querySelector('.menu-items');
 

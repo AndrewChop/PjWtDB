@@ -9,8 +9,8 @@ function checkCredentials() {
     })
     .then(response => {
         if (!response.ok) {
-            console.log('Attenzione', response.status, response.statusText);
-            throw new Error('Credenziali non valide');
+            console.log('Attention', response.status, response.statusText);
+            throw new Error('Invalid credentials');
         }
         return response.json();
     })
@@ -20,9 +20,9 @@ function checkCredentials() {
         window.location.href = "./pages/homepage.html";
     })
     .catch(error => {
-        console.log('Qui si è verificato un errore:', error);
+        console.log('An error occurred here:', error);
         console.error('Errore:', error);
-        alert("Invalid credentials. Please try again.");
+        alert("Invalid credentials! Please try again.");
     });
 }
 

@@ -10,7 +10,7 @@ const WebSocket = require('ws');
 
 
 // Verificare che la chiave sia stata caricata correttamente
-console.log('La chiave segreta JWT è:', process.env.JWT_SECRET);
+console.log('The JWT secret key is:', process.env.JWT_SECRET);
 
 const app = express();
 const port = 3000;
@@ -39,16 +39,16 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-    console.log('Nuova connessione WebSocket');
+    console.log('New connection WebSocket');
     ws.on('message', (message) => {
-        console.log('Messaggio ricevuto:', message);
+        console.log('Message received:', message);
     });
 
     ws.on('close', () => {
-        console.log('Connessione WebSocket chiusa');
+        console.log('Connection WebSocket closed');
     });
 
-    ws.send('Benvenuto nel server Websocket!');
+    ws.send('Welcome in the server Websocket!');
     
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
@@ -63,7 +63,7 @@ function broadcast(data) {
             }
         });
     } catch (error) {
-        console.error('Errore durante la trasmissione dei dati:', error);
+        console.error('Error during data transmission:', error);
     }
 }
 
@@ -74,7 +74,7 @@ function broadcast(data) {
 
 // Definizioni delle Route
 app.post('/api/register', async (req, res) => {
-    console.log('Richiesta ricevuta su /api/register', req.body);
+    console.log('Request received on /api/register', req.body);
     const { email, password, role: inputRole} = req.body;
 
     try {
@@ -82,8 +82,8 @@ app.post('/api/register', async (req, res) => {
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
             // Se l'utente esiste, invia un messaggio di errore
-            console.log('Utente esistente');
-            return res.status(409).json({ message: 'Email già in uso' });
+            console.log('Existing user');
+            return res.status(409).json({ message: 'Email already used' });
         }
 
         // Hash della password
@@ -104,37 +104,37 @@ app.post('/api/register', async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {
-        console.error('Errore dettagliato nella registrazione:', error);
-        res.status(500).json({ message: 'Errore nella registrazione', error: error.message });
+        console.error('Detailed error in registration:', error);
+        res.status(500).json({ message: 'Error in registration', error: error.message });
     }
 });
 
 // Endpoint per il login
 app.post('/api/login', async (req, res) => {
-    console.log('Richiesta ricevuta su /api/login', req.body);
+    console.log('Request received on /api/login', req.body);
     const { email, password } = req.body;
 
     try {
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ message: 'Credenziali non valide' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         if (!process.env.JWT_SECRET) {
-            console.error('JWT_SECRET is not defined');
+            console.error('JWT_SECRET isn\'t defined');
             throw new Error('Internal server error');
         }    
         const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET);
         res.json({ token });
     } catch (error) {
-        console.error('Errore dettagliato nel login:', error);
-        res.status(500).json({ message: 'Errore nel login' });
+        console.error('Detailed error when logging in:', error);
+        res.status(500).json({ message: 'Error when logging in' });
     }
 });
 
 // Endpoint per l'aggiornamento del profilo utente (seconda fase)
 app.post('/api/user/update', verifyToken, async (req, res) => {
-    console.log('Richiesta ricevuta su /api/user/update', req.body);
+    console.log('Request received on /api/user/update', req.body);
     const userId = req.user.userId; // ottenuto dal token JWT
 
     // Recupera l'utente esistente dal database
@@ -143,7 +143,7 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
     });
 
     if (!existingUser) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
     }
 
     const {
@@ -195,67 +195,40 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
                 documentIssuer: documentIssuer || existingUser.documentIssuer,
             }
         });
-        res.json({ message: 'Profilo aggiornato con successo', user: updatedUser });
+        res.json({ message: 'Profile successfully updated', user: updatedUser });
         broadcast({ type: 'UPDATE_USER', payload: updatedUser});
     } catch (error) {
-        console.error('Errore dettagliato nell\'aggiornamento del profilo:', error);
-        res.status(500).json({ message: 'Errore nell\'aggiornamento del profilo', error: error.message });
+        console.error('Detailed error when updating profile:', error);
+        res.status(500).json({ message: 'Error when updating profile', error: error.message });
     }
 });
 
-
-
 // Middleware per verificare il token JWT
 function verifyToken(req, res, next) {
-    console.log('Richiesta ricevuta su /api/user/update', req.headers);
-    console.log("Verifica del token JWT...");
+    console.log('Request received on /api/user/update', req.headers);
+    console.log("JWT token verification...");
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        return res.status(401).json({ message: 'Accesso non autorizzato: header Authorization mancante.' });
+        return res.status(401).json({ message: 'Unauthorised access: header authorisation missing.' });
     }
     const token = authHeader.split(' ')[1];
-    console.log('Token ricevuto:', token);
+    console.log('Token received:', token);
 
     if (!token) {
-        console.log('Token non fornito');
-        return res.status(401).send('Accesso non autorizzato. Token non fornito.');
-        //return next(new Error('Token non fornito'));
-        //return res.status(403).send('Token non fornito');
+        console.log('Token not provided');
+        return res.status(401).send('Unauthorised access. Token not provided.');
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('Token decodificato:', decoded);
+        console.log('Token decoded:', decoded);
         req.user = decoded;
         next();
     } catch (error) {
-        console.error('Token non valido:', error);
-        return res.status(401).send('Accesso non autorizzato. Token non valido');
+        console.error('Invalid token:', error);
+        return res.status(401).send('Unauthorised access. Invalid token');
     }
 }
-/*
-// Endpoint per l'aggiornamento del profilo utente (seconda fase)
-app.post('/api/user/update', verifyToken, async (req, res) => {
-    console.log('Richiesta di aggiornamento profilo ricevuta:', req.body);
-    const userId = req.user.userId; // ottenuto dal token JWT
-    const profileData = req.body;
-
-    console.log('Inizio aggiornamento profilo per l\'utente con ID:', userId);
-    console.log('Dati profilo:', profileData);
-
-    try {
-        console.log('Aggiornamento profilo per l\'utente con ID:', userId);
-        const updatedUser = await prisma.user.update({
-            where: { id: userId },
-            data: profileData
-        });
-        console.log('Profilo aggiornato con successo', updatedUser);
-        res.json({ message: 'Profilo aggiornato con successo' });
-    } catch (error) {
-        console.error('Errore dettagliato nell\'aggiornamento del profilo:', error);
-        res.status(500).json({ message: 'Errore nell\'aggiornamento del profilo', error: error.message });
-    }    
-});*/
 
 // Endpoint per ottenere i dati dell'utente
 app.get('/api/user/data', verifyToken, async (req, res) => {
@@ -269,8 +242,8 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
         });
 
         if (!user) {
-            console.log('Utente non trovato');
-            return res.status(404).send('Utente non trovato');
+            console.log('User not found');
+            return res.status(404).send('User not found');
         }
 
         // Invia i dati dell'utente al client
@@ -298,57 +271,10 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
             documentIssuer: user.documentIssuer
         });
     } catch (error) {
-        console.error('Errore nel recupero dei dati utente:', error);
-        res.status(500).send('Errore interno del server');
+        console.error('Error retrieving user data:', error);
+        res.status(500).send('Internal server error');
     }
 });
-
-/*
-// Endpoint per ottenere i dati degli utenti in attesa di approvazione
-app.get('/api/users/pending', verifyToken, async (req, res) => {
-    console.log('Richiesta ricevuta su /api/users/pending');
-    if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
-        const pendingUsers = await prisma.user.findMany({
-            where: { role: 'PENDING' }
-        });
-        res.json(pendingUsers);
-    } else {
-        res.status(403).send('Accesso non autorizzato');
-    }
-});
-
-// Endpoint per approvare o rifiutare un utente
-app.post('/api/users/approve', verifyToken, async (req, res) => {
-    console.log('Richiesta ricevuta su /api/users/approve', req.body);
-    const { userId, newRole } = req.body;
-    if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
-        await prisma.user.update({
-            where: { id: userId },
-            data: { role: newRole }
-        });
-        res.json({ message: 'Utente approvato con successo' });
-        // Qui potresti inviare una notifica all'utente
-    } else {
-        res.status(403).send('Accesso non autorizzato');
-    }
-});
-
-// Endpoint per rifiutare un utente
-app.post('/api/users/reject', verifyToken, async (req, res) => {
-    console.log('Richiesta ricevuta su /api/users/reject', req.body);
-    const { userId } = req.body;
-    if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
-        await prisma.user.update({
-            where: { id: userId },
-            data: { role: 'REJECTED' }
-        });
-        res.json({ message: 'Utente rifiutato con successo' });
-        // Qui potresti inviare una notifica all'utente
-    } else {
-        res.status(403).send('Accesso non autorizzato');
-    }
-})
-*/
 
 // Endpoint per ottenere e filtrare gli utenti basato sul ruolo dell'utente autenticato
 app.get('/api/users', verifyToken, async (req, res) => {
@@ -370,39 +296,14 @@ app.get('/api/users', verifyToken, async (req, res) => {
         }
         res.json(users);
     } catch (error) {
-        console.error('Errore nel recupero degli utenti:', error);
-        res.status(500).json({ message: 'Errore nel recupero degli utenti', error: error.message });
+        console.error('Error retrieving user data:', error);
+        res.status(500).json({ message: 'Error retrieving user data', error: error.message });
     }
 });
-
-
-/*
-// Endpoint per ottenere e filtrare gli utenti
-app.get('/api/users', verifyToken, async (req, res) => {
-    const roleFilter = req.query.role;
-
-    try {
-        let queryOptions = {};
-        if (['ADMIN', 'VOLUNTEER'].includes(req.user.role)) {
-            if (roleFilter) {
-                queryOptions.where = { role: roleFilter };
-            }
-        } else {
-            return res.status(403).send('Accesso non autorizzato');
-        }
-
-        const users = await prisma.user.findMany(queryOptions);
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ message: 'Errore nel recupero degli utenti' });
-    }
-});
-
-*/
 
 // Endpoint per ottenere il ruolo dell'utente
 app.get('/api/user/role', verifyToken, (req, res) => {
-    console.log('Richiesta ricevuta su /api/user/role');
+    console.log('Request received on /api/user/role');
     res.json({ role: req.user.role });
 });
 
@@ -434,5 +335,5 @@ app.get('/api/users/volunteers', async (req, res) => {
 
 
 server.listen(port, '0.0.0.0', () => {
-    console.log(`Server in ascolto su http://192.168.1.38:${port}`);
+    console.log(`Server listening on http://192.168.1.38:${port}`);
 });

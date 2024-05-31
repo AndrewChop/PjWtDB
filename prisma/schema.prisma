@@ -80,7 +80,7 @@ model Discount {
   id            Int       @id @default(autoincrement())
   code          Int
   name          String
-  discountType  String
+  discountType  DiscountType
   rate          Int
   expirationDate DateTime
   description   String
@@ -150,4 +150,10 @@ enum Channel {
   BANK_TRANSFER
   DIGITAL_PAYMENT
   PAYMENT_TERMINAL
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  QUANTITY
 }

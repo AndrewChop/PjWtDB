@@ -32,7 +32,7 @@ document.getElementById('registration-form').addEventListener('submit', function
 */
     // Feedback di caricamento all'utente
     const submitButton = document.querySelector('.signupbtn');
-    submitButton.textContent = 'Registrazione in corso...';
+    submitButton.textContent = 'Registration in progress...';
     submitButton.disabled = true;
 
     // Invio dei dati al server
@@ -44,9 +44,9 @@ document.getElementById('registration-form').addEventListener('submit', function
     .then(response => {
         if (!response.ok) {
             if (response.status === 409) {
-                throw new Error('Email già in uso. Prova con un altro indirizzo email.');
+                throw new Error('Email already in use! Please try another email address.');
             } else {
-                throw new Error('Errore nella registrazione');
+                throw new Error('Error in the registration!');
             }
         }
         return response.json();
@@ -57,8 +57,8 @@ document.getElementById('registration-form').addEventListener('submit', function
         window.location.href = 'complete-profile.html';
     })
     .catch(error => {
-        console.error('Si è verificato un errore completo:', error);
-        alert('Si è verificato un errore: ' + error.message);
+        console.error('A complete error has occurred:', error);
+        alert('An error has occurred: ' + error.message);
         submitButton.textContent = 'Sign Up';
         submitButton.disabled = false;
     });    

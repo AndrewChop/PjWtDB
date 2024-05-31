@@ -7,15 +7,47 @@ document.addEventListener('DOMContentLoaded', function () {
     // Lista degli utenti 
     let students = [];
 
+    // Funzione per verificare se un cardNumber esiste già
+    function isCardNumberUnique(cardNumber, excludeCardNumber = null) {
+        return !students.some(student => student.cardNumber === cardNumber && student.cardNumber !== excludeCardNumber);
+    }
+
+    // Funzione per convalidare il cardNumber
+    function isValidCardNumber(cardNumber) {
+        // Espressione regolare per 7 numeri e massimo 4 caratteri
+        const regex = /^\d{7}[a-zA-Z]{0,4}$/;
+        return regex.test(cardNumber);
+    }
+
     // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterStudents(query) {
-        console.log('filterStudents IN', query, students); // @mc console.log per debugging di esempio
-        // @mc qua facevi filtro su "students", ma non l'avevi mai inizializzato
+        const normalizedQuery = query.toLowerCase().trim();
+
         const filteredStudents = students.filter(student => {
-            const fullName = `${student.name} ${student.surname}`;
-            return fullName.toLowerCase().includes(query.toLowerCase()) || student.cardNumber.includes(query);
+            const fullName = `${student.cardNumber} ${student.name} ${student.surname} ${student.exchangeDuration}`.toLowerCase();
+
+            // Controllare se la query è presente nel nome completo o nel numero della carta
+            if (fullName.includes(normalizedQuery) || student.cardNumber.toLowerCase().includes(normalizedQuery)) {
+                return true;
+            }
+
+            // Controllare se la query è un numero o un numero seguito dalla parola "months"
+            const monthsPattern = /^(\d+)\s*months?$/;
+            const match = normalizedQuery.match(monthsPattern);
+
+            if (match) {
+                const queryMonths = parseInt(match[1], 10);
+                return queryMonths === parseInt(student.exchangeDuration, 10);
+            }
+
+            // Controllare se la query è solo un numero
+            if (!isNaN(normalizedQuery) && parseInt(normalizedQuery, 10) === parseInt(student.exchangeDuration, 10)) {
+                return true;
+            }
+
+            return false;
         });
-        console.log('filterStudents OUT', filteredStudents); // @mc console.log per debugging di esempio
+
         renderStudentList(filteredStudents);
     }
 
@@ -43,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const studentForm = document.getElementById('student-form');
         studentForm.classList.add('hidden');
     }
-    
+
     // Function to hide the student edit form
     function hideEditForm() {
         const studentEditForm = document.getElementById('student-edit-form');
@@ -93,34 +125,42 @@ document.addEventListener('DOMContentLoaded', function () {
         const studentIssuedBy = document.getElementById('student-issued-by').value.trim();
 
         if (studentCardNumber && studentEmail && studentName && studentSurname && studentGender && studentBirthDate && studentNationality && studentPhone && studentStudyField && studentOriginUniversity && studentHostUniversity && studentExchangeDuration && studentStudentNumber && studentAddressOrigin && studentCityOrigin && studentCountryOrigin && studentDocumentType && studentNumberDoc && studentExpirationDate && studentIssuedBy) {
-            const newStudent = {
-                cardNumber: studentCardNumber,
-                email: studentEmail,
-                name: studentName,
-                surname: studentSurname,
-                gender: studentGender,
-                birthDate: studentBirthDate,
-                nationality: studentNationality,
-                phone: studentPhone,
-                studyField: studentStudyField,
-                originUniversity: studentOriginUniversity,
-                hostUniversity: studentHostUniversity,
-                exchangeDuration: studentExchangeDuration,
-                studentNumber: studentStudentNumber,
-                addressOrigin: studentAddressOrigin,
-                cityOrigin: studentCityOrigin,
-                countryOrigin: studentCountryOrigin,
-                documentType: studentDocumentType,
-                numberDoc: studentNumberDoc,
-                expirationDate: studentExpirationDate,
-                issuedBy: studentIssuedBy
-            };
+            if (!isValidCardNumber(studentCardNumber)) {
+                alert('Invalid card number. It must contain exactly 7 numbers and up to 4 characters.');
+                return;
+            }
 
-            addNewStudent(newStudent);
-            
-            hideStudentForm();
-            resetStudentFormFields();
+            if (isCardNumberUnique(studentCardNumber)) {
+                const newStudent = {
+                    cardNumber: studentCardNumber,
+                    email: studentEmail,
+                    name: studentName,
+                    surname: studentSurname,
+                    gender: studentGender,
+                    birthDate: studentBirthDate,
+                    nationality: studentNationality,
+                    phone: studentPhone,
+                    studyField: studentStudyField,
+                    originUniversity: studentOriginUniversity,
+                    hostUniversity: studentHostUniversity,
+                    exchangeDuration: studentExchangeDuration,
+                    studentNumber: studentStudentNumber,
+                    addressOrigin: studentAddressOrigin,
+                    cityOrigin: studentCityOrigin,
+                    countryOrigin: studentCountryOrigin,
+                    documentType: studentDocumentType,
+                    numberDoc: studentNumberDoc,
+                    expirationDate: studentExpirationDate,
+                    issuedBy: studentIssuedBy
+                };
 
+                addNewStudent(newStudent);
+
+                hideStudentForm();
+                resetStudentFormFields();
+            } else {
+                alert('A student with this card number already exists!');
+            }
         } else {
             alert('Please enter all student fields!');
         }
@@ -178,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
         renderStudentList(students);
         saveStudentListToLocalStorage(students);
     }
-    
+
     function saveStudentListToLocalStorage(studentList) {
         localStorage.setItem('studentList', JSON.stringify(studentList));
     }
@@ -194,20 +234,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 <span>${student.name} ${student.surname}</span>
                 <span>${student.email}</span>
                 <span>${student.cardNumber}</span>
+                <span>${student.exchangeDuration} months</span>
                 <button class="edit-button" data-cardNumber="${student.cardNumber}">Edit</button>
                 <button class="remove-button" data-cardNumber="${student.cardNumber}">Remove</button>
             `;
             studentItems.appendChild(studentItem);
         });
     }
-    
+
     // Inizializza la lista degli studenti
-    // @mc l'inizializzazione deve avvenire su students, se no non si valorizza mai
     students = JSON.parse(localStorage.getItem('studentList')) || [];
     renderStudentList(students);
 
-    
-    
     // Funzione per popolare il form di modifica con i dettagli dello studente selezionato
     function populateEditForm(student) {
         const editCardNumber = document.getElementById('edit-card-number');
@@ -251,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editNumberDoc.value = student.numberDoc;
         editExpirationDate.value = student.expirationDate;
         editIssuedBy.value = student.issuedBy;
-        
+
         const studentEditForm = document.getElementById('student-edit-form');
         studentEditForm.classList.remove('hidden');
     }
@@ -262,13 +300,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const cardNumber = event.target.getAttribute('data-cardNumber');
 
             const studentToEdit = students.find(student => student.cardNumber === cardNumber);
-            
+
             if (studentToEdit) {
                 populateEditForm(studentToEdit);
             }
         }
     }
-
 
     // Aggiungi un gestore di eventi alla lista degli studenti per gestire il click sugli elementi utente
     studentItems.addEventListener('click', handleStudentItemClick);
@@ -276,8 +313,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
     saveEditButton.addEventListener('click', () => {
+        const editedCardNumber = document.getElementById('edit-card-number').value.trim();
         // Ottieni i dettagli modificati dallo studente nel form di modifica
-        const editedCardNumber = document.getElementById('edit-card-number').value.trim(); // @mc nota: se lo usi come ID per trovare un studente in una lista, non dovrebbe essere modificabile
         const editedEmail = document.getElementById('edit-email').value.trim();
         const editedName = document.getElementById('edit-name').value.trim();
         const editedSurname = document.getElementById('edit-surname').value.trim();
@@ -297,6 +334,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const editedNumberDoc = document.getElementById('edit-number-doc').value.trim();
         const editedExpirationDate = document.getElementById('edit-expiration-date').value.trim();
         const editedIssuedBy = document.getElementById('edit-issued-by').value.trim();
+
+        // Controlla se l'utente ha tentato di modificare il cardNumber
+        if (editedCardNumber !== originalCardNumber) {
+            alert('Please contact the admin to change the card number.');
+            return;
+        }
 
         // Crea un oggetto utente con i dettagli modificati
         const editedStudent = {
@@ -323,8 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Sovrascrivi lo studente modificato nell'array "students"
-        // @mc qui "studentIndex" era inesistente (la console ti segnalava un errore); ho usato il cardNumber come ID per identificare l'utente
-        const indexOfStudentToEdit = students.findIndex(x => x.cardNumber === editedStudent.cardNumber);
+        const indexOfStudentToEdit = students.findIndex(x => x.cardNumber === originalCardNumber);
         if(indexOfStudentToEdit !== -1) students[indexOfStudentToEdit] = editedStudent;
 
         // Chiudi il form di modifica
@@ -361,18 +403,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Aggiungi un gestore di eventi alla lista degli studenti per gestire il click sul pulsante "Remove"
     studentItems.addEventListener('click', handleRemoveButtonClick);
-    
+
     // Trova il pulsante "Remove All" nell'HTML
     const removeAllButton = document.getElementById('remove-all-button');
 
     // Aggiungi un gestore di eventi per il clic sul pulsante
     removeAllButton.addEventListener('click', () => {
-        students = [];        
-        renderStudentList(students);        
+        students = [];
+        renderStudentList(students);
         saveStudentListToLocalStorage(students);
     });
-
-
 
     const addButton = document.querySelector('.add-button');
     const menuItems = document.querySelector('.menu-items');
@@ -400,8 +440,4 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
-
-
-    
 });
-

@@ -29,19 +29,16 @@
 
     <div id="events-list" class="events-list">
         <h1>List of events</h1>
-
         
-        <div class="remove-all-events">
-            <button id="remove-all-button">Remove All</button>
+        <div class="button-container">
+            <button type="button" id="remove-all-button">Remove All</button>
+            <button type="button" id="sort-by-date-button">Sort by Date</button>
         </div>
-        <div class="sort-by-date">
-            <button id="sort-by-date-button">Sort by Date</button>
-        </div>
-        
         <ul id="event-items" class="event-items">
             <li>
                 <span>${event.code}</span>
                 <span>${event.name}</span>
+                <span>${event.type}</span>
                 <span>${event.date}</span>
                 <button class="edit-button" data-code="${event.code}">Edit</button>
                 <button class="remove-button" data-code="${event.code}">Remove</button>
@@ -150,7 +147,7 @@
         
                     <div class="button-container">
                         <button type="button" id="cancel-edit-button">Cancel</button>
-                        <button type="button" id="save-edit-button">Save</button>
+                        <button type="button" id="save-edit-button" class="save-edit-button" data-code="">Save</button>
                     </div>
                 </form>
             </div>

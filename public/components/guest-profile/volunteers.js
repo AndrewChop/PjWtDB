@@ -11,9 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const addUserButton = document.getElementById('add-user-button');
     
     // Lista degli utenti 
-    let users = [];
-
-    
+    let users = []; 
     
     // Connessione al WebSocket server
     const socket = new WebSocket('ws://192.168.1.38:3000');
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const message = JSON.parse(event.data);
         if (message.type === 'UPDATE_USER') {
             console.log('Received update:', message.payload);
-            // Update the users list and re-render it
+            // Aggiornare l'elenco degli utenti e renderizzarlo nuovamente
             const updatedUser = message.payload;
             const indexOfUserToUpdate = users.findIndex(user => user.id === updatedUser.id);
             if (indexOfUserToUpdate !== -1) {
@@ -41,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
     socket.onclose = function () {
         console.log('WebSocket connection closed');
     };
-
 
     async function loadVolunteersFromAPI() {
         try {
@@ -62,18 +59,13 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Failed to load users from API:', error);
         }
     }
-    
 
-/*
-    // Carica gli utenti dall'API e li visualizza nella lista, considerando il ruolo dell'utente
     async function loadVolunteersFromAPI() {
         try {
-            // Effettua la richiesta al server includendo il token di autenticazione nell'header
-            const response = await fetch('/api/users', {
-                method: 'GET',
+            const token = localStorage.getItem('jwt');
+            const response = await fetch('/api/users/volunteers', {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`, // Assumi che il token sia salvato in localStorage
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -82,47 +74,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const users = await response.json();
-            
-            // Renderizza la lista degli utenti in base ai dati ricevuti
             renderUserList(users);
         } catch (error) {
             console.error('Failed to load users from API:', error);
         }
     }
-
-*/
-
-async function loadVolunteersFromAPI() {
-    try {
-        const token = localStorage.getItem('jwt');
-        const response = await fetch('/api/users/volunteers', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const users = await response.json();
-        renderUserList(users);
-    } catch (error) {
-        console.error('Failed to load users from API:', error);
-    }
-}
-
-/*
-    // Carica i volontari dall'API e li visualizza nella lista
-    async function loadVolunteersFromAPI() {
-        const response = await fetch('/api/users/volunteers');
-        users = await response.json();
-        renderUserList(users);
-        /*const volunteers = await response.json();
-        volunteers.forEach(volunteer => {
-            addVolunteerToList(volunteer);
-        });*/
-   // }
 
     // Funzione per aggiungere un volontario alla lista visualizzata
     function addVolunteerToList(volunteer) {
@@ -154,18 +110,14 @@ async function loadVolunteersFromAPI() {
         }).catch(error => console.error('Error updating user:', error));
     }
 
-
-
-
     // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterUsers(query) {
-        console.log('filterUsers IN', query, users); // @mc console.log per debugging di esempio
-        // @mc qua facevi filtro su "users", ma non l'avevi mai inizializzato
+        console.log('filterUsers IN', query, users);
         const filteredUsers = users.filter(user => {
             const fullName = `${user.name} ${user.surname}`;
             return fullName.toLowerCase().includes(query.toLowerCase()) || user.cardNumber.includes(query);
         });
-        console.log('filterUsers OUT', filteredUsers); // @mc console.log per debugging di esempio
+        console.log('filterUsers OUT', filteredUsers);
         renderUserList(filteredUsers);
     }
 
@@ -181,8 +133,6 @@ async function loadVolunteersFromAPI() {
             filterUsers(query);
         }
     });
-
-   
 
     // Funzione per nascondere il form di inserimento utente
     function hideUserForm() {
@@ -265,15 +215,6 @@ async function loadVolunteersFromAPI() {
         }
     });
 
-    /*// Inizializza la lista degli utenti con dati di esempio
-    const initialUsers = [
-        { name: 'Mario', surname: 'Rossi', cardNumber: '12345' },
-        { name: 'Luigi', surname: 'Verdi', cardNumber: '67890' },
-        // Aggiungi altri utenti se necessario
-    ];
-
-    renderUserList(initialUsers); */
-
     // Funzione per aggiungere un nuovo utente alla lista
     function addNewUser(user) {
         users.push(user);
@@ -310,7 +251,7 @@ async function loadVolunteersFromAPI() {
     function renderUserList(userList) {
         const userItems = document.getElementById('user-items');
         if (users.length === 0) {
-            userItems.innerHTML = "<p>Nessun utente trovato.</p>";
+            userItems.innerHTML = "<p>No users found.</p>";
         } else {
             userItems.innerHTML = '';
             userList.forEach(user => {
@@ -331,11 +272,8 @@ async function loadVolunteersFromAPI() {
     loadVolunteersFromAPI();
     
     // Inizializza la lista degli utenti
-    // @mc l'inizializzazione deve avvenire su users, se no non si valorizza mai
     users = JSON.parse(localStorage.getItem('userList')) || [];
     renderUserList(users);
-
-    
 
     // Gestore di eventi per il click sul pulsante "Edit"
     function handleUserItemClick(event) {
@@ -354,59 +292,58 @@ async function loadVolunteersFromAPI() {
         }
     }
 
-
     // Aggiungi un gestore di eventi alla lista degli utenti per gestire il click sugli elementi utente
     userItems.addEventListener('click', handleUserItemClick);
 
-        // Funzione per popolare il form di modifica con i dettagli dell'utente selezionato
-        function populateEditForm(user, cardNumber) {
-            const editCardNumber = document.getElementById('edit-card-number');
-            const editEmail = document.getElementById('edit-email');
-            const editName = document.getElementById('edit-name');
-            const editSurname = document.getElementById('edit-surname');
-            const editGender = document.getElementById('edit-gender');
-            const editBirthDate = document.getElementById('edit-birth-date');
-            const editNationality = document.getElementById('edit-nationality');
-            const editPhone = document.getElementById('edit-phone');
-            const editStudyField = document.getElementById('edit-study-field');
-            const editOriginUniversity = document.getElementById('edit-origin-university');
-            const editStudentNumber = document.getElementById('edit-student-number');
-            const editAddressOrigin = document.getElementById('edit-address-origin');
-            const editCityOrigin = document.getElementById('edit-city-origin');
-            const editCountryOrigin = document.getElementById('edit-country-origin');
-            const editDocumentType = document.getElementById('edit-document-type');
-            const editNumberDoc = document.getElementById('edit-number-doc');
-            const editExpirationDate = document.getElementById('edit-expiration-date');
-            const editIssuedBy = document.getElementById('edit-issued-by');
+    // Funzione per popolare il form di modifica con i dettagli dell'utente selezionato
+    function populateEditForm(user, cardNumber) {
+        const editCardNumber = document.getElementById('edit-card-number');
+        const editEmail = document.getElementById('edit-email');
+        const editName = document.getElementById('edit-name');
+        const editSurname = document.getElementById('edit-surname');
+        const editGender = document.getElementById('edit-gender');
+        const editBirthDate = document.getElementById('edit-birth-date');
+        const editNationality = document.getElementById('edit-nationality');
+        const editPhone = document.getElementById('edit-phone');
+        const editStudyField = document.getElementById('edit-study-field');
+        const editOriginUniversity = document.getElementById('edit-origin-university');
+        const editStudentNumber = document.getElementById('edit-student-number');
+        const editAddressOrigin = document.getElementById('edit-address-origin');
+        const editCityOrigin = document.getElementById('edit-city-origin');
+        const editCountryOrigin = document.getElementById('edit-country-origin');
+        const editDocumentType = document.getElementById('edit-document-type');
+        const editNumberDoc = document.getElementById('edit-number-doc');
+        const editExpirationDate = document.getElementById('edit-expiration-date');
+        const editIssuedBy = document.getElementById('edit-issued-by');
     
-            editCardNumber.value = user.cardNumber;
-            editEmail.value = user.email;
-            editName.value = user.name;
-            editSurname.value = user.surname;
-            editGender.value = user.gender;
-            editBirthDate.value = user.birthDate;
-            editNationality.value = user.nationality;
-            editPhone.value = user.phone;
-            editStudyField.value = user.studyField;
-            editOriginUniversity.value = user.originUniversity;
-            editStudentNumber.value = user.studentNumber;
-            editAddressOrigin.value = user.addressOrigin;
-            editCityOrigin.value = user.cityOrigin;
-            editCountryOrigin.value = user.countryOrigin;
-            editDocumentType.value = user.documentType;
-            editNumberDoc.value = user.numberDoc;
-            editExpirationDate.value = user.expirationDate;
-            editIssuedBy.value = user.issuedBy;
+        editCardNumber.value = user.cardNumber;
+        editEmail.value = user.email;
+        editName.value = user.name;
+        editSurname.value = user.surname;
+        editGender.value = user.gender;
+        editBirthDate.value = user.birthDate;
+        editNationality.value = user.nationality;
+        editPhone.value = user.phone;
+        editStudyField.value = user.studyField;
+        editOriginUniversity.value = user.originUniversity;
+        editStudentNumber.value = user.studentNumber;
+        editAddressOrigin.value = user.addressOrigin;
+        editCityOrigin.value = user.cityOrigin;
+        editCountryOrigin.value = user.countryOrigin;
+        editDocumentType.value = user.documentType;
+        editNumberDoc.value = user.numberDoc;
+        editExpirationDate.value = user.expirationDate;
+        editIssuedBy.value = user.issuedBy;
             
-            const userEditForm = document.getElementById('user-edit-form');
-            userEditForm.classList.remove('hidden');
-        }
+        const userEditForm = document.getElementById('user-edit-form');
+        userEditForm.classList.remove('hidden');
+    }
 
     // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
     saveEditButton.addEventListener('click', () => {
         // Ottieni i dettagli modificati dall'utente nel form di modifica
-        const editedCardNumber = document.getElementById('edit-card-number').value.trim(); // @mc nota: se lo usi come ID per trovare un utente in una lista, non dovrebbe essere modificabile
+        const editedCardNumber = document.getElementById('edit-card-number').value.trim();
         const editedEmail = document.getElementById('edit-email').value.trim();
         const editedName = document.getElementById('edit-name').value.trim();
         const editedSurname = document.getElementById('edit-surname').value.trim();
@@ -448,7 +385,6 @@ async function loadVolunteersFromAPI() {
         };
 
         // Sovrascrivi l'utente modificato nell'array "users"
-        // @mc qui "userIndex" era inesistente (la console ti segnalava un errore); ho usato il cardNumber come ID per identificare l'utente
         const indexOfUserToEdit = users.findIndex(x => x.cardNumber === editedUser.cardNumber);
         if(indexOfUserToEdit !== -1) users[indexOfUserToEdit] = editedUser;
 
@@ -477,7 +413,7 @@ async function loadVolunteersFromAPI() {
                 // Salva l'array aggiornato nella localStorage
                 saveUserListToLocalStorage(users);
             } else {
-                console.error("Utente non trovato nell'array"); 
+                console.error("User not found in the array."); 
             }
             // Aggiorna la lista degli studenti
             renderUserList(users);
@@ -496,9 +432,6 @@ async function loadVolunteersFromAPI() {
         renderUserList(users);        
         saveUserListToLocalStorage(users);
     });
-
-
-
     
 });
 

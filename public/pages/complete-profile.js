@@ -3,7 +3,7 @@ document.getElementById('profile-form').addEventListener('submit', function(even
 
     // Recuperare il token JWT dal localStorage
     const token = localStorage.getItem('jwtToken');
-    console.log("Token recuperato:", token); // Aggiungi questa linea per visualizzare il token
+    console.log("Token retrieved:", token); // Aggiungi questa linea per visualizzare il token
 
     // Raccogliere i dati dal form
     const formData = {
@@ -38,33 +38,20 @@ document.getElementById('profile-form').addEventListener('submit', function(even
     })
     .then(response => {
         if (response.status === 401) {
-            alert('Sessione scaduta. Per favore, rilogga.');
+            alert('Session expired! Please re-login.');
             window.location.href = '../index.html'; // Redirigi all'area di login
         } else if (!response.ok) {
-            throw new Error('Errore nella completamento del profilo');
+            throw new Error('Error completing profile.');
         }
         return response.json();
     })
     .then(data => {
         // Qui puoi gestire la risposta del server, ad esempio reindirizzando l'utente
-        alert('Profilo completato con successo!');
+        alert('Profile completed successfully!');
         window.location.href = 'homepage.html';
-        /*
-        if (formData.role === 'STUDENT') {
-            window.location.href = 'homepage_student.html';
-        } else if (formData.role === 'VOLUNTEER' || formData.role === 'ADMIN') {
-            window.location.href = 'homepage.html';
-        
-        } else if (formData.role === 'PENDING') { 
-            alert('La tua registrazione è in attesa di approvazione. Si prega di controllare più tardi o contattare l\'amministratore per ulteriori informazioni.');
-            window.location.href = '../index.html';
-        } else if (formData.role === 'REJECTED') {
-            alert('La tua registrazione è stata rifiutata. Si prega di controllare più tardi o contattare l\'amministratore per ulteriori informazioni.');
-            window.location.href = '../index.html';
-        }*/
     })
     .catch(error => {
-        console.error('Errore nella completamento del profilo:', error);
+        console.error('Error completing profile:', error);
         alert(error.message);
     });
 });

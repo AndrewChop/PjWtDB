@@ -30,14 +30,6 @@
     <div id="transactions-list" class="transactions-list">
         <h1>List of transactions</h1>
 
-        <!-- vorrei creare un contenitore per inserire sia remove che sort sulla stessa linea-->
-        <div class="remove-all-transactions">
-            <button id="remove-all-button">Remove All</button>
-        </div>
-        <div class="sort-by-date">
-            <button id="sort-by-date-button">Sort by Date</button>
-        </div>
-
         <div id="transaction-totals" class="transaction-totals">
             <div class="total-wrapper">
                 <div class="total-in" id="total-in">Total In: €0.00</div>
@@ -48,6 +40,11 @@
             <div class="total-wrapper">
                 <div class="net-total" id="net-total">Net Total: €0.00</div>
             </div>
+        </div>
+
+        <div class="button-container">
+            <button type="button" id="remove-all-button">Remove All</button>
+            <button type="button" id="sort-by-date-button">Sort by Date</button>
         </div>
         
         <ul id="transaction-items" class="transaction-items">

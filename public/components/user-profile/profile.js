@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadUserData() {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
-        console.error('Token non disponibile');
-        alert('Non sei autenticato. Effettua il login.');
+        console.error('Token not available');
+        alert('You are not authenticated! Please login.');
         return; 
     }
     console.log(token);
@@ -19,7 +19,7 @@ async function loadUserData() {
 
     if (!response.ok) {
         if (response.status === 401) {
-            alert('Sessione scaduta o non valida. Si prega di rieffettuare il login.');
+            alert('Session expired or invalid! Please log in again.');
             window.location.href = '/login.html'; // Reindirizza all'login
         } else {
             console.error('Failed to load user data:', response);
