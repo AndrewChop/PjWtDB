@@ -40,7 +40,7 @@ function populateForm(userData) {
     document.getElementById('user-name').value = userData.name;
     document.getElementById('user-surname').value = userData.surname;
     document.getElementById('user-gender').value = userData.gender;
-    document.getElementById('user-birth-date').value = userData.birthDate;
+    document.getElementById('user-birth-date').value = formatDateForInput(userData.birthDate);
     document.getElementById('user-nationality').value = userData.nationality;
     document.getElementById('user-phone-number').value = userData.phoneNumber;
     document.getElementById('user-study-field').value = userData.studyField;
@@ -51,12 +51,30 @@ function populateForm(userData) {
     document.getElementById('user-address-origin').value = userData.addressCityOfOrigin;
     document.getElementById('user-document-type').value = userData.documentType;
     document.getElementById('user-number-doc').value = userData.documentNumber;
-    document.getElementById('user-expiration-date').value = userData.documentExpiration;
+    document.getElementById('user-expiration-date').value = formatDateForInput(userData.documentExpiration);
     document.getElementById('user-issued-by').value = userData.documentIssuer;
+}
+
+function formatDateForInput(dateString) {
+    if (!dateString) return ''; // Gestione di date non valide o nulle
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function unformatDateForInput(dateString) {
+    if (!dateString) return ''; // Gestione di date non valide o nulle
+    const [year, month, day] = dateString.split('-');
+    return `${year}-${month}-${day}`;
 }
 
 async function saveChanges() {
     const token = localStorage.getItem('jwtToken');
+    const birthDate = document.getElementById('user-birth-date').value;
+    const expirationDate = document.getElementById('user-expiration-date').value;
+
     const userData = {
         cardNumber: document.getElementById('user-card-number').value,
         email: document.getElementById('user-email').value,
@@ -64,7 +82,7 @@ async function saveChanges() {
         name: document.getElementById('user-name').value,
         surname: document.getElementById('user-surname').value,
         gender: document.getElementById('user-gender').value,
-        birthDate: document.getElementById('user-birth-date').value,
+        birthDate: birthDate ? unformatDateForInput(birthDate) : null,
         nationality: document.getElementById('user-nationality').value,
         phoneNumber: document.getElementById('user-phone-number').value,
         studyField: document.getElementById('user-study-field').value,
@@ -75,11 +93,11 @@ async function saveChanges() {
         addressCityOfOrigin: document.getElementById('user-address-origin').value,
         documentType: document.getElementById('user-document-type').value,
         documentNumber: document.getElementById('user-number-doc').value,
-        documentExpiration: document.getElementById('user-expiration-date').value,
+        documentExpiration: expirationDate ? unformatDateForInput(expirationDate) : null,
         documentIssuer: document.getElementById('user-issued-by').value
     };
 
-    console.log(userData);
+    console.log("Data to be sent:", userData);
 
     const response = await fetch('/api/user/update', {
         method: 'POST', 
@@ -101,4 +119,3 @@ async function saveChanges() {
     }
 
 }
-

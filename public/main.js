@@ -9,8 +9,8 @@ function checkCredentials() {
     })
     .then(response => {
         if (!response.ok) {
-            console.log('Attention', response.status, response.statusText);
-            throw new Error('Invalid credentials');
+            console.log('Attention!', response.status, response.statusText);
+            throw new Error('Invalid credentials.');
         }
         return response.json();
     })
@@ -21,7 +21,7 @@ function checkCredentials() {
     })
     .catch(error => {
         console.log('An error occurred here:', error);
-        console.error('Errore:', error);
+        console.error('Error:', error);
         alert("Invalid credentials! Please try again.");
     });
 }

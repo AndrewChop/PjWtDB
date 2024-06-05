@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Lista degli utenti 
     let students = [];
 
+    // Variabile per memorizzare il cardNumber originale
+    let originalCardNumber = '';
+
     // Funzione per verificare se un cardNumber esiste già
     function isCardNumberUnique(cardNumber, excludeCardNumber = null) {
         return !students.some(student => student.cardNumber === cardNumber && student.cardNumber !== excludeCardNumber);
@@ -19,12 +22,36 @@ document.addEventListener('DOMContentLoaded', function () {
         return regex.test(cardNumber);
     }
 
+    // Funzione per convalidare l'età
+    function isAtLeast18YearsOld(birthDate) {
+        const today = new Date();
+        const birthDateObj = new Date(birthDate);
+        const age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDifference = today.getMonth() - birthDateObj.getMonth();
+        const dayDifference = today.getDate() - birthDateObj.getDate();
+        
+        // Verifica l'età
+        if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+            return age - 1 >= 18;
+        }
+        return age >= 18;
+    }
+
+    // Funzione per impostare la data minima per l'expiration date
+    function setMinExpirationDate(inputId) {
+        const expirationDateInput = document.getElementById(inputId);
+        const today = new Date();
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+        const minDate = nextYear.toISOString().split('T')[0]; // Formatta la data come YYYY-MM-DD
+        expirationDateInput.min = minDate;
+    }
+
     // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterStudents(query) {
         const normalizedQuery = query.toLowerCase().trim();
 
         const filteredStudents = students.filter(student => {
-            const fullName = `${student.cardNumber} ${student.name} ${student.surname} ${student.exchangeDuration}`.toLowerCase();
+            const fullName = `${student.cardNumber} ${student.name} ${student.surname} ${student.email} ${student.exchangeDuration}`.toLowerCase();
 
             // Controllare se la query è presente nel nome completo o nel numero della carta
             if (fullName.includes(normalizedQuery) || student.cardNumber.toLowerCase().includes(normalizedQuery)) {
@@ -68,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function showStudentForm() {
         const studentForm = document.getElementById('student-form');
         studentForm.classList.remove('hidden');
+        setMinExpirationDate('student-expiration-date'); // Imposta la data minima per l'expiration date
     }
 
     // Funzione per nascondere il form di inserimento studente
@@ -125,8 +153,26 @@ document.addEventListener('DOMContentLoaded', function () {
         const studentIssuedBy = document.getElementById('student-issued-by').value.trim();
 
         if (studentCardNumber && studentEmail && studentName && studentSurname && studentGender && studentBirthDate && studentNationality && studentPhone && studentStudyField && studentOriginUniversity && studentHostUniversity && studentExchangeDuration && studentStudentNumber && studentAddressOrigin && studentCityOrigin && studentCountryOrigin && studentDocumentType && studentNumberDoc && studentExpirationDate && studentIssuedBy) {
+            let validationErrors = [];
+
             if (!isValidCardNumber(studentCardNumber)) {
-                alert('Invalid card number. It must contain exactly 7 numbers and up to 4 characters.');
+                validationErrors.push('Invalid card number. It must contain exactly 7 numbers and up to 4 characters.');
+            }
+
+            if (!isAtLeast18YearsOld(studentBirthDate)) {
+                validationErrors.push('The student must be at least 18 years old.');
+            }
+
+            const today = new Date();
+            const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+            const minExpirationDate = nextYear.toISOString().split('T')[0];
+
+            if (new Date(studentExpirationDate) < new Date(minExpirationDate)) {
+                validationErrors.push('Expiration date must be at least one year from today.');
+            }
+
+            if (validationErrors.length > 0) {
+                alert(validationErrors.join('\n'));
                 return;
             }
 
@@ -269,6 +315,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const editExpirationDate = document.getElementById('edit-expiration-date');
         const editIssuedBy = document.getElementById('edit-issued-by');
 
+        // Memorizza il cardNumber originale
+        originalCardNumber = student.cardNumber;
+
         editCardNumber.value = student.cardNumber;
         editEmail.value = student.email;
         editName.value = student.name;
@@ -289,6 +338,8 @@ document.addEventListener('DOMContentLoaded', function () {
         editNumberDoc.value = student.numberDoc;
         editExpirationDate.value = student.expirationDate;
         editIssuedBy.value = student.issuedBy;
+
+        setMinExpirationDate('edit-expiration-date'); // Imposta la data minima per l'expiration date nel form di modifica
 
         const studentEditForm = document.getElementById('student-edit-form');
         studentEditForm.classList.remove('hidden');
@@ -338,6 +389,25 @@ document.addEventListener('DOMContentLoaded', function () {
         // Controlla se l'utente ha tentato di modificare il cardNumber
         if (editedCardNumber !== originalCardNumber) {
             alert('Please contact the admin to change the card number.');
+            return;
+        }
+
+        let validationErrors = [];
+
+        if (!isAtLeast18YearsOld(editedBirthDate)) {
+            validationErrors.push('The student must be at least 18 years old.');
+        }
+
+        const today = new Date();
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+        const minExpirationDate = nextYear.toISOString().split('T')[0];
+
+        if (new Date(editedExpirationDate) < new Date(minExpirationDate)) {
+            validationErrors.push('Expiration date must be at least one year from today.');
+        }
+
+        if (validationErrors.length > 0) {
+            alert(validationErrors.join('\n'));
             return;
         }
 

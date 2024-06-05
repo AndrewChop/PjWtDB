@@ -80,6 +80,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+
+
     // Funzione per aggiungere un volontario alla lista visualizzata
     function addVolunteerToList(volunteer) {
         const volunteerList = document.getElementById('volunteerList');
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function filterUsers(query) {
         console.log('filterUsers IN', query, users);
         const filteredUsers = users.filter(user => {
-            const fullName = `${user.name} ${user.surname}`;
+            const fullName = `${user.cardNumber} ${user.name} ${user.surname} ${user.email} `;
             return fullName.toLowerCase().includes(query.toLowerCase()) || user.cardNumber.includes(query);
         });
         console.log('filterUsers OUT', filteredUsers);
@@ -277,6 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Gestore di eventi per il click sul pulsante "Edit"
     function handleUserItemClick(event) {
+        console.log("Accesso al metodo edit");
         if (event.target.classList.contains('edit-button')) {
             const cardNumber = event.target.getAttribute('data-cardNumber');
 
