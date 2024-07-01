@@ -15,7 +15,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 40px;
-    width: 100%; 
+    width: 100vw; 
     background-color: white;  
     height: 50px;
 }
@@ -60,20 +60,6 @@ body {
     text-align: left;
 }
 
-.remove-all-volunteers {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-}
-
-#remove-all-button {
-    width: auto; 
-    padding: 7px 10px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
 .user-items {
     list-style-type: none;
     padding: 0;
@@ -93,11 +79,6 @@ body {
     flex: 1;
 }
 
-.edit-button,
-.remove-button {
-    margin-left: 10px;
-}
-
 
 
 .personal-data-form {
@@ -115,7 +96,6 @@ body {
     padding: 5px;
     margin-bottom: 20px;
 }
-
 
 .edit-profile-header {
     width: 100%; 
@@ -144,7 +124,6 @@ body {
     max-width: 100%;
 }
 
-
 .button-container {
     display: flex;
     justify-content: flex-end;
@@ -152,85 +131,14 @@ body {
     margin-top: 20px;
 }
 
-#confirm-user, #cancel-user {
+#close-view-button {
     width: auto; 
     padding: 7px 10px;
     cursor: pointer;
     margin-left: 10px;
 }
 
-#save-edit-button, #cancel-edit-button {
-    width: auto; 
-    padding: 7px 10px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-
-
-.add-menu {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 999;
-}
-  
-.add-button {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #4e73df; 
-    color: white;
-    font-size: 24px;
-    font-weight: bolder;
-    border: none;
-    cursor: pointer;
-}
-  
-.menu-items {
-    display: none;
-    position: absolute;
-    bottom: 70px;
-    left: -50px;
-    background-color: #4e73df;
-    padding: 5px;
-    border-radius: 5px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
-}
-  
-.menu-item {
-    display: block;
-    margin: 5px 0;
-    background-color: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: bolder;
-}
-
-
-
-.menu-items li {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    list-style: none;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    width: 50px;
-}
-
-.menu-items li:hover {
-    background-color: #3b5998;
-}
-
-.menu-items a {
-    color: white;
-    text-decoration: none;
-}
-
-.profile-form {
+.user-view-form {
     position: fixed;
     top: 0;
     left: 0;
@@ -245,17 +153,4 @@ body {
 
 body.hidden {
     overflow: hidden;
-}
-
-.user-edit-form {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: white;
-    z-index: 1000;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
 }

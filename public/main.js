@@ -1,8 +1,13 @@
-function checkCredentials() {
-    var email = document.querySelector(".email").value;
-    var password = document.querySelector(".password").value;
+document.getElementById('login-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    checkCredentials();
+});
 
-    fetch('http://localhost:3000/api/login', {
+function checkCredentials() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    fetch('http://192.168.1.6:3000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -10,19 +15,20 @@ function checkCredentials() {
     .then(response => {
         if (!response.ok) {
             console.log('Attention!', response.status, response.statusText);
-            throw new Error('Invalid credentials.');
+            throw new Error('Invalid credentials');
         }
         return response.json();
     })
     .then(data => {
         console.log(data);
         localStorage.setItem('jwtToken', data.token); // Salvataggio del token nel localStorage
+        console.log('Token saved:', data.token);
         window.location.href = "./pages/homepage.html";
     })
     .catch(error => {
         console.log('An error occurred here:', error);
         console.error('Error:', error);
-        alert("Invalid credentials! Please try again.");
+        alert('Invalid credentials! Please try again.');
     });
 }
 
@@ -47,18 +53,14 @@ function removeCredentials() {
 
 // Al caricamento della pagina, popola automaticamente i campi di login con le credenziali salvate
 window.addEventListener("load", function () {
-    const loginBoxes = document.querySelectorAll(".login-box");
+    const savedUsername = localStorage.getItem("username");
+    const savedPassword = localStorage.getItem("password");
 
-    loginBoxes.forEach((loginBox) => {
-        const savedUsername = localStorage.getItem("username");
-        const savedPassword = localStorage.getItem("password");
-
-        if (savedUsername && savedPassword) {
-            loginBox.querySelector(".username").value = savedUsername;
-            loginBox.querySelector(".password").value = savedPassword;
-            loginBox.querySelector(".remember-checkbox").checked = true;
-        }
-    });
+    if (savedUsername && savedPassword) {
+        document.getElementById('email').value = savedUsername;
+        document.getElementById('password').value = savedPassword;
+        document.getElementById('rememberMe').checked = true;
+    }
 });
 
 document.querySelector(".remember-checkbox").addEventListener("change", function () {

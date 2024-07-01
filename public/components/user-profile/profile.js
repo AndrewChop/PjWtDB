@@ -3,34 +3,57 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('save-button').addEventListener('click', saveChanges);
 });
 
-async function loadUserData() {
+/* async function renewToken() {
     const token = localStorage.getItem('jwtToken');
-    if (!token) {
-        console.error('Token not available');
-        alert('You are not authenticated! Please login.');
-        return; 
-    }
-    console.log(token);
-
-    const response = await fetch('/api/user/data', {
-        method: 'GET',
+    const response = await fetch('/api/renew-token', {
+        method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            alert('Session expired or invalid! Please log in again.');
-            window.location.href = '/login.html'; // Reindirizza all'login
-        } else {
-            console.error('Failed to load user data:', response);
-        }
-        return;
+    if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('jwtToken', data.token);
+        return data.token;
     } else {
+        throw new Error('Failed to renew token');
+    }
+} */
+
+async function loadUserData() {
+    try {
+        let token = localStorage.getItem('jwtToken');
+        if (!token) {
+            console.error('Token not available');
+            alert('You are not authenticated! Please login.');
+            window.location.href = '../index.html';
+            return; 
+        }
+        console.log('Token (PROFILE):', token);
+
+        let response = await fetch('/api/user/data', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 401) {
+            /* token = await renewToken(); // Try renewing the token
+            response = await fetch('/api/user/data', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }); */
+            alert('Session expired or invalid! Please log in again.');
+            window.location.href = '../../index.html'; // Reindirizza all'login
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to load user data');
+        }
         console.log('User data loaded successfully');
         const userData = await response.json();
         populateForm(userData);
+    } catch (error) {
+        console.error('Error loading user data:', error);
+        alert('An error occurred: ' + error.message);
     }
-
 }
 
 function populateForm(userData) {
@@ -75,6 +98,33 @@ async function saveChanges() {
     const birthDate = document.getElementById('user-birth-date').value;
     const expirationDate = document.getElementById('user-expiration-date').value;
 
+    // Funzione per convalidare il cardNumber
+    function isValidCardNumber(cardNumber) {
+        const regex = /^\d{7}[a-zA-Z]{0,4}$/;
+        return regex.test(cardNumber);
+    }
+
+    // Funzione per convalidare l'età
+    function isAtLeast18YearsOld(birthDate) {
+        const today = new Date();
+        const birthDateObj = new Date(birthDate);
+        const age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDifference = today.getMonth() - birthDateObj.getMonth();
+        const dayDifference = today.getDate() - birthDateObj.getDate();
+        
+        if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+            return age - 1 >= 18;
+        }
+        return age >= 18;
+    }
+
+    // Funzione per impostare la data minima per l'expiration date
+    function isValidExpirationDate(expirationDate) {
+        const today = new Date();
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+        return new Date(expirationDate) >= nextYear;
+    }
+
     const userData = {
         cardNumber: document.getElementById('user-card-number').value,
         email: document.getElementById('user-email').value,
@@ -99,23 +149,51 @@ async function saveChanges() {
 
     console.log("Data to be sent:", userData);
 
-    const response = await fetch('/api/user/update', {
-        method: 'POST', 
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(userData)
-    });
+    // Convalida i campi
+    let validationErrors = [];
 
-    if (!response.ok) {
-        console.error('Failed to update user data:', response);
-        alert('Failed to update user data');
-        return;
-    } else {
-        console.log('Profile updated successfully');
-        alert('Profile updated successfully');
-        loadUserData();
+    if (!isValidCardNumber(userData.cardNumber)) {
+        validationErrors.push('Invalid card number. It must contain exactly 7 numbers and up to 4 characters.');
     }
 
+    if (!isAtLeast18YearsOld(userData.birthDate)) {
+        validationErrors.push('The user must be at least 18 years old.');
+    }
+
+    if (!isValidExpirationDate(userData.documentExpiration)) {
+        validationErrors.push('Expiration date must be at least one year from today.');
+    }
+
+    if (validationErrors.length > 0) {
+        alert(validationErrors.join('\n'));
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/user/update', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                alert('Session expired or invalid! Please log in again.');
+                window.location.href = '../../index.html'; // Reindirizza all'login
+            } else {
+                console.error('Failed to save user data:', response);
+                alert('Failed to update user data');
+            }
+            return;
+        } else {
+            console.log('User data saved successfully');
+            alert('Profile updated successfully!');
+            loadUserData();
+        }
+    } catch (error) {
+        console.error('Error saving user data:', error);
+    }
 }

@@ -1,22 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">                      
+    <meta charset="UTF-8">
     <title>Volunteers</title>
-    <meta 
-        name="viewport"
-        content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="format-detection" content="telephone=no"/>
     <meta name="msapplication-tap-highlight" content="no"/>
-
     <link rel="icon" type="image/x-icon" href="..\..\assets\icons\favicon.ico">
-
-    <!-- Libs -->
     <link rel="stylesheet" href="..\..\assets\libs\volunteers.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    
-
 </head>
 <body>
     <div class="search-bar">
@@ -29,209 +21,92 @@
 
     <div id="user-list" class="user-list">
         <h1>Volunteers List</h1>
-        <div class="remove-all-volunteers">
-            <button id="remove-all-button">Remove All</button>
-        </div>
         <ul id="user-items" class="user-items">
-            <li>
-                <span>${user.name} ${user.surname}</span>
-                <span>${user.cardNumber}</span>
-                <button class="edit-button" data-cardNumber="${user.cardNumber}">Edit</button>
-                <button class="remove-button" data-cardNumber="${student.cardNumber}">Remove</button>
-            </li>
+            <!-- La lista dei volontari verrà inserita qui -->
         </ul>
     </div>
 
-
-
-    <div id="profile-form" class="profile-form hidden">
-        <div class="edit-profile-header">
-            <h3>Personal Information</h3>
-        </div>
-        <div class="edit-profile-container">
-            <div class="edit-profile-content">
-                <form class="personal-data-form">
-                    <label for="user-card-number">Number ESNcard:</label>
-                    <input type="text" id="user-card-number" class="personal-data-input">
-
-                    <label for="user-email">Email:</label>
-                    <input type="email" id="user-email" class="personal-data-input">
-
-                    <label for="user-name">Name:</label>
-                    <input type="text" id="user-name" class="personal-data-input">
-
-                    <label for="user-surname">Surname:</label>
-                    <input type="text" id="user-surname" class="personal-data-input">
-
-                    <label for="user-gender">Gender:</label>
-                    <select id="user-gender">
-                        <option value="None"></option>
-                        <option value="Man">Man</option>
-                        <option value="Woman">Woman</option>
-                        <option value="Non-binary">Non-binary</option>
-                        <option value="Other">Other</option>
-                        <option value="Prefer not to specify">Prefer not to specify</option>
-                    </select>
-
-                    <label for="user-birth-date">Birth date:</label>
-                    <input type="date" id="user-birth-date" class="personal-data-input">
-
-                    <label for="user-nationality">Nationality:</label>
-                    <input type="text" id="user-nationality" class="personal-data-input">
-
-                    <label for="user-phone">Phone Number:</label>
-                    <input type="text" id="user-phone" class="personal-data-input">
-
-                    <label for="user-study-field">Study Field:</label>
-                    <input type="text" id="user-study-field" class="personal-data-input">
-
-                    <label for="user-origin-university">Home University:</label>
-                    <input type="text" id="user-origin-university" class="personal-data-input">
-
-                    <label for="user-student-number">Student Number:</label>
-                    <input type="text" id="user-student-number" class="personal-data-input">
-
-                    <label for="user-address-origin">Home address:</label>
-                    <input type="text" id="user-address-origin" class="personal-data-input">
-
-                    <label for="user-city-origin">City:</label>
-                    <input type="text" id="user-city-origin" class="personal-data-input">
-
-                    <label for="user-country-origin">Country:</label>
-                    <input type="text" id="user-country-origin" class="personal-data-input">
-
-                    <label for="user-document-type">Document Type:</label>
-                    <select id="user-document-type">
-                        <option value="none"></option>
-                        <option value="passport">Passport</option>
-                        <option value="identity-card">Identity Card</option>
-                        <option value="driver-license">Driver License</option>
-                    </select>
-
-                    <label for="user-number-doc">Number Document:</label>
-                    <input type="text" id="user-number-doc" class="personal-data-input">
-
-                    <label for="user-expiration-date">Expiration Date:</label>
-                    <input type="date" id="user-expiration-date" class="personal-data-input">
-
-                    <label for="user-issued-by">Issued By:</label>
-                    <input type="text" id="user-issued-by" class="personal-data-input">
-                    
-                    <div class="button-container">
-                        <button type="button" id="cancel-user">Cancel</button>
-                        <button type="button" id="confirm-user">Add Volunteer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="user-edit-form" class="user-edit-form hidden">
+    <div id="user-view-form" class="user-view-form hidden">
         <div class="edit-profile-header">
             <h3>Volunteer Information</h3>
         </div>
         <div class="edit-profile-container">
             <div class="edit-profile-content">
                 <form class="personal-data-form">
-                    <label for="edit-card-number">Number ESNcard:</label>
-                    <input type="text" id="edit-card-number" class="personal-data-input">
+                    <label for="view-card-number">Number ESNcard:</label>
+                    <input type="text" id="view-card-number" class="personal-data-input" disabled>
 
-                    <label for="edit-email">Email:</label>
-                    <input type="email" id="edit-email" class="personal-data-input">
+                    <label for="view-email">Email:</label>
+                    <input type="email" id="view-email" class="personal-data-input" disabled>
 
-                    <label for="edit-name">Name:</label>
-                    <input type="text" id="edit-name" class="personal-data-input">
+                    <label for="view-name">Name:</label>
+                    <input type="text" id="view-name" class="personal-data-input" disabled>
 
-                    <label for="edit-surname">Surname:</label>
-                    <input type="text" id="edit-surname" class="personal-data-input">
+                    <label for="view-surname">Surname:</label>
+                    <input type="text" id="view-surname" class="personal-data-input" disabled>
 
-                    <label for="edit-gender">Gender:</label>
-                    <select id="edit-gender">
-                        <option value="None"></option>
-                        <option value="Man">Man</option>
-                        <option value="Woman">Woman</option>
-                        <option value="Non-binary">Non-binary</option>
-                        <option value="Other">Other</option>
-                        <option value="Prefer not to specify">Prefer not to specify</option>
+                    <label for="view-gender">Gender:</label>
+                    <select id="view-gender" disabled>
+                        <option value="NONE"></option>
+                        <option value="MAN">Man</option>
+                        <option value="WOMAN">Woman</option>
+                        <option value="NON_BINARY">Non-binary</option>
+                        <option value="OTHER">Other</option>
+                        <option value="PREFER_NOT_TO_SPECIFY">Prefer not to specify</option>
                     </select>
 
-                    <label for="edit-birth-date">Birth date:</label>
-                    <input type="date" id="edit-birth-date" class="personal-data-input">
+                    <label for="view-birth-date">Birth date:</label>
+                    <input type="date" id="view-birth-date" class="personal-data-input" disabled>
 
-                    <label for="edit-nationality">Nationality:</label>
-                    <input type="text" id="edit-nationality" class="personal-data-input">
+                    <label for="view-nationality">Nationality:</label>
+                    <input type="text" id="view-nationality" class="personal-data-input" disabled>
 
-                    <label for="edit-phone">Phone Number:</label>
-                    <input type="text" id="edit-phone" class="personal-data-input">
+                    <label for="view-phone">Phone Number:</label>
+                    <input type="text" id="view-phone" class="personal-data-input" disabled>
 
-                    <label for="edit-study-field">Study Field:</label>
-                    <input type="text" id="edit-study-field" class="personal-data-input">
+                    <label for="view-study-field">Study Field:</label>
+                    <input type="text" id="view-study-field" class="personal-data-input" disabled>
 
-                    <label for="edit-origin-university">Home University:</label>
-                    <input type="text" id="edit-origin-university" class="personal-data-input">
+                    <label for="view-origin-university">Home University:</label>
+                    <input type="text" id="view-origin-university" class="personal-data-input" disabled>
 
-                    <label for="edit-student-number">Student Number:</label>
-                    <input type="text" id="edit-student-number" class="personal-data-input">
+                    <label for="view-student-number">Student Number:</label>
+                    <input type="text" id="view-student-number" class="personal-data-input" disabled>
 
-                    <label for="edit-address-origin">Home address:</label>
-                    <input type="text" id="edit-address-origin" class="personal-data-input">
+                    <label for="view-address-origin">Home address:</label>
+                    <input type="text" id="view-address-origin" class="personal-data-input" disabled>
 
-                    <label for="edit-city-origin">City:</label>
-                    <input type="text" id="edit-city-origin" class="personal-data-input">
+                    <label for="view-city-origin">City:</label>
+                    <input type="text" id="view-city-origin" class="personal-data-input" disabled>
 
-                    <label for="edit-country-origin">Country:</label>
-                    <input type="text" id="edit-country-origin" class="personal-data-input">
+                    <label for="view-country-origin">Country:</label>
+                    <input type="text" id="view-country-origin" class="personal-data-input" disabled>
 
-                    <label for="edit-document-type">Document Type:</label>
-                    <select id="edit-document-type">
-                        <option value="none"></option>
-                        <option value="passport">Passport</option>
-                        <option value="identity-card">Identity Card</option>
-                        <option value="driver-license">Driver License</option>
+                    <label for="view-document-type">Document Type:</label>
+                    <select id="view-document-type" disabled>
+                        <option value="NONE"></option>
+                        <option value="PASSPORT">Passport</option>
+                        <option value="IDENTITY_CARD">Identity Card</option>
+                        <option value="DRIVER_LICENSE">Driver License</option>
                     </select>
 
-                    <label for="edit-number-doc">Number Document:</label>
-                    <input type="text" id="edit-number-doc" class="personal-data-input">
+                    <label for="view-number-doc">Number Document:</label>
+                    <input type="text" id="view-number-doc" class="personal-data-input" disabled>
 
-                    <label for="edit-expiration-date">Expiration Date:</label>
-                    <input type="date" id="edit-expiration-date" class="personal-data-input">
+                    <label for="view-expiration-date">Expiration Date:</label>
+                    <input type="date" id="view-expiration-date" class="personal-data-input" disabled>
 
-                    <label for="edit-issued-by">Issued By:</label>
-                    <input type="text" id="edit-issued-by" class="personal-data-input">
-        
+                    <label for="view-issued-by">Issued By:</label>
+                    <input type="text" id="view-issued-by" class="personal-data-input" disabled>
+
                     <div class="button-container">
-                        <button type="button" id="cancel-edit-button">Cancel</button>
-                        <button type="button" id="save-edit-button">Save</button>
+                        <button type="button" id="close-view-button">Close</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-
-
-    <!-- Tasto per aprire il menu a tendina -->
-    <div id="add-menu" class="add-menu">
-        <button class="add-button">+</button>
-        <div class="menu-items">
-            <button id="add-user-button" class="menu-item">Add new volunteer</button>
-        </div>
-    </div>
-
-    <script>
-        // Funzione per mostrare o nascondere il menu a tendina
-        function toggleUserMenu() {
-            const menu = document.getElementById('add-menu');
-            const menuItems = document.querySelector('.menu-items');
-            menuItems.style.display = menuItems.style.display === 'none' ? 'block' : 'none';
-        }
-        
-        document.getElementById('add-user-button').addEventListener('click', toggleUserMenu);
-    </script>
-
-        
-    
     <script src="volunteers.js"></script>
-    
 </body>
 </html>

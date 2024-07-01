@@ -6,9 +6,93 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Lista degli utenti 
     let students = [];
-
+    
     // Variabile per memorizzare il cardNumber originale
     let originalCardNumber = '';
+
+    const socket = new WebSocket('ws://192.168.1.6:3000');
+
+    socket.onopen = function () {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = function (event) {
+        console.log('Message received:', event.data);
+        if (event.data === "Welcome in the server WebSocket!") {
+            console.log("Received welcome message, not a JSON, skipping parsing.");
+            return;
+        }
+        try {
+            const message = JSON.parse(event.data);
+            if (message.type === 'ADD_STUDENT') {
+                console.log('Received add:', message.payload);
+                students.push(message.payload);
+                renderStudentList(students);
+            } else if (message.type === 'UPDATE_STUDENT') {
+                console.log('Received update:', message.payload);
+                const updatedStudent = message.payload;
+                const indexOfStudentToUpdate = students.findIndex(student => student.id === updatedStudent.id);
+                if (indexOfStudentToUpdate !== -1) {
+                    students[indexOfStudentToUpdate] = updatedStudent;
+                }
+                renderStudentList(students);
+            } else if (message.type === 'REMOVE_STUDENT') {
+                console.log('Received remove:', message.payload);
+                const removedStudent = message.payload;
+                students = students.filter(student => student.id !== removedStudent.id);
+                renderStudentList(students);
+            }
+        } catch (error) {
+            console.error('Failed to parse message:', error);
+        }
+    };
+
+    socket.onclose = function () {
+        console.log('WebSocket connection closed');
+    };
+
+    async function loadStudentsFromAPI() {
+        try {
+            const token = localStorage.getItem('jwtToken');
+            const response = await fetch('/api/users/students', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            students = await response.json();
+            renderStudentList(students);
+        } catch (error) {
+            console.error('Failed to load users from API:', error);
+        }
+    }
+
+    // Funzione per renderizzare la lista degli studenti
+    function renderStudentList(studentList) {
+        const studentItems = document.getElementById('student-items');
+        if (students.length === 0) {
+            studentItems.innerHTML = "<p>No students found.</p>";
+        } else {
+            studentItems.innerHTML = '';
+
+            studentList.forEach(student => {
+                const studentItem = document.createElement('li');
+                studentItem.innerHTML = `
+                    <span>${student.name} ${student.surname}</span>
+                    <span>${student.email}</span>
+                    <span>${student.cardNumber}</span>
+                    <span>${student.exchangeDuration} months</span>
+                    <button class="edit-button" data-cardNumber="${student.cardNumber}">Edit</button>
+                    <button class="remove-button" data-cardNumber="${student.cardNumber}">Remove</button>
+                `;
+                studentItems.appendChild(studentItem);
+            });
+        }
+    }
 
     // Funzione per verificare se un cardNumber esiste già
     function isCardNumberUnique(cardNumber, excludeCardNumber = null) {
@@ -46,6 +130,21 @@ document.addEventListener('DOMContentLoaded', function () {
         expirationDateInput.min = minDate;
     }
 
+
+
+    // Gestione dell'evento di ricerca
+    searchButton.addEventListener('click', () => {
+        const query = searchInput.value.trim();
+        filterStudents(query);
+    });
+
+    searchInput.addEventListener('keyup', event => {
+        if (event.key === 'Enter') {
+            const query = searchInput.value.trim();
+            filterStudents(query);
+        }
+    });
+
     // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterStudents(query) {
         const normalizedQuery = query.toLowerCase().trim();
@@ -78,17 +177,9 @@ document.addEventListener('DOMContentLoaded', function () {
         renderStudentList(filteredStudents);
     }
 
-    // Gestione dell'evento di ricerca
-    searchButton.addEventListener('click', () => {
-        const query = searchInput.value.trim();
-        filterStudents(query);
-    });
-
-    searchInput.addEventListener('keyup', event => {
-        if (event.key === 'Enter') {
-            const query = searchInput.value.trim();
-            filterStudents(query);
-        }
+    // Gestione dell'evento di aggiunta studente
+    addStudentButton.addEventListener('click', () => {
+        showStudentForm(); 
     });
 
     // Funzione per mostrare il form di inserimento studente
@@ -113,24 +204,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add event listener to the cancel button in the student add form
     const cancelStudentButton = document.getElementById('cancel-student');
     cancelStudentButton.addEventListener('click', () => {
-        const studentForm = document.getElementById('student-form');
-        studentForm.classList.add('hidden');
+        hideStudentForm();
     });
 
     // Add event listener to the cancel button in the student edit form
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
-    });
-
-    // Gestione dell'evento di aggiunta studente
-    addStudentButton.addEventListener('click', () => {
-        showStudentForm(); 
-    });
+    });    
 
     // Pulsante per confermare l'aggiunta dello studente
     const confirmAddStudentButton = document.getElementById('confirm-student');
-    confirmAddStudentButton.addEventListener('click', () => {
+    confirmAddStudentButton.addEventListener('click', async () => {
         const studentCardNumber = document.getElementById('student-card-number').value.trim();        
         const studentEmail = document.getElementById('student-email').value.trim();
         const studentName = document.getElementById('student-name').value.trim();
@@ -200,10 +285,50 @@ document.addEventListener('DOMContentLoaded', function () {
                     issuedBy: studentIssuedBy
                 };
 
-                addNewStudent(newStudent);
+                try {
+                    const token = localStorage.getItem('jwtToken');
+                    const response = await fetch('/api/student/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                        cardNumber: studentCardNumber,
+                        email: studentEmail,
+                        name: studentName,
+                        surname: studentSurname,
+                        gender: studentGender,
+                        birthDate: studentBirthDate,
+                        nationality: studentNationality,
+                        phoneNumber: studentPhone,
+                        studyField: studentStudyField,
+                        originUniversity: studentOriginUniversity,
+                        hostUniversity: studentHostUniversity,
+                        exchangeDuration: studentExchangeDuration,
+                        studentNumber: studentStudentNumber,
+                        addressCityOfOrigin: studentAddressOrigin,
+                        cityOfOrigin: studentCityOrigin,
+                        countryOfOrigin: studentCountryOrigin,
+                        documentType: studentDocumentType,
+                        documentNumber: studentNumberDoc,
+                        documentExpiration: studentExpirationDate,
+                        documentIssuer: studentIssuedBy
+                        })
+                    });
 
-                hideStudentForm();
-                resetStudentFormFields();
+                    if (!response.ok) {
+                        throw new Error('Failed to add student');
+                    }
+
+                    const newStudent = await response.json();
+                    students.push(newStudent);
+                    renderStudentList(students);
+                    hideStudentForm();
+                    resetStudentFormFields();
+                } catch (error) {
+                    console.error('Error adding student:', error);
+                }
             } else {
                 alert('A student with this card number already exists!');
             }
@@ -214,130 +339,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Funzione per reimpostare i valori dei campi del form
     function resetStudentFormFields() {
-        const studentCardNumber = document.getElementById('student-card-number');
-        const studentEmail = document.getElementById('student-email');
-        const studentName = document.getElementById('student-name');
-        const studentSurname = document.getElementById('student-surname');
-        const studentGender = document.getElementById('student-gender');
-        const studentBirthDate = document.getElementById('student-birth-date');
-        const studentNationality = document.getElementById('student-nationality');
-        const studentPhone = document.getElementById('student-phone');
-        const studentStudyField = document.getElementById('student-study-field');
-        const studentOriginUniversity = document.getElementById('student-origin-university');
-        const studentHostUniversity = document.getElementById('student-host-university');
-        const studentExchangeDuration = document.getElementById('student-exchange-duration');
-        const studentStudentNumber = document.getElementById('student-student-number');
-        const studentAddressOrigin = document.getElementById('student-address-origin');
-        const studentCityOrigin = document.getElementById('student-city-origin');
-        const studentCountryOrigin = document.getElementById('student-country-origin');
-        const studentDocumentType = document.getElementById('student-document-type');
-        const studentNumberDoc = document.getElementById('student-number-doc');
-        const studentExpirationDate = document.getElementById('student-expiration-date');
-        const studentIssuedBy = document.getElementById('student-issued-by');
-
-        // Reimposta i valori dei campi del form a stringa vuota
-        studentCardNumber.value = '';
-        studentEmail.value = '';
-        studentName.value = '';
-        studentSurname.value = '';
-        studentGender.value = '';
-        studentBirthDate.value = '';
-        studentNationality.value = '';
-        studentPhone.value = '';
-        studentStudyField.value = '';
-        studentOriginUniversity.value = '';
-        studentHostUniversity.value = '';
-        studentExchangeDuration.value = '';
-        studentStudentNumber.value = '';
-        studentAddressOrigin.value = '';
-        studentCityOrigin.value = '';
-        studentCountryOrigin.value = '';
-        studentDocumentType.value = '';
-        studentNumberDoc.value = '';
-        studentExpirationDate.value = '';
-        studentIssuedBy.value = '';
+        document.getElementById('student-card-number').value = '';
+        document.getElementById('student-email').value = '';
+        document.getElementById('student-name').value = '';
+        document.getElementById('student-surname').value = '';
+        document.getElementById('student-gender').value = '';
+        document.getElementById('student-birth-date').value = '';
+        document.getElementById('student-nationality').value = '';
+        document.getElementById('student-phone').value = '';
+        document.getElementById('student-study-field').value = '';
+        document.getElementById('student-origin-university').value = '';
+        document.getElementById('student-host-university').value = '';
+        document.getElementById('student-exchange-duration').value = '';
+        document.getElementById('student-student-number').value = '';
+        document.getElementById('student-address-origin').value = '';
+        document.getElementById('student-city-origin').value = '';
+        document.getElementById('student-country-origin').value = '';
+        document.getElementById('student-document-type').value = '';
+        document.getElementById('student-number-doc').value = '';
+        document.getElementById('student-expiration-date').value = '';
+        document.getElementById('student-issued-by').value = '';
     }
 
-    // Funzione per aggiungere un nuovo studente alla lista
-    function addNewStudent(student) {
-        students.push(student);
-        renderStudentList(students);
-        saveStudentListToLocalStorage(students);
-    }
-
-    function saveStudentListToLocalStorage(studentList) {
-        localStorage.setItem('studentList', JSON.stringify(studentList));
-    }
-
-    // Funzione per renderizzare la lista degli studenti
-    function renderStudentList(studentList) {
-        const studentItems = document.getElementById('student-items');
-        studentItems.innerHTML = '';
-
-        studentList.forEach(student => {
-            const studentItem = document.createElement('li');
-            studentItem.innerHTML = `
-                <span>${student.name} ${student.surname}</span>
-                <span>${student.email}</span>
-                <span>${student.cardNumber}</span>
-                <span>${student.exchangeDuration} months</span>
-                <button class="edit-button" data-cardNumber="${student.cardNumber}">Edit</button>
-                <button class="remove-button" data-cardNumber="${student.cardNumber}">Remove</button>
-            `;
-            studentItems.appendChild(studentItem);
-        });
-    }
-
-    // Inizializza la lista degli studenti
-    students = JSON.parse(localStorage.getItem('studentList')) || [];
-    renderStudentList(students);
 
     // Funzione per popolare il form di modifica con i dettagli dello studente selezionato
     function populateEditForm(student) {
-        const editCardNumber = document.getElementById('edit-card-number');
-        const editEmail = document.getElementById('edit-email');
-        const editName = document.getElementById('edit-name');
-        const editSurname = document.getElementById('edit-surname');
-        const editGender = document.getElementById('edit-gender');
-        const editBirthDate = document.getElementById('edit-birth-date');
-        const editNationality = document.getElementById('edit-nationality');
-        const editPhone = document.getElementById('edit-phone');
-        const editStudyField = document.getElementById('edit-study-field');
-        const editOriginUniversity = document.getElementById('edit-origin-university');
-        const editHostUniversity = document.getElementById('edit-host-university');
-        const editExchangeDuration = document.getElementById('edit-exchange-duration');
-        const editStudentNumber = document.getElementById('edit-student-number');
-        const editAddressOrigin = document.getElementById('edit-address-origin');
-        const editCityOrigin = document.getElementById('edit-city-origin');
-        const editCountryOrigin = document.getElementById('edit-country-origin');
-        const editDocumentType = document.getElementById('edit-document-type');
-        const editNumberDoc = document.getElementById('edit-number-doc');
-        const editExpirationDate = document.getElementById('edit-expiration-date');
-        const editIssuedBy = document.getElementById('edit-issued-by');
+        document.getElementById('edit-card-number').value = student.cardNumber;
+        document.getElementById('edit-email').value = student.email;
+        document.getElementById('edit-name').value = student.name;
+        document.getElementById('edit-surname').value = student.surname;
+        document.getElementById('edit-gender').value = student.gender;
+        document.getElementById('edit-birth-date').value = student.birthDate;
+        document.getElementById('edit-nationality').value = student.nationality;
+        document.getElementById('edit-phone').value = student.phone;
+        document.getElementById('edit-study-field').value = student.studyField;
+        document.getElementById('edit-origin-university').value = student.originUniversity;
+        document.getElementById('edit-host-university').value = student.hostUniversity;
+        document.getElementById('edit-exchange-duration').value = student.exchangeDuration;
+        document.getElementById('edit-student-number').value = student.studentNumber;
+        document.getElementById('edit-address-origin').value = student.addressOrigin;
+        document.getElementById('edit-city-origin').value = student.cityOrigin;
+        document.getElementById('edit-country-origin').value = student.countryOrigin;
+        document.getElementById('edit-document-type').value = student.documentType;
+        document.getElementById('edit-number-doc').value = student.numberDoc;
+        document.getElementById('edit-expiration-date').value = student.expirationDate;
+        document.getElementById('edit-issued-by').value = student.issuedBy;
 
-        // Memorizza il cardNumber originale
         originalCardNumber = student.cardNumber;
-
-        editCardNumber.value = student.cardNumber;
-        editEmail.value = student.email;
-        editName.value = student.name;
-        editSurname.value = student.surname;
-        editGender.value = student.gender;
-        editBirthDate.value = student.birthDate;
-        editNationality.value = student.nationality;
-        editPhone.value = student.phone;
-        editStudyField.value = student.studyField;
-        editOriginUniversity.value = student.originUniversity;
-        editHostUniversity.value = student.hostUniversity;
-        editExchangeDuration.value = student.exchangeDuration;
-        editStudentNumber.value = student.studentNumber;
-        editAddressOrigin.value = student.addressOrigin;
-        editCityOrigin.value = student.cityOrigin;
-        editCountryOrigin.value = student.countryOrigin;
-        editDocumentType.value = student.documentType;
-        editNumberDoc.value = student.numberDoc;
-        editExpirationDate.value = student.expirationDate;
-        editIssuedBy.value = student.issuedBy;
 
         setMinExpirationDate('edit-expiration-date'); // Imposta la data minima per l'expiration date nel form di modifica
 
@@ -355,17 +403,45 @@ document.addEventListener('DOMContentLoaded', function () {
             if (studentToEdit) {
                 populateEditForm(studentToEdit);
             }
+        } else if (event.target.classList.contains('remove-button')) {
+            const cardNumber = event.target.getAttribute('data-cardNumber');
+            removeStudent(cardNumber);
         }
     }
+
+    // Endpoint per rimuovere uno studente
+    async function removeStudent(cardNumber) {
+        try {
+            const token = localStorage.getItem('jwtToken');
+            const response = await fetch('/api/student/remove', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ studentId: cardNumber })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to remove student');
+            }
+
+            const result = await response.json();
+            console.log('Student removed successfully:', result);
+        } catch (error) {
+            console.error('Error removing student:', error);
+        }
+    }
+
+
 
     // Aggiungi un gestore di eventi alla lista degli studenti per gestire il click sugli elementi utente
     studentItems.addEventListener('click', handleStudentItemClick);
 
     // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
-    saveEditButton.addEventListener('click', () => {
+    saveEditButton.addEventListener('click', async () => {
         const editedCardNumber = document.getElementById('edit-card-number').value.trim();
-        // Ottieni i dettagli modificati dallo studente nel form di modifica
         const editedEmail = document.getElementById('edit-email').value.trim();
         const editedName = document.getElementById('edit-name').value.trim();
         const editedSurname = document.getElementById('edit-surname').value.trim();
@@ -435,53 +511,30 @@ document.addEventListener('DOMContentLoaded', function () {
             issuedBy: editedIssuedBy
         };
 
-        // Sovrascrivi lo studente modificato nell'array "students"
-        const indexOfStudentToEdit = students.findIndex(x => x.cardNumber === originalCardNumber);
-        if(indexOfStudentToEdit !== -1) students[indexOfStudentToEdit] = editedStudent;
+        try {
+            const token = localStorage.getItem('jwt');
+            const response = await fetch('/api/student/update', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ studentId: originalCardNumber, ...editedStudent })
+            });
 
-        // Chiudi il form di modifica
-        const studentEditForm = document.getElementById('student-edit-form');
-        studentEditForm.classList.add('hidden');
-
-        // Aggiorna la lista degli utenti con le modifiche
-        renderStudentList(students);
-
-        // Salva l'array aggiornato nella localStorage
-        saveStudentListToLocalStorage(students);
-    });
-
-    // Gestore di eventi per il click sul pulsante "Remove"
-    function handleRemoveButtonClick(event) {
-        if (event.target.classList.contains('remove-button')) {
-            const cardNumber = event.target.getAttribute('data-cardNumber');
-
-            // Trova l'indice dello studente da rimuovere nell'array "students"
-            const indexOfStudentToRemove = students.findIndex(student => student.cardNumber === cardNumber);
-
-            if (indexOfStudentToRemove !== -1) {
-                // Rimuovi lo studente dall'array
-                students.splice(indexOfStudentToRemove, 1);
-
-                // Aggiorna la lista degli studenti
-                renderStudentList(students);
-
-                // Salva l'array aggiornato nella localStorage
-                saveStudentListToLocalStorage(students);
+            if (!response.ok) {
+                throw new Error('Failed to update student');
             }
+
+            const result = await response.json();
+            console.log('Student updated successfully:', result);
+
+            // Chiudi il form di modifica
+            hideEditForm();
+
+        } catch (error) { 
+            console.error('Error updating student:', error);
         }
-    }
-
-    // Aggiungi un gestore di eventi alla lista degli studenti per gestire il click sul pulsante "Remove"
-    studentItems.addEventListener('click', handleRemoveButtonClick);
-
-    // Trova il pulsante "Remove All" nell'HTML
-    const removeAllButton = document.getElementById('remove-all-button');
-
-    // Aggiungi un gestore di eventi per il clic sul pulsante
-    removeAllButton.addEventListener('click', () => {
-        students = [];
-        renderStudentList(students);
-        saveStudentListToLocalStorage(students);
     });
 
     const addButton = document.querySelector('.add-button');
@@ -510,4 +563,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
+
+    loadStudentsFromAPI();    
 });

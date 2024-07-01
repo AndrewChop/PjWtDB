@@ -3,24 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Home Page</title>
-    <meta 
-        name="viewport"
-        content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="format-detection" content="telephone=no"/>
     <meta name="msapplication-tap-highlight" content="no"/>
-
     <link rel="icon" type="image/x-icon" href="..\assets\icons\favicon.ico">
-
-    <!-- Libs -->
     <link rel="stylesheet" href="..\assets\libs\homepage.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
-    <script src="homepage.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div class="container">
-
         <div class="topbar">
             <div class="profile-link" id="userProfile">
                 <img class="profile-image" src="..\assets\profile\profile.jpg" alt="Profile">
@@ -28,8 +19,13 @@
                     <div class="profile-dropdown">
                         <ul>
                             <li>
+                                <a href="#" id="uploadProfileImage">
+                                    Upload Image
+                                </a>
+                            </li>
+                            <li>
                                 <a href="..\components\user-profile\profile.html" id="profileLink">
-                                    Profile
+                                    Profile Data
                                 </a>
                             </li>
                             <li>
@@ -42,27 +38,24 @@
                 </div>
             </div>
         </div>
-
         <div id="profileContent" class="profile-content"></div>
-        
         <div class="main-content">
             <div class="button-container">
                 <button class="main-button" id="usersButton">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
-                        <div class="dropdown-content">
-                            <ul>
-                                <li id="volunteerList">
-                                    <a href="..\components\guest-profile\volunteers.html">Volunteers</a>
-                                    <ul class="volunteer-names"></ul> 
-                                </li>
-                                <li id="studentList">
-                                    <a href="..\components\guest-profile\students.html">Students</a>
-                                    <ul class="student-names"></ul> 
-                                </li>
-                            </ul>
-                        </div>
-
+                    <div class="dropdown-content">
+                        <ul>
+                            <li id="volunteerList">
+                                <a href="..\components\guest-profile\volunteers.html">Volunteers</a>
+                                <ul class="volunteer-names"></ul>
+                            </li>
+                            <li id="studentList">
+                                <a href="..\components\guest-profile\students.html">Students</a>
+                                <ul class="student-names"></ul>
+                            </li>
+                        </ul>
+                    </div>
                 </button>
                 <button class="main-button" id="projectsButton">
                     <i class="fas fa-project-diagram"></i>
@@ -94,5 +87,6 @@
             </div>
         </div>
     </div>
+    <script src="homepage.js"></script>
 </body>
 </html>

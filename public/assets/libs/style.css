@@ -22,7 +22,8 @@ body, html {
 
 .login-box {
     padding: 20px;
-    max-width: 400px; /* Larghezza massima per il login box */
+    padding-left: 20px;
+    max-width: 200px; /* Larghezza massima per il login box */
     width: 100%; /* Larghezza adattabile */
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -30,6 +31,8 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Allinea verticalmente */
+    text-align: center; /* Centra il testo */
 }
 
 .logo-container {

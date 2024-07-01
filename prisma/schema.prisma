@@ -14,12 +14,12 @@ model User {
   id                   Int            @id @default(autoincrement())
   cardNumber           String?        @unique
   email                String         @unique
-  password             String
+  password             String?        // Campo facoltativo
   role                 UserRole       // Campo per distinguere il ruolo dell'utente
   name                 String?
   surname              String?
   gender               Gender?        // Mantiene il campo come opzionale
-  birthDate            DateTime?      // Rendilo opzionale
+  birthDate            DateTime?      // Campo facoltativo
   nationality          String?
   phoneNumber          String?
   studyField           String?
@@ -34,6 +34,7 @@ model User {
   documentNumber       String?
   documentExpiration   DateTime?      // Rendilo opzionale
   documentIssuer       String?
+  profileImage         String?
 
   // Relazioni
   eventsOrganized      Event[]        @relation("UserEvents")
@@ -70,8 +71,6 @@ model Treasury {
   channel       Channel
   date          DateTime
   note          String?
-  
-  // ... aggiungi relazioni se necessario ...
 
   @@map("treasuries")
 }
@@ -85,8 +84,6 @@ model Discount {
   expirationDate DateTime
   description   String
   link          String?
-  
-  // ... aggiungi relazioni se necessario ...
 
   @@map("discounts")
 }
@@ -115,8 +112,6 @@ enum DocumentType {
 }
 
 enum UserRole {
-  //REJECTED
-  //PENDING
   STUDENT
   VOLUNTEER
   ADMIN
