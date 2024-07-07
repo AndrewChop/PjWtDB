@@ -26,7 +26,7 @@ body {
     margin-right: 10px;
 }
   
-#search-button, #add-user-button {
+#search-button {
     padding: 10px 20px;
     background-color: #4e73df;
     color: white;
@@ -153,4 +153,96 @@ body {
 
 body.hidden {
     overflow: hidden;
+}
+
+/* Media query per schermi più piccoli */
+@media (max-width: 768px) {
+    .search-bar {
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px; /* Riduce il padding per adattarlo ai dispositivi mobili */
+        height: auto; /* Modificato per adattare l'altezza automaticamente */
+    }
+
+    .logo {
+        width: 30px; /* Riduce la dimensione del logo */
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    #search-input {
+        width: 100%;
+    }
+
+    #search-button {
+        padding: 10px;
+    }
+
+    .user-list {
+        width: 95%;
+        margin: 10px auto;
+        padding: 10px;
+    }
+
+    .user-items li {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .personal-data-form {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .personal-data-input {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .edit-profile-header {
+        padding: 10px;
+    }
+
+    .edit-profile-container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .edit-profile-content {
+        width: 100%;
+    }
+
+    .button-container {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #close-view-button {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        padding: 5px;
+    }
+
+    .logo {
+        width: 25px;
+        height: 25px;
+    }
+
+    .user-list {
+        padding: 5px;
+    }
+
+    .personal-data-input {
+        padding: 6px;
+    }
+
+    #close-view-button {
+        padding: 8px;
+    }
 }

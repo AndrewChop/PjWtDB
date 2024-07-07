@@ -1,5 +1,3 @@
-
-
 body, html {
     margin: 0;
     padding: 0;
@@ -24,9 +22,9 @@ body, html {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    margin: 10px;
     font-weight: bold;     
     padding: 20px;  
+    margin-left: 10px;
 }
 
 .personal-data-input {
@@ -42,10 +40,9 @@ body, html {
 }
 
 .edit-profile-header {
-    width: 98.5%; 
-    padding: 20px; 
-    background-color: #4e73df; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+    width: 100%; 
+    padding: 15px; 
+    background-color: #4e73df;  
     color: white;
     font-weight: bolder;
     text-align: left;
@@ -64,19 +61,19 @@ body, html {
     justify-content: center;
     width: 94%;
     max-width: 94%;
-    padding: 20px;
+    padding: 10px;
     background-color: white;
 }
 
 .edit-profile-content {
-    width: 96vw;
-    max-width: 95%;
+    width: 94vw;
+    max-width: 100%;
 }
 
 .button-container {
     display: flex;
     justify-content: flex-end;
-    width: 99%;
+    width: 100%;
     margin-top: 10px;
 }
 
@@ -87,3 +84,71 @@ body, html {
     margin-left: 10px;
 }
 
+/* Media query per schermi più piccoli */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 15px;
+        max-height: 85vh;
+        margin: 10px;
+    }
+
+    .edit-profile-header {
+        width: 100%;
+        padding: 10px;
+        align-items: center;
+    }
+
+    .edit-profile-header h3 {
+        margin-top: 10px;
+    }
+
+    .edit-profile-header .logo {
+        width: 40px;
+        margin-bottom: 10px;
+    }
+    
+    .edit-profile-container {
+        padding: 10px;
+    }
+
+    .personal-data-input, select {
+        width: 90%;
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .button-container {
+        width: 93%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+        max-height: 80vh;
+        margin: 5px;
+    }
+
+    .edit-profile-header {
+        width: 100%;
+        padding: 10px;
+        align-items: center;
+    }
+    
+    .edit-profile-container {
+        padding: 3px;
+    }
+
+    .personal-data-input, select {
+        width: 80;
+        font-size: 12px;
+        padding: 4px;
+    }
+
+    #save-button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}

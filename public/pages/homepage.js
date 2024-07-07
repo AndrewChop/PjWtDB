@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setupUploadProfileImage(); // Aggiungi questa linea
     loadUserProfileImage(); // Aggiungi questa linea
     console.log('Page loaded correctly!');
+
+    setupDropdowns(); // Aggiungi questa linea
 });
 
 function setupProfileLink() {
@@ -67,7 +69,7 @@ function uploadProfileImage(file) {
 
     console.log('Uploading profile image...');
     
-    fetch('http://192.168.1.6:3000/api/upload-profile-image', {
+    fetch('http://192.168.1.16:3000/api/upload-profile-image', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
@@ -94,7 +96,7 @@ function uploadProfileImage(file) {
 function loadUserProfileImage() {
     console.log('Loading user profile image...');
     
-    fetch('http://192.168.1.6:3000/api/user/data', {
+    fetch('http://192.168.1.16:3000/api/user/data', {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
@@ -114,5 +116,37 @@ function loadUserProfileImage() {
     })
     .catch(error => {
         console.error('Error loading user profile image:', error);
+    });
+}
+
+// Funzione per configurare l'apertura e la chiusura dei menu a tendina
+function setupDropdowns() {
+    const dropdownButtons = document.querySelectorAll('.main-button, .profile-link');
+    
+    dropdownButtons.forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const dropdown = this.querySelector('.dropdown-content');
+            const isVisible = dropdown.style.display === 'block';
+
+            // Chiudi tutti i menu a tendina
+            document.querySelectorAll('.dropdown-content').forEach(function(dd) {
+                dd.style.display = 'none';
+            });
+
+            // Se il menu a tendina non era visibile, mostralo
+            if (!isVisible) {
+                dropdown.style.display = 'block';
+            }
+        });
+    });
+
+    // Chiudi i menu a tendina se si clicca fuori di essi
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.main-button') && !event.target.closest('.profile-link')) {
+            document.querySelectorAll('.dropdown-content').forEach(function(dd) {
+                dd.style.display = 'none';
+            });
+        }
     });
 }

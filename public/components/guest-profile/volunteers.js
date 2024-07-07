@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let users = [];
 
-    const socket = new WebSocket('ws://192.168.1.6:3000');
+    const socket = new WebSocket('ws://192.168.1.16:3000');
 
     socket.onopen = function () {
         console.log('WebSocket connection established');

@@ -27,7 +27,7 @@ app.use(express.static('public'));
 
 // Configura il middleware CORS
 app.use(cors({
-    origin: 'http://192.168.1.6:3000', // Permette solo richieste da questa origine
+    origin: 'http://192.168.1.16:3000', // Permette solo richieste da questa origine
     methods: ['GET', 'POST'], // Metodi consentiti
     credentials: true // Permette credenziali come cookies, autorizzazione headers ecc.
 }));
@@ -535,5 +535,5 @@ app.post('/api/renew-token', verifyToken, (req, res) => {
 }); */
 
 server.listen(port, '0.0.0.0', () => {
-    console.log(`Server listening on http://192.168.1.6:${port}`);
+    console.log(`Server listening on http://192.168.1.16:${port}`);
 });

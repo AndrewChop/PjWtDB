@@ -8,7 +8,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Roboto;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color     Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     background-color: #4e73df;
     background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
     background-attachment: fixed;
@@ -19,10 +19,10 @@ body {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    width: 80%; /* Larghezza del container impostata all'80% della viewport */
-    max-width: 1700px; /* Imposta una larghezza massima per evitare che il container diventi troppo grande */
-    margin: 20px; /* Aggiungi un po' di margine attorno al container */
-    box-sizing: border-box; /* Include padding e bordo nella larghezza totale */
+    width: 80%; 
+    max-width: 1700px; 
+    margin: 20px; 
+    box-sizing: border-box; 
 }
 
 .container h1 {
@@ -68,9 +68,51 @@ button.submit-btn:hover {
     opacity: 0.9;
 }
 
-@media screen and (max-width: 300px) {
+/* Media query per schermi più piccoli */
+@media screen and (max-width: 768px) {
     .container {
-        width: 95%;
+        width: 90%; 
+        padding: 15px;
+    }
+
+    .container h1 {
+        font-size: 24px; 
+    }
+
+    input[type=text], input[type=password], input[type=date], input[type=number], select {
+        width: calc(100% - 20px); 
+        font-size: 16px; 
+    }
+
+    button.submit-btn {
+        font-size: 16px;
         padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        width: 95%; 
+        padding: 10px; 
+    }
+
+    .container h1 {
+        font-size: 20px; 
+    }
+
+    .container label {
+        color: white;
+        margin-left: 10px;
+    }
+
+    input[type=text], input[type=password], input[type=date], input[type=number], select {
+        width: calc(100% - 16px);
+        font-size: 14px; 
+        margin-left: 10px;
+    }
+
+    button.submit-btn {
+        font-size: 14px; 
+        padding: 8px; 
     }
 }

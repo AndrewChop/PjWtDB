@@ -272,3 +272,97 @@ body.hidden {
     box-sizing: border-box;
     overflow-y: auto;
 }
+
+/* Media query per schermi più piccoli */
+@media (max-width: 768px) {
+    .search-bar {
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        height: auto;
+    }
+
+    .logo {
+        width: 30px; /* Riduce la dimensione del logo */
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    #search-input {
+        width: 100%;
+    }
+
+    #search-button, #add-student-button {
+        padding: 10px;
+    }
+
+    .student-list {
+        width: 95%;
+        margin: 10px auto;
+        padding: 10px;
+    }
+
+    .student-items li {
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 10px;
+    }
+
+    .personal-data-form {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .personal-data-input {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .edit-student-header {
+        padding: 10px;
+    }
+
+    .edit-student-container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .edit-student-content {
+        width: 100%;
+    }
+
+    .button-container {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #confirm-student, #cancel-student,
+    #save-edit-button, #cancel-edit-button {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        padding: 5px;
+    }
+
+    .logo {
+        width: 25px;
+        height: 25px;
+    }
+
+    .student-list {
+        padding: 5px;
+    }
+
+    .personal-data-input {
+        padding: 6px;
+    }
+
+    #confirm-student, #cancel-student,
+    #save-edit-button, #cancel-edit-button {
+        padding: 8px;
+    }
+}

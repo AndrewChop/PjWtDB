@@ -4,7 +4,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Roboto;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color     Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     background-color: #4e73df;
     background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
 }
@@ -83,8 +83,57 @@ a {
     color: dodgerblue;
 }
 
-@media screen and (max-width: 300px) {
+/* Media query per schermi più piccoli */
+@media screen and (max-width: 768px) {
+    .container {
+        width: 80%;
+        padding: 20px;
+    }
+
+    .container h1 {
+        font-size: 24px; 
+    }
+
+    input[type=text], input[type=password] {
+        width: calc(100% - 20px); 
+        font-size: 16px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px; 
+    }
+
+    .clearfix button {
+        width: 48%;
+        float: left;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        width: 80%; 
+        padding: 20px; 
+    }
+
+    .container h1 {
+        font-size: 20px; 
+    }
+
+    input[type=text], input[type=password] {
+        margin-top: 5px;
+        width: calc(100% - 16px); 
+        font-size: 14px; 
+    }
+
+    button {
+        font-size: 14px; 
+        padding: 8px; 
+    }
+
     .clearfix button {
         width: 100%;
+        margin: 5px 0; 
+        float: none;
     }
 }
