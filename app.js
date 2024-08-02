@@ -106,6 +106,7 @@ app.post('/api/register', async (req, res) => {
                 email,
                 password: hashedPassword,
                 role: assignedRole
+                /* token: //passare token randomizzato */
             }
         });
 
@@ -289,37 +290,6 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
     }
 });
 
-/* NON PENSO SERVA
-// Endpoint per ottenere e filtrare gli utenti basato sul ruolo dell'utente autenticato
-app.get('/api/users', verifyToken, async (req, res) => {
-    try {
-        let users;
-        if (req.user.role === 'ADMIN') {
-            users = await prisma.user.findMany();
-        } else {
-            users = await prisma.user.findMany({
-                where: {
-                    OR: [
-                        { id: req.user.userId },
-                        { role: 'VOLUNTEER' }
-                    ]
-                }
-            });
-        }
-        res.json(users);
-    } catch (error) {
-        console.error('Error retrieving user data:', error);
-        res.status(500).json({ message: 'Error retrieving user data', error: error.message });
-    }
-}); 
-
-// Endpoint per ottenere il ruolo dell'utente
-app.get('/api/user/role', verifyToken, (req, res) => {
-    console.log('Request received on /api/user/role');
-    res.json({ role: req.user.role });
-});
-*/
-
 
 // Endpoint per ottenere tutti i volontari
 app.get('/api/users/volunteers', async (req, res) => {
@@ -335,9 +305,6 @@ app.get('/api/users/volunteers', async (req, res) => {
 });
 
 
-
-
-
 // Endpoint per ottenere tutti gli studenti
 app.get('/api/users/students', async (req, res) => {
     try {
@@ -350,6 +317,31 @@ app.get('/api/users/students', async (req, res) => {
         res.status(500).send('Failed to retrieve student data');
     }
 });
+
+// Endpoint per ottenere tutti gli eventi
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await prisma.event.findMany();
+        res.json(events);
+    } catch (error) {
+        console.error('Failed to retrieve events:', error);
+        res.status(500).send('Failed to retrieve events');
+    }
+});
+
+// Endpoint per ottenere tutte le transazioni
+app.get('/api/transactions', async (req, res) => {
+    try {
+        const transactions = await prisma.treasury.findMany();
+        res.json(transactions);
+    } catch (error) {
+        console.error('Failed to retrieve transactions:', error);
+        res.status(500).send('Failed to retrieve transactions');
+    }
+});
+
+
+
 
 // Endpoint per aggiungere uno studente
 app.post('/api/student/add', verifyToken, async (req, res) => {
@@ -495,6 +487,183 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
         res.status(500).json({ message: 'Error removing student', error: error.message });
     }
 });
+
+// Endpoint per aggiungere un evento
+app.post('/api/event/add', verifyToken, async (req, res) => {
+    console.log("Sto aggiungendo un evento");
+    const {
+        code,
+        name,
+        place,
+        address,
+        date,
+        time,
+        description,
+        type,
+        price,
+        numberParticipant
+    } = req.body;
+
+    try {
+        const newEvent = await prisma.event.create({
+            data: {
+                code,
+                name,
+                place,
+                address,
+                date: new Date(date),
+                time,
+                description,
+                type,
+                price: parseFloat(price),
+                participants: parseInt(numberParticipant), 
+                /* organizerId: req.user.userId // Associa l'evento all'organizzatore */
+            }
+        });
+        res.json(newEvent);
+        broadcast({ type: 'ADD_EVENT', payload: newEvent }); 
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to add event' });
+    }
+});
+
+// Endpoint per aggiornare un evento
+app.post('/api/event/update', verifyToken, async (req, res) => {
+    const {
+        eventId,
+        code,
+        name,
+        place,
+        address,
+        date,
+        time,
+        description,
+        type,
+        price,
+        numberParticipant
+    } = req.body;
+
+    try {
+        const updatedEvent = await prisma.event.update({
+            where: { id: parseInt(eventId) },
+            data: {
+                code,
+                name,
+                place,
+                address,
+                date: new Date(date),
+                time,
+                description,
+                type,
+                price: parseFloat(price),
+                participants: parseInt(numberParticipant)
+            }
+        });
+        res.json(updatedEvent);
+        broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent }); 
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update event' });
+    }
+});
+
+// Endpoint per rimuovere un evento
+app.post('/api/event/remove', verifyToken, async (req, res) => {
+    const { eventId } = req.body;
+
+    try {
+        const removedEvent = await prisma.event.delete({
+            where: { id: parseInt(eventId) }
+        });
+        res.json(removedEvent);
+        broadcast({ type: 'REMOVE_EVENT', payload: removedEvent }); 
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to remove event' });
+    }
+});
+
+// Endpoint per aggiungere una transazione
+app.post('/api/transaction/add', verifyToken, async (req, res) => {
+    const {
+        code,
+        name,
+        transactionType,
+        amount,
+        category,
+        channel,
+        date,
+        note
+    } = req.body;
+
+    try {
+        const newTransaction = await prisma.treasury.create({
+            data: {
+                code,
+                name,
+                transactionType,
+                amount: parseFloat(amount),
+                category,
+                channel,
+                date: new Date(date),
+                note
+            }
+        });
+        res.json(newTransaction);
+        broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction }); 
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to add transaction' });
+    }
+});
+
+// Endpoint per aggiornare una transazione
+app.post('/api/transaction/update', verifyToken, async (req, res) => {
+    const {
+        transactionId,
+        code,
+        name,
+        transactionType,
+        amount,
+        category,
+        channel,
+        date,
+        note
+    } = req.body;
+
+    try {
+        const updatedTransaction = await prisma.treasury.update({
+            where: { id: parseInt(transactionId) },
+            data: {
+                code,
+                name,
+                transactionType,
+                amount: parseFloat(amount),
+                category,
+                channel,
+                date: new Date(date),
+                note
+            }
+        });
+        res.json(updatedTransaction);
+        broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction }); 
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update transaction' });
+    }
+});
+
+// Endpoint per rimuovere una transazione
+app.post('/api/transaction/remove', verifyToken, async (req, res) => {
+    const { transactionId } = req.body;
+
+    try {
+        const removedTransaction = await prisma.treasury.delete({
+            where: { id: parseInt(transactionId) }
+        });
+        res.json(removedTransaction);
+        broadcast({ type: 'REMOVE_TRANSACTION', payload: removedTransaction });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to remove transaction' });
+    }
+});
+
 
 
 
