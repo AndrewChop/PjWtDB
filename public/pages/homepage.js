@@ -69,7 +69,7 @@ function uploadProfileImage(file) {
 
     console.log('Uploading profile image...');
     
-    fetch('http://192.168.1.16:3000/api/upload-profile-image', {
+    fetch('http://192.168.1.9:3000/api/upload-profile-image', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
@@ -96,7 +96,7 @@ function uploadProfileImage(file) {
 function loadUserProfileImage() {
     console.log('Loading user profile image...');
     
-    fetch('http://192.168.1.16:3000/api/user/data', {
+    fetch('http://192.168.1.9:3000/api/user/data', {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`

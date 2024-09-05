@@ -119,7 +119,7 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     } */
 
     // Invio dei dati al server
-    fetch('http://192.168.1.16:3000/api/user/update', {
+    fetch('http://192.168.1.9:3000/api/user/update', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
