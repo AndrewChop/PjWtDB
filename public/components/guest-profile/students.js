@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Variabile per memorizzare il cardNumber originale
     let originalCardNumber = '';
 
-    const socket = new WebSocket('ws://192.168.1.9:3000');
+    const socket = new WebSocket('ws://192.168.158.164:3000');
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-name').value = student.name;
         document.getElementById('edit-surname').value = student.surname;
         document.getElementById('edit-gender').value = student.gender;
-        document.getElementById('edit-birth-date').value = student.birthDate;
+        document.getElementById('edit-birth-date').value = (student.birthDate).split("T")[0];
         document.getElementById('edit-nationality').value = student.nationality;
         document.getElementById('edit-phone').value = student.phone;
         document.getElementById('edit-study-field').value = student.studyField;
@@ -405,6 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } else if (event.target.classList.contains('remove-button')) {
             const cardNumber = event.target.getAttribute('data-cardNumber');
+            console.log('Card number:', cardNumber);
             removeStudent(cardNumber);
         }
     }
@@ -412,6 +413,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Endpoint per rimuovere uno studente
     async function removeStudent(cardNumber) {
         try {
+            console.log('Removing student with cardNumber:', cardNumber);  // Aggiunto log per controllare cardNumber
+            
             const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/student/remove', { 
                 method: 'POST',
@@ -419,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ studentId: cardNumber })
+                body: JSON.stringify({ cardNumber })
             });
 
             if (!response.ok) {
@@ -470,17 +473,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let validationErrors = [];
 
-        if (!isAtLeast18YearsOld(editedBirthDate)) {
+        /*if (!isAtLeast18YearsOld(editedBirthDate)) {
             validationErrors.push('The student must be at least 18 years old.');
-        }
+        }*/
 
         const today = new Date();
         const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
         const minExpirationDate = nextYear.toISOString().split('T')[0];
 
-        if (new Date(editedExpirationDate) < new Date(minExpirationDate)) {
+        /*if (new Date(editedExpirationDate) < new Date(minExpirationDate)) {
             validationErrors.push('Expiration date must be at least one year from today.');
-        }
+        }*/
 
         if (validationErrors.length > 0) {
             alert(validationErrors.join('\n'));
@@ -512,7 +515,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         try {
-            const token = localStorage.getItem('jwt');
+            const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/student/update', { 
                 method: 'POST',
                 headers: {

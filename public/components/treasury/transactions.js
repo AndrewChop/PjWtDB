@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    const socket = new WebSocket('ws://192.168.1.9:3000');
+    const socket = new WebSocket('ws://192.168.158.164:3000');
 
     socket.onopen = function () {
         console.log('WebSocket connection established');

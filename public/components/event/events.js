@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Lista degli eventi
     let events = [];
 
-    const socket = new WebSocket('ws://192.168.1.9:3000');
+    const socket = new WebSocket('ws://192.168.158.164:3000');
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function loadEventsFromAPI() {
         try {
-            const token = localStorage.getItem('jwt');
+            const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/events', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Funzione per aggiungere un nuovo evento alla lista
     async function addNewEvent(event) {
         try {
-            const token = localStorage.getItem('jwt');
+            const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/event/add', {
                 method: 'POST',
                 headers: {
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function updateEvent(event) {
         try {
-            const token = localStorage.getItem('jwt');
+            const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/event/update', {
                 method: 'POST',
                 headers: {
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function removeEvent(eventId) {
         try {
-            const token = localStorage.getItem('jwt');
+            const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/event/remove', {
                 method: 'POST',
                 headers: {
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     
         try {
-            const token = localStorage.getItem('jwt');
+            const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/event/update', {
                 method: 'POST',
                 headers: {
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const eventId = event.target.getAttribute('data-id');
 
             try {
-                const token = localStorage.getItem('jwt');
+                const token = localStorage.getItem('jwtToken');
                 fetch('/api/event/remove', {
                     method: 'POST',
                     headers: {

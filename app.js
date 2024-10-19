@@ -27,7 +27,7 @@ app.use(express.static('public'));
 
 // Configura il middleware CORS
 app.use(cors({
-    origin: 'http://192.168.1.9:3000', // Permette solo richieste da questa origine
+    origin: 'http://192.168.158.164:3000', // Permette solo richieste da questa origine
     methods: ['GET', 'POST'], // Metodi consentiti
     credentials: true // Permette credenziali come cookies, autorizzazione headers ecc.
 }));
@@ -135,8 +135,9 @@ app.post('/api/login', async (req, res) => {
             console.error('JWT_SECRET isn\'t defined');
             throw new Error('Internal server error');
         }  */   
-        const token = jwt.sign({ userId: user.id, role: user.role }, /* process.env. */JWT_SECRET/*, { expiresIn: '1h' }*/);
+        const token = jwt.sign({ userId: user.id, role: user.role }, /* process.env. */JWT_SECRET, { expiresIn: '3600s' });
         console.log('Token generated:', token);
+        //document.cookie = `token=${token}`;
         res.json({ token });
     } catch (error) {
         console.error('Detailed error when logging in:', error);
@@ -217,7 +218,7 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
 
 // Middleware per verificare il token JWT
 function verifyToken(req, res, next) {
-    console.log('Request received on /api/user/update', req.headers);
+    console.log('Request received on /api/user/...', req.headers);
     console.log("JWT token verification...");
 
     const authHeader = req.headers.authorization;
@@ -416,20 +417,20 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
         name,
         surname,
         gender,
-        birthDate,
+        //birthDate,
         nationality,
         phoneNumber,
         studyField,
         originUniversity,
         hostUniversity,
-        exchangeDuration,
+        //exchangeDuration,
         studentNumber,
         countryOfOrigin,
         cityOfOrigin,
         addressCityOfOrigin,
         documentType,
         documentNumber,
-        documentExpiration,
+        //documentExpiration,
         documentIssuer
     } = req.body;
 
@@ -442,20 +443,20 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
                 name,
                 surname,
                 gender,
-                birthDate: new Date(birthDate),
+                //birthDate: new Date(birthDate),
                 nationality,
                 phoneNumber,
                 studyField,
                 originUniversity,
                 hostUniversity,
-                exchangeDuration: parseInt(exchangeDuration),
+                //exchangeDuration: parseInt(exchangeDuration),
                 studentNumber,
                 countryOfOrigin,
                 cityOfOrigin,
                 addressCityOfOrigin,
                 documentType,
                 documentNumber,
-                documentExpiration: new Date(documentExpiration),
+                //documentExpiration: new Date(documentExpiration),
                 documentIssuer
             }
         });
@@ -472,11 +473,16 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
 // Endpoint per rimuovere uno studente
 app.post('/api/student/remove', verifyToken, async (req, res) => { 
     console.log('Request received on /api/student/remove', req.body);
-    const { studentId } = req.body;
+    const { cardNumber } = req.body;
+
+    if (!cardNumber) {
+        console.log('Invalid card number:', cardNumber);
+        return res.status(400).json({ message: 'Invalid card number' });
+    }
 
     try {
-        const removedStudent = await prisma.student.delete({
-            where: { id: studentId }
+        const removedStudent = await prisma.user.delete({
+            where: { cardNumber }
         });
 
         console.log('Student removed successfully');
@@ -704,5 +710,5 @@ app.post('/api/renew-token', verifyToken, (req, res) => {
 }); */
 
 server.listen(port, '0.0.0.0', () => {
-    console.log(`Server listening on http://192.168.1.9:${port}`);
+    console.log(`Server listening on http://192.168.158.164:${port}`);
 });

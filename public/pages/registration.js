@@ -36,7 +36,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
     submitButton.disabled = true;
 
 /*     try {
-        const response = await fetch('http://192.168.1.9:3000/api/register', {
+        const response = await fetch('http://192.168.1.2:3000/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -61,7 +61,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
         submitButton.disabled = false;
     } */
 // Invio dei dati al server
-    fetch('http://192.168.1.9:3000/api/register', {
+    fetch('http://192.168.1.2:3000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
