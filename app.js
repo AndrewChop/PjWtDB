@@ -211,7 +211,6 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
             }
         });
         res.json({ message: 'Profile successfully updated', user: updatedUser });
-        broadcast({ type: 'UPDATE_USER', payload: updatedUser});
     } catch (error) {
         console.error('Detailed error when updating profile:', error);
         res.status(500).json({ message: 'Error when updating profile', error: error.message });
@@ -406,7 +405,6 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
         });
         console.log('Student added successfully');
         res.json(newStudent);
-        broadcast({ type: 'ADD_STUDENT', payload: newStudent });
     } catch (error) {
         console.error('Error adding student:', error);
         res.status(500).json({ message: 'Failed to add student' });
@@ -468,7 +466,6 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
         });
         console.log('Student updated successfully');
         res.json(updatedStudent);
-        broadcast({ type: 'UPDATE_STUDENT', payload: updatedStudent });
     } catch (error) {
         console.error('Error updating student:', error);
         res.status(500).json({ message: 'Failed to update student' });
@@ -493,7 +490,6 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
 
         console.log('Student removed successfully');
         res.json(removedStudent);
-        broadcast({ type: 'REMOVE_STUDENT', payload: removedStudent });
     } catch (error) {
         console.error('Error removing student:', error);
         res.status(500).json({ message: 'Error removing student', error: error.message });
@@ -574,7 +570,6 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
             }
         });
         res.json(updatedEvent);
-        broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent }); 
     } catch (error) {
         res.status(500).json({ message: 'Failed to update event' });
     }
@@ -589,7 +584,6 @@ app.post('/api/event/remove', verifyToken, async (req, res) => {
             where: { id: parseInt(eventId) }
         });
         res.json(removedEvent);
-        broadcast({ type: 'REMOVE_EVENT', payload: removedEvent }); 
     } catch (error) {
         res.status(500).json({ message: 'Failed to remove event' });
     }
@@ -620,7 +614,6 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
             }
         });
         res.json(newTransaction);
-        broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction }); //QUI
     } catch (error) {
         res.status(500).json({ message: 'Failed to add transaction' });
     }
@@ -675,9 +668,6 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
 
         console.log('Transaction updated successfully:', updatedTransaction);
 
-        // Trasmetti l'aggiornamento ai client connessi
-        broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction });
-
         res.json(updatedTransaction);
     } catch (error) {
         console.error('Error updating transaction:', error);
@@ -696,7 +686,6 @@ app.post('/api/transaction/remove', verifyToken, async (req, res) => {
             where: { id: parseInt(transactionId) }
         });
         res.json(removedTransaction);
-        broadcast({ type: 'REMOVE_TRANSACTION', payload: removedTransaction });
     } catch (error) {
         res.status(500).json({ message: 'Failed to remove transaction' });
     }
