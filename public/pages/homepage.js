@@ -1,11 +1,14 @@
+// Definisci una variabile per l'URL del server
+const serverUrl= "http://localhost:3000";
+
 document.addEventListener('DOMContentLoaded', function() {
     setupProfileLink();
     setupLogoutLink();
-    setupUploadProfileImage(); // Aggiungi questa linea
-    loadUserProfileImage(); // Aggiungi questa linea
+    setupUploadProfileImage(); 
+    loadUserProfileImage(); 
     console.log('Page loaded correctly!');
 
-    setupDropdowns(); // Aggiungi questa linea
+    setupDropdowns(); 
 });
 
 function setupProfileLink() {
@@ -69,7 +72,7 @@ function uploadProfileImage(file) {
 
     console.log('Uploading profile image...');
     
-    fetch('http://192.168.1.2:3000/api/upload-profile-image', {
+    fetch(`${serverUrl}/api/upload-profile-image`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
@@ -96,7 +99,7 @@ function uploadProfileImage(file) {
 function loadUserProfileImage() {
     console.log('Loading user profile image...');
     
-    fetch('http://192.168.1.2:3000/api/user/data', {
+    fetch(`${serverUrl}/api/user/data`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
@@ -141,9 +144,9 @@ function setupDropdowns() {
         });
     });
 
-    // Chiudi i menu a tendina se si clicca fuori di essi
+    // Chiudi i menu a tendina se si clicca fuori di essi, ma non se il clic è all'interno del menu
     document.addEventListener('click', function(event) {
-        if (!event.target.closest('.main-button') && !event.target.closest('.profile-link')) {
+        if (!event.target.closest('.main-button') && !event.target.closest('.dropdown-content') && !event.target.closest('.profile-link')) {
             document.querySelectorAll('.dropdown-content').forEach(function(dd) {
                 dd.style.display = 'none';
             });

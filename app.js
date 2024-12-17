@@ -1,9 +1,9 @@
-require('dotenv').config(); // Deve essere la prima linea eseguita
+require('dotenv').config(); // Deve essere la prima linea eseguita, serve a caricare le variabili d'ambiente
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Category, EventType } = require('@prisma/client');
 const cors = require('cors');
 const http = require('http');
 const WebSocket = require('ws');
@@ -18,6 +18,8 @@ const port = 3000;
 const prisma = new PrismaClient();
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
+const serverHost = process.env.SERVER_HOST || 'localhost';
+const serverPort = process.env.SERVER_PORT || 3000;
 
 // Middleware per analizzare i corpi JSON nelle richieste in arrivo
 app.use(express.json());
@@ -27,7 +29,7 @@ app.use(express.static('public'));
 
 // Configura il middleware CORS
 app.use(cors({
-    origin: 'http://192.168.158.164:3000', // Permette solo richieste da questa origine
+    origin: `http://${serverHost}:${serverPort}`, // Permette solo richieste da questa origine
     methods: ['GET', 'POST'], // Metodi consentiti
     credentials: true // Permette credenziali come cookies, autorizzazione headers ecc.
 }));
@@ -135,7 +137,7 @@ app.post('/api/login', async (req, res) => {
             console.error('JWT_SECRET isn\'t defined');
             throw new Error('Internal server error');
         }  */   
-        const token = jwt.sign({ userId: user.id, role: user.role }, /* process.env. */JWT_SECRET, { expiresIn: '3600s' });
+        const token = jwt.sign({ userId: user.id, role: user.role }, /* process.env. */JWT_SECRET, { expiresIn: '3600m' });
         console.log('Token generated:', token);
         //document.cookie = `token=${token}`;
         res.json({ token });
@@ -268,7 +270,7 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
             name: user.name,
             surname: user.surname,
             gender: user.gender,
-            birthdate: user.birthDate,
+            birthDate: user.birthDate,
             nationality: user.nationality,
             phoneNumber: user.phoneNumber,
             studyField: user.studyField,
@@ -322,7 +324,7 @@ app.get('/api/users/students', async (req, res) => {
 // Endpoint per ottenere tutti gli eventi
 app.get('/api/events', async (req, res) => {
     try {
-        const events = await prisma.event.findMany();
+        const events =  await prisma.event.findMany();
         res.json(events);
     } catch (error) {
         console.error('Failed to retrieve events:', error);
@@ -333,7 +335,11 @@ app.get('/api/events', async (req, res) => {
 // Endpoint per ottenere tutte le transazioni
 app.get('/api/transactions', async (req, res) => {
     try {
-        const transactions = await prisma.treasury.findMany();
+        const transactions = await prisma.treasury.findMany({
+            include: {
+                user: true,
+            }
+        });
         res.json(transactions);
     } catch (error) {
         console.error('Failed to retrieve transactions:', error);
@@ -497,8 +503,8 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
 // Endpoint per aggiungere un evento
 app.post('/api/event/add', verifyToken, async (req, res) => {
     console.log("Sto aggiungendo un evento");
+    console.error("User ID: "+req.user.userId);
     const {
-        code,
         name,
         place,
         address,
@@ -509,26 +515,30 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
         price,
         numberParticipant
     } = req.body;
-
+    console.error("EventType: "+EventType[type]);
+    console.log("REQ: ")
+    console.log(req.body);
     try {
         const newEvent = await prisma.event.create({
             data: {
-                code,
                 name,
                 place,
                 address,
                 date: new Date(date),
                 time,
                 description,
-                type,
+                eventType: EventType[type],
                 price: parseFloat(price),
-                participants: parseInt(numberParticipant), 
-                /* organizerId: req.user.userId // Associa l'evento all'organizzatore */
+                participants: parseInt(numberParticipant),
+
+                organizerId: req.user.userId // Associa l'evento all'organizzatore
             }
         });
+        console.log("Trying to add "+newEvent);
         res.json(newEvent);
-        broadcast({ type: 'ADD_EVENT', payload: newEvent }); 
+        console.log(req)
     } catch (error) {
+        console.error("Error: "+error);
         res.status(500).json({ message: 'Failed to add event' });
     }
 });
@@ -537,7 +547,6 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
 app.post('/api/event/update', verifyToken, async (req, res) => {
     const {
         eventId,
-        code,
         name,
         place,
         address,
@@ -553,7 +562,6 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
         const updatedEvent = await prisma.event.update({
             where: { id: parseInt(eventId) },
             data: {
-                code,
                 name,
                 place,
                 address,
@@ -590,7 +598,6 @@ app.post('/api/event/remove', verifyToken, async (req, res) => {
 // Endpoint per aggiungere una transazione
 app.post('/api/transaction/add', verifyToken, async (req, res) => {
     const {
-        code,
         name,
         transactionType,
         amount,
@@ -603,7 +610,6 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
     try {
         const newTransaction = await prisma.treasury.create({
             data: {
-                code,
                 name,
                 transactionType,
                 amount: parseFloat(amount),
@@ -614,7 +620,7 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
             }
         });
         res.json(newTransaction);
-        broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction }); 
+        broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction }); //QUI
     } catch (error) {
         res.status(500).json({ message: 'Failed to add transaction' });
     }
@@ -623,8 +629,7 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
 // Endpoint per aggiornare una transazione
 app.post('/api/transaction/update', verifyToken, async (req, res) => {
     const {
-        transactionId,
-        code,
+        id,
         name,
         transactionType,
         amount,
@@ -634,26 +639,53 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
         note
     } = req.body;
 
+    transactionId = id;
+    console.log('Check ID: done');
+    console.log('Transaction ID:', transactionId);  // Verifica l'ID
+    
+    const parsedTransactionId = parseInt(transactionId, 10);
+    
+    // Verifica se l'ID è valido
+    // if (isNaN(parsedTransactionId)) {
+    //     return res.status(400).json({ message: 'Invalid transaction ID' });
+    // }
+
+    // Verifica se il record esiste
+    const existingTransaction = await prisma.treasury.findUnique({
+        where: { id: parsedTransactionId }
+    });
+
+    if (!existingTransaction) {
+        return res.status(404).json({ message: 'Transaction not found' });
+    }
+
     try {
         const updatedTransaction = await prisma.treasury.update({
-            where: { id: parseInt(transactionId) },
+            where: { id: parsedTransactionId },
             data: {
-                code,
                 name,
                 transactionType,
-                amount: parseFloat(amount),
+                amount: parseFloat(amount),  // Assicurati che amount sia un float
                 category,
                 channel,
-                date: new Date(date),
-                note
+                date: new Date(date),  // Assicurati che date sia una data valida
+             note: note || null  // Gestione delle note opzionali
             }
         });
+
+        console.log('Transaction updated successfully:', updatedTransaction);
+
+        // Trasmetti l'aggiornamento ai client connessi
+        broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction });
+
         res.json(updatedTransaction);
-        broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction }); 
     } catch (error) {
-        res.status(500).json({ message: 'Failed to update transaction' });
+        console.error('Error updating transaction:', error);
+        res.status(500).json({ message: 'Error updating transaction', error: error.message });
     }
 });
+
+
 
 // Endpoint per rimuovere una transazione
 app.post('/api/transaction/remove', verifyToken, async (req, res) => {
@@ -709,6 +741,6 @@ app.post('/api/renew-token', verifyToken, (req, res) => {
     res.json({ token: newToken });
 }); */
 
-server.listen(port, '0.0.0.0', () => {
-    console.log(`Server listening on http://192.168.158.164:${port}`);
+server.listen(serverPort, serverHost, () => {
+    console.log(`Server in ascolto su http://${serverHost}:${serverPort}`);
 });

@@ -136,7 +136,9 @@ body {
 }
 
 /* Mostra il menu a tendina quando si passa il mouse sopra il pulsante */
-.main-button:hover .dropdown-content {
+.main-button:hover .dropdown-content,
+.main-button:focus .dropdown-content,
+.dropdown-content:hover {
     display: block;
 }
 

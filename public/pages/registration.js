@@ -6,6 +6,9 @@ document.getElementById('cancel-button').addEventListener('click', handleCancelB
 
 //const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
+// Definisci una variabile per l'URL del server
+
+const serverUrl= "http://localhost:3000";
 
 document.getElementById('registration-form').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -36,7 +39,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
     submitButton.disabled = true;
 
 /*     try {
-        const response = await fetch('http://192.168.1.2:3000/api/register', {
+        const response = await fetch(`${serverUrl}/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -61,7 +64,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
         submitButton.disabled = false;
     } */
 // Invio dei dati al server
-    fetch('http://192.168.1.2:3000/api/register', {
+    fetch(`${serverUrl}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

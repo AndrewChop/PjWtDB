@@ -7,7 +7,7 @@ function checkCredentials() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    fetch('http://192.168.158.164:3000/api/login', {
+    fetch('http://localhost:3000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

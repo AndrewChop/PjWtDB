@@ -7,7 +7,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Lista degli eventi
     let events = [];
 
-    const socket = new WebSocket('ws://192.168.158.164:3000');
+    // Imposta l'URL del server
+    const serverUrl= "http://localhost:3000";
+
+    // WebSocket aggiornato per usare `serverUrl`
+    const socket = new WebSocket(`ws://localhost:3000`);
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -77,13 +81,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const eventItem = document.createElement('li');
             const formattedDate = formatDateToItalian(event.date);
             eventItem.innerHTML = `
-                <span>${event.code}</span>
                 <span>${event.name}</span>
                 <span>${event.type}</span>
                 <span>€${event.price}</span>
                 <span>${formattedDate}</span>
-                <button class="edit-button" data-code="${event.code}">Edit</button>
-                <button class="remove-button" data-code="${event.code}">Remove</button>
+                <button class="edit-button" data-id="${event.id}">Edit</button>
+                <button class="remove-button" data-id="${event.id}">Remove</button>
             `;
             eventItems.appendChild(eventItem);
         });
@@ -102,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const filteredEvents = events.filter(event => {            
             const formattedDate = formatDateToItalian(event.date);
             const eventDetails = `${event.name} ${event.type} ${formattedDate}`;
-            return eventDetails.toLowerCase().includes(query.toLowerCase()) || event.code.toLowerCase().includes(query.toLowerCase());
+            return eventDetails.toLowerCase().includes(query.toLowerCase());
         });
         console.log('filterEvents OUT', filteredEvents);
         renderEventList(filteredEvents);
@@ -160,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Pulsante per confermare l'aggiunta dell'evento
     const confirmAddEventButton = document.getElementById('confirm-event');
     confirmAddEventButton.addEventListener('click', async () => {
-        const eventCode = document.getElementById('event-code').value.trim();
         const eventName = document.getElementById('event-name').value.trim();
         const eventPlace = document.getElementById('event-place').value.trim();
         const eventAddress = document.getElementById('event-address').value.trim(); 
@@ -171,9 +173,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const eventPrice = document.getElementById('event-price').value.trim();
         const eventNumberParticipant = document.getElementById('event-number-participant').value.trim();
 
-        if (eventCode && eventName && eventPlace && eventAddress && eventDate && eventTime && eventDescription && eventType && eventPrice && eventNumberParticipant) {
+        if (eventName && eventPlace && eventAddress && eventDate && eventTime && eventDescription && eventType && eventPrice && eventNumberParticipant) {
             const newEvent = {
-                code: eventCode,
                 name: eventName,
                 place: eventPlace,
                 address: eventAddress,
@@ -197,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Funzione per reimpostare i valori dei campi del form
     function resetEventFormFields() {
-        const eventCode = document.getElementById('event-code');
         const eventName = document.getElementById('event-name');
         const eventPlace = document.getElementById('event-place');
         const eventAddress = document.getElementById('event-address');
@@ -209,7 +209,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const eventNumberParticipant = document.getElementById('event-number-participant');
 
         // Reimposta i valori dei campi del form a stringa vuota
-        eventCode.value = '';
         eventName.value = '';
         eventPlace.value = '';
         eventAddress.value = '';
@@ -234,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(event)
             });
 
+            console.log(response);
             if (!response.ok) {
                 throw new Error('Failed to add event');
             }
@@ -310,7 +310,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Funzione per popolare il form di modifica con i dettagli dello evento selezionato
     function populateEditForm(event) {
-        const editCode = document.getElementById('edit-code');
         const editName = document.getElementById('edit-name');
         const editPlace = document.getElementById('edit-place');
         const editAddress = document.getElementById('edit-address');
@@ -321,16 +320,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const editPrice = document.getElementById('edit-price');
         const editNumberParticipant = document.getElementById('edit-number-participant');
 
-        editCode.value = event.code;
         editName.value = event.name;
         editPlace.value = event.place;
         editAddress.value = event.address;
-        editDate.value = event.date;
+        editDate.value = event.date.split('T')[0];
         editTime.value = event.time;
         editDescription.value = event.description;
-        editType.value = event.type;
+        editType.value = event.eventType;
         editPrice.value = event.price;
-        editNumberParticipant.value = event.numberParticipant;
+        editNumberParticipant.value = event.participants;
                 
         const saveEditButton = document.getElementById('save-edit-button');
         saveEditButton.setAttribute('data-id', event.id);
@@ -342,8 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Gestore di eventi per il click sul pulsante "Edit"
     function handleEventItemClick(event) {
         if (event.target.classList.contains('edit-button')) {
-            const code = event.target.getAttribute('data-id');
-
+            eventId = event.target.getAttribute('data-id');
             const eventToEdit = events.find(event => event.id === parseInt(eventId));
             
             if (eventToEdit) {
@@ -359,7 +356,6 @@ document.addEventListener('DOMContentLoaded', function () {
     saveEditButton.addEventListener('click', async () => {
         const editedEvent = {
             id: saveEditButton.getAttribute('data-id'),
-            code: document.getElementById('edit-code').value.trim(),
             name: document.getElementById('edit-name').value.trim(),
             place: document.getElementById('edit-place').value.trim(),
             address: document.getElementById('edit-address').value.trim(),

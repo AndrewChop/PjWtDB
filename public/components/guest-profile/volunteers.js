@@ -5,7 +5,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let users = [];
 
-    const socket = new WebSocket('ws://192.168.158.164:3000');
+    // Imposta l'URL del server
+    const serverUrl= "http://localhost:3000";
+
+    // WebSocket aggiornato per usare `serverUrl`
+    const socket = new WebSocket(`ws://localhost:3000`);
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -92,6 +96,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // Aggiungi un gestore di eventi alla lista degli utenti per gestire il click sugli elementi utente
     userItems.addEventListener('click', handleUserItemClick);
 
+    function formatDateForInput(dateString) {
+        if (!dateString) return ''; // Gestione di date non valide o nulle
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     // Funzione per popolare il form di visualizzazione con i dettagli dell'utente selezionato
     function populateViewForm(user) {
         const viewCardNumber = document.getElementById('view-card-number');
@@ -134,15 +147,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const userViewForm = document.getElementById('user-view-form');
         userViewForm.classList.remove('hidden');
-    }
-
-    function formatDateForInput(dateString) {
-        if (!dateString) return ''; // Gestione di date non valide o nulle
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
     }
 
     // Funzione per nascondere il form di visualizzazione utente

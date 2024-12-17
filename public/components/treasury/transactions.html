@@ -49,11 +49,11 @@
         
         <ul id="transaction-items" class="transaction-items">
             <li>           
-                <span>${transaction.code}</span>
+                <span>${transaction.id}</span>
                 <span>${transaction.name}</span>
                 <span>${transaction.cash}€</span>
-                <button class="edit-button" data-code="${transaction.code}">Edit</button>
-                <button class="remove-button" data-code="${transaction.code}">Remove</button>
+                <button class="edit-button" data-id="${transaction.id}">Edit</button>
+                <button class="remove-button" data-id="${transaction.id}">Remove</button>
             </li>
         </ul>
     </div>
@@ -67,9 +67,6 @@
         <div class="edit-transaction-container">
             <div class="edit-transaction-content">
                 <form class="objective-data-form">
-                    
-                    <label for="transaction-code">Code:</label>
-                    <input type="number" id="transaction-code" min="1" class="objective-data-input">
 
                     <label for="transaction-name">Name:</label>
                     <input type="text" id="transaction-name" class="objective-data-input">
@@ -86,20 +83,20 @@
 
                     <label for="transaction-category">Category:</label>
                     <select id="transaction-category">
-                        <option value="Event">Event</option>                        
-                        <option value="Office">Office</option>
-                        <option value="Refund">Refund</option>
-                        <option value="Membership fee">Membership fee</option>
-                        <option value="Merchandising">Merchandising</option>
-                        <option value="Other">Other</option>                     
+                        <option value="EVENT">Event</option>                        
+                        <option value="OFFICE">Office</option>
+                        <option value="REFUND">Refund</option>
+                        <option value="MEMBERSHIP_FEE">Membership fee</option>
+                        <option value="MERCHANDISING">Merchandising</option>
+                        <option value="OTHER">Other</option>                     
                     </select>
 
                     <label for="transaction-channel">Channel:</label>
                     <select id="transaction-channel">
-                        <option value="Cash">Cash</option>
-                        <option value="Bank transfer">Bank transfer</option>
-                        <option value="Digital payment">Digital payment</option>
-                        <option value="Payment terminal">Payment terminal</option>                    
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank transfer</option>
+                        <option value="DIGITAL_PAYMENT">Digital payment</option>
+                        <option value="PAYMENT_TERMINAL">Payment terminal</option>                    
                     </select>
 
                     <label for="transaction-date">Date:</label>
@@ -125,9 +122,6 @@
             <div class="edit-transaction-content">
                 <form class="objective-data-form">
 
-                    <label for="edit-transaction-code">Code:</label>
-                    <input type="number" id="edit-code" min="1" class="objective-data-input">
-
                     <label for="edit-transaction-name">Name:</label>
                     <input type="text" id="edit-name" class="objective-data-input">
 
@@ -143,20 +137,20 @@
 
                     <label for="edit-transaction-category">Category</label>
                     <select id="edit-category">
-                        <option value="Event">Event</option>                        
-                        <option value="Office">Office</option>
-                        <option value="Refund">Refund</option>
-                        <option value="Membership fee">Membership fee</option>
-                        <option value="Merchandising">Merchandising</option>
-                        <option value="Other">Other</option>
+                        <option value="EVENT">Event</option>                        
+                        <option value="OFFICE">Office</option>
+                        <option value="REFUND">Refund</option>
+                        <option value="MEMBERSHIP_FEE">Membership fee</option>
+                        <option value="MERCHANDISING">Merchandising</option>
+                        <option value="OTHER">Other</option>
                     </select>
 
                     <label for="edit-transaction-channel">Channel</label>
                     <select id="edit-channel">
-                        <option value="Cash">Cash</option>
-                        <option value="Bank transfer">Bank transfer</option>
-                        <option value="Digital payment">Digital payment</option>
-                        <option value="Payment terminal">Payment terminal</option>
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank transfer</option>
+                        <option value="DIGITAL_PAYMENT">Digital payment</option>
+                        <option value="PAYMENT_TERMINAL">Payment terminal</option>
                     </select>
 
                     <label for="edit-transaction-date">Date:</label>

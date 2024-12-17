@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Definisci una variabile per l'URL del server
+const serverUrl= "http://localhost:3000";
+alert (serverUrl);
+
 document.getElementById('profile-form').addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -119,7 +123,7 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     } */
 
     // Invio dei dati al server
-    fetch('http://192.168.1.2:3000/api/user/update', {
+    fetch(`${serverUrl}/api/user/update`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',

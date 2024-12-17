@@ -10,7 +10,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Variabile per memorizzare il cardNumber originale
     let originalCardNumber = '';
 
-    const socket = new WebSocket('ws://192.168.158.164:3000');
+    // Imposta l'URL del server
+    const serverUrl= "http://localhost:3000";
+
+    // WebSocket aggiornato per usare `serverUrl`
+    const socket = new WebSocket(`ws://localhost:3000`);
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -364,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Funzione per popolare il form di modifica con i dettagli dello studente selezionato
     function populateEditForm(student) {
+        console.error('Student:', student);
         document.getElementById('edit-card-number').value = student.cardNumber;
         document.getElementById('edit-email').value = student.email;
         document.getElementById('edit-name').value = student.name;
@@ -371,19 +376,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-gender').value = student.gender;
         document.getElementById('edit-birth-date').value = (student.birthDate).split("T")[0];
         document.getElementById('edit-nationality').value = student.nationality;
-        document.getElementById('edit-phone').value = student.phone;
+        document.getElementById('edit-phone').value = student.phoneNumber;
         document.getElementById('edit-study-field').value = student.studyField;
         document.getElementById('edit-origin-university').value = student.originUniversity;
         document.getElementById('edit-host-university').value = student.hostUniversity;
         document.getElementById('edit-exchange-duration').value = student.exchangeDuration;
         document.getElementById('edit-student-number').value = student.studentNumber;
-        document.getElementById('edit-address-origin').value = student.addressOrigin;
-        document.getElementById('edit-city-origin').value = student.cityOrigin;
-        document.getElementById('edit-country-origin').value = student.countryOrigin;
+        document.getElementById('edit-address-origin').value = student.addressCityOfOrigin;
+        document.getElementById('edit-city-origin').value = student.cityOfOrigin;
+        document.getElementById('edit-country-origin').value = student.countryOfOrigin;
         document.getElementById('edit-document-type').value = student.documentType;
-        document.getElementById('edit-number-doc').value = student.numberDoc;
-        document.getElementById('edit-expiration-date').value = student.expirationDate;
-        document.getElementById('edit-issued-by').value = student.issuedBy;
+        document.getElementById('edit-number-doc').value = student.documentNumber;
+        document.getElementById('edit-expiration-date').value = student.documentExpiration? (student.documentExpiration).split("T")[0] : '';
+        document.getElementById('edit-issued-by').value = student.documentIssuer;
 
         originalCardNumber = student.cardNumber;
 

@@ -3,21 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('save-button').addEventListener('click', saveChanges);
 });
 
-/* async function renewToken() {
-    const token = localStorage.getItem('jwtToken');
-    const response = await fetch('/api/renew-token', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('jwtToken', data.token);
-        return data.token;
-    } else {
-        throw new Error('Failed to renew token');
-    }
-} */
-
 async function loadUserData() {
     try {
         let token = localStorage.getItem('jwtToken');
@@ -35,11 +20,6 @@ async function loadUserData() {
         });
 
         if (response.status === 401) {
-            /* token = await renewToken(); // Try renewing the token
-            response = await fetch('/api/user/data', {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
-            }); */
             alert('Session expired or invalid! Please log in again.');
             window.location.href = '../../index.html'; // Reindirizza all'login
         }
@@ -49,6 +29,7 @@ async function loadUserData() {
         }
         console.log('User data loaded successfully');
         const userData = await response.json();
+        console.log('User data:', userData);
         populateForm(userData);
     } catch (error) {
         console.error('Error loading user data:', error);
@@ -57,6 +38,7 @@ async function loadUserData() {
 }
 
 function populateForm(userData) {
+    console.error('User data:', userData);
     document.getElementById('user-card-number').value = userData.cardNumber;
     document.getElementById('user-email').value = userData.email;
     document.getElementById('user-role').value = userData.role;
@@ -78,7 +60,7 @@ function populateForm(userData) {
     document.getElementById('user-issued-by').value = userData.documentIssuer;
 }
 
-function formatDateForInput(dateString) {
+ function formatDateForInput(dateString) {
     if (!dateString) return ''; // Gestione di date non valide o nulle
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -87,11 +69,34 @@ function formatDateForInput(dateString) {
     return `${year}-${month}-${day}`;
 }
 
-function unformatDateForInput(dateString) {
+// Funzione per verificare se l'utente ha almeno 18 anni
+function isAtLeast18YearsOld(birthDate) {
+    const today = new Date();
+    const birthDateObj = new Date(birthDate);
+    const age = today.getFullYear() - birthDateObj.getFullYear();
+    const monthDifference = today.getMonth() - birthDateObj.getMonth();
+    const dayDifference = today.getDate() - birthDateObj.getDate();
+
+    if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+        return age - 1 >= 18;
+    }
+    return age >= 18;
+}
+
+// Funzione per impostare la data minima per l'expiration date
+function setMinExpirationDate(inputId) {
+    const expirationDateInput = document.getElementById(inputId);
+    const today = new Date();
+    const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+    const minDate = nextYear.toISOString().split('T')[0]; // Formatta la data come YYYY-MM-DD
+    expirationDateInput.min = minDate;
+}
+
+/* function unformatDateForInput(dateString) {
     if (!dateString) return ''; // Gestione di date non valide o nulle
     const [year, month, day] = dateString.split('-');
     return `${year}-${month}-${day}`;
-}
+} */
 
 async function saveChanges() {
     const token = localStorage.getItem('jwtToken');
@@ -102,20 +107,6 @@ async function saveChanges() {
     function isValidCardNumber(cardNumber) {
         const regex = /^\d{7}[a-zA-Z]{0,4}$/;
         return regex.test(cardNumber);
-    }
-
-    // Funzione per convalidare l'età
-    function isAtLeast18YearsOld(birthDate) {
-        const today = new Date();
-        const birthDateObj = new Date(birthDate);
-        const age = today.getFullYear() - birthDateObj.getFullYear();
-        const monthDifference = today.getMonth() - birthDateObj.getMonth();
-        const dayDifference = today.getDate() - birthDateObj.getDate();
-        
-        if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-            return age - 1 >= 18;
-        }
-        return age >= 18;
     }
 
     // Funzione per impostare la data minima per l'expiration date
@@ -132,7 +123,7 @@ async function saveChanges() {
         name: document.getElementById('user-name').value,
         surname: document.getElementById('user-surname').value,
         gender: document.getElementById('user-gender').value,
-        birthDate: birthDate ? unformatDateForInput(birthDate) : null,
+        birthDate: birthDate ? formatDateForInput(birthDate) : null,
         nationality: document.getElementById('user-nationality').value,
         phoneNumber: document.getElementById('user-phone-number').value,
         studyField: document.getElementById('user-study-field').value,
@@ -143,7 +134,7 @@ async function saveChanges() {
         addressCityOfOrigin: document.getElementById('user-address-origin').value,
         documentType: document.getElementById('user-document-type').value,
         documentNumber: document.getElementById('user-number-doc').value,
-        documentExpiration: expirationDate ? unformatDateForInput(expirationDate) : null,
+        documentExpiration: expirationDate ? formatDateForInput(expirationDate) : null,
         documentIssuer: document.getElementById('user-issued-by').value
     };
 
