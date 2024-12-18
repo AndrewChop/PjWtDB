@@ -8,8 +8,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Imposta l'URL del server
     const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
 
-    // WebSocket aggiornato per usare `serverUrl`
     const socket = new WebSocket(`ws://${SERVER_HOST}:${SERVER_PORT}`);
+
+    // WebSocket aggiornato per usare `serverUrl`
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
