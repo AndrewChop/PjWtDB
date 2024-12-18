@@ -23,6 +23,13 @@ const serverPort = process.env.SERVER_PORT || 3000;
 
 // Middleware per analizzare i corpi JSON nelle richieste in arrivo
 app.use(express.json());
+app.get('/config', (req, res) => {
+    res.json({
+        "SERVER_HOST": serverHost,
+        "SERVER_PORT": serverPort,
+    });
+});
+
 
 // Serve i file statici dalla cartella 'public'
 app.use(express.static('public'));
@@ -331,6 +338,17 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+app.get('/api/discounts', async (req, res) => {
+    try {
+        const discounts =  await prisma.discount.findMany();
+        res.json(discounts);
+    } catch (error) {
+        console.error('Failed to retrieve discounts:', error);
+        res.status(500).send('Failed to retrieve discounts');
+    }
+});
+
+
 // Endpoint per ottenere tutte le transazioni
 app.get('/api/transactions', async (req, res) => {
     try {
@@ -523,7 +541,7 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
                 date: new Date(date),
                 time,
                 description,
-                eventType: EventType[type],
+                eventType: type,
                 price: parseFloat(price),
                 participants: parseInt(numberParticipant),
 
@@ -542,7 +560,7 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
 // Endpoint per aggiornare un evento
 app.post('/api/event/update', verifyToken, async (req, res) => {
     const {
-        eventId,
+        id,
         name,
         place,
         address,
@@ -556,7 +574,7 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
 
     try {
         const updatedEvent = await prisma.event.update({
-            where: { id: parseInt(eventId) },
+            where: { id: parseInt(id) },
             data: {
                 name,
                 place,
@@ -564,13 +582,14 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
                 date: new Date(date),
                 time,
                 description,
-                type,
+                eventType: type,
                 price: parseFloat(price),
                 participants: parseInt(numberParticipant)
             }
         });
         res.json(updatedEvent);
     } catch (error) {
+        console.error('Error updating event:', error);
         res.status(500).json({ message: 'Failed to update event' });
     }
 });
@@ -692,7 +711,28 @@ app.post('/api/transaction/remove', verifyToken, async (req, res) => {
 });
 
 
+app.post('/api/discounts/add', verifyToken, async (req, res) => {
+    console.log("Request received on /api/discounts/add", req.body);
+    const { code, name, type, rate,date,description, link } = req.body;
 
+    try {
+        const newDiscount = await prisma.discount.create({
+            data: {
+                code: parseInt(code),
+                name,
+                discountType: type,
+                rate: parseFloat(rate),
+                expirationDate: new Date(date),
+                description,
+                link
+            }
+        });
+        res.json(newDiscount);
+    } catch (error) {
+        console.error('Error adding discount:', error);
+        res.status(500).json({ message: 'Failed to add discount' });
+    }
+});
 
 
 
