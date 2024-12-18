@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Definisci una variabile per l'URL del server
-const serverUrl= "http://localhost:3000";
+const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
+
+const serverUrl = `http://${SERVER_HOST}:${SERVER_PORT}`;
 alert (serverUrl);
 
 document.getElementById('profile-form').addEventListener('submit', async function(event) {
