@@ -7,7 +7,8 @@ function checkCredentials() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    fetch('http://localhost:3000/api/login', {
+    fetch('/config').then(response => response.json()).then(config => {
+    fetch(`http://${config.SERVER_HOST}:${config.SERVER_PORT}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -30,6 +31,7 @@ function checkCredentials() {
         console.error('Error:', error);
         alert('Invalid credentials! Please try again.');
     });
+});
 }
 
 // Aggiungi un ascoltatore per il tasto Invio
