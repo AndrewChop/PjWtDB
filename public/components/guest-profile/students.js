@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Imposta l'URL del server
     const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
 
-    // WebSocket aggiornato per usare `serverUrl`
     const socket = new WebSocket(`ws://${SERVER_HOST}:${SERVER_PORT}`);
 
     socket.onopen = function () {
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     function setMinExpirationDate(inputId) {
         const expirationDateInput = document.getElementById(inputId);
         const today = new Date();
-        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()+1);
         const minDate = nextYear.toISOString().split('T')[0]; // Formatta la data come YYYY-MM-DD
         expirationDateInput.min = minDate;
     }
@@ -280,13 +279,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     hostUniversity: studentHostUniversity,
                     exchangeDuration: studentExchangeDuration,
                     studentNumber: studentStudentNumber,
-                    addressOrigin: studentAddressOrigin,
-                    cityOrigin: studentCityOrigin,
-                    countryOrigin: studentCountryOrigin,
+                    addressCityOfOrigin: studentAddressOrigin,
+                    cityOfOrigin: studentCityOrigin,
+                    countryOfOrigin: studentCountryOrigin,
                     documentType: studentDocumentType,
-                    numberDoc: studentNumberDoc,
-                    expirationDate: studentExpirationDate,
-                    issuedBy: studentIssuedBy
+                    documentNumber: studentNumberDoc,
+                    documentExpiration: studentExpirationDate,
+                    documentIssuer: studentIssuedBy
                 };
 
                 try {
@@ -297,36 +296,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({
-                        cardNumber: studentCardNumber,
-                        email: studentEmail,
-                        name: studentName,
-                        surname: studentSurname,
-                        gender: studentGender,
-                        birthDate: studentBirthDate,
-                        nationality: studentNationality,
-                        phoneNumber: studentPhone,
-                        studyField: studentStudyField,
-                        originUniversity: studentOriginUniversity,
-                        hostUniversity: studentHostUniversity,
-                        exchangeDuration: studentExchangeDuration,
-                        studentNumber: studentStudentNumber,
-                        addressCityOfOrigin: studentAddressOrigin,
-                        cityOfOrigin: studentCityOrigin,
-                        countryOfOrigin: studentCountryOrigin,
-                        documentType: studentDocumentType,
-                        documentNumber: studentNumberDoc,
-                        documentExpiration: studentExpirationDate,
-                        documentIssuer: studentIssuedBy
-                        })
+                        body: JSON.stringify(newStudent)
                     });
 
                     if (!response.ok) {
                         throw new Error('Failed to add student');
                     }
 
-                    const newStudent = await response.json();
-                    students.push(newStudent);
+                    const returnStudent = await response.json();
+                    students.push(returnStudent);
                     renderStudentList(students);
                     hideStudentForm();
                     resetStudentFormFields();
@@ -396,6 +374,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const studentEditForm = document.getElementById('student-edit-form');
         studentEditForm.classList.remove('hidden');
+
+        const saveEditButton = document.getElementById('save-edit-button');
+        saveEditButton.setAttribute('data-id', student.id);
     }
 
     // Gestore di eventi per il click sul pulsante "Edit"
@@ -414,6 +395,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             removeStudent(cardNumber);
         }
     }
+
+    const removeAllStudentsButton = document.getElementById('remove-all-button');
+
+    removeAllStudentsButton.addEventListener('click', async () => {
+        students.forEach(student => {
+            removeStudent(student.cardNumber);
+        })
+    });
 
     // Endpoint per rimuovere uno studente
     async function removeStudent(cardNumber) {
@@ -435,6 +424,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const result = await response.json();
+            students = students.filter(student => student.cardNumber !== cardNumber);
+            renderStudentList(students);
             console.log('Student removed successfully:', result);
         } catch (error) {
             console.error('Error removing student:', error);
@@ -495,8 +486,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
+        const studentId = saveEditButton.getAttribute('data-id');
+
         // Crea un oggetto utente con i dettagli modificati
         const editedStudent = {
+            id: studentId,
+            studentId: originalCardNumber,
             cardNumber: editedCardNumber,
             email: editedEmail,
             name: editedName,
@@ -504,19 +499,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             gender: editedGender,
             birthDate: editedBirthDate,
             nationality: editedNationality,
-            phone: editedPhone,
+            phoneNumber: editedPhone,
             studyField: editedStudyField,
             originUniversity: editedOriginUniversity,
             hostUniversity: editedHostUniversity,
             exchangeDuration: editedExchangeDuration,
             studentNumber: editedStudentNumber,
-            addressOrigin: editedAddressOrigin,
-            cityOrigin: editedCityOrigin,
-            countryOrigin: editedCountryOrigin,
+            addressCityOfOrigin: editedAddressOrigin,
+            cityOfOrigin: editedCityOrigin,
+            countryOfOrigin: editedCountryOrigin,
             documentType: editedDocumentType,
-            numberDoc: editedNumberDoc,
-            expirationDate: editedExpirationDate,
-            issuedBy: editedIssuedBy
+            documentNumber: editedNumberDoc,
+            documentExpiration: editedExpirationDate || null,
+            documentIssuer: editedIssuedBy
         };
 
         try {
@@ -527,7 +522,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ studentId: originalCardNumber, ...editedStudent })
+                body: JSON.stringify(editedStudent)
             });
 
             if (!response.ok) {
@@ -536,9 +531,15 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const result = await response.json();
             console.log('Student updated successfully:', result);
+            const index = students.findIndex(student => student.id === parseInt(studentId));
+            if (index !== -1) {
+                students[index] = result;
+                renderStudentList(students);
+            }
 
             // Chiudi il form di modifica
             hideEditForm();
+
 
         } catch (error) { 
             console.error('Error updating student:', error);
