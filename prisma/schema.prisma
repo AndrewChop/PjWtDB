@@ -44,7 +44,6 @@ model User {
 
 model Event {
   id            Int      @id @default(autoincrement())
-  code          Int
   name          String
   place         String
   address       String
@@ -63,7 +62,6 @@ model Event {
 
 model Treasury {
   id            Int             @id @default(autoincrement())
-  code          Int
   name          String
   transactionType TransactionType
   amount        Float
@@ -77,7 +75,7 @@ model Treasury {
 
 model Discount {
   id            Int       @id @default(autoincrement())
-  code          Int
+  code            Int
   name          String
   discountType  DiscountType
   rate          Int
