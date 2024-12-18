@@ -20,6 +20,8 @@ setup-prisma:
 setup-env:
 	@echo "Configurazione delle variabili d'ambiente..."
 	@if [ ! -f .env ]; then \
+	  echo "SERVER_HOST=\"localhost\"" > .env; \
+	  echo "SERVER_PORT=\"3000"" >> .env; \
 	  echo "JWT_SECRET=\"DFkjmqDb5oBWiJvYnAMNQ0gHfF5iuU6oiXz+3ei/o979YUPfzSIdkt8bDzucqVJKq9d3Z27rrY/mtsappg+fKg==\"" > .env; \
 	  echo "DATABASE_URL=\"postgres://projectdb_advb_user:8tNIpuv80wKXeL0TpkI7I5tBxM7zcgxY@dpg-cme168ed3nmc73do2hb0-a.frankfurt-postgres.render.com:5432/projectdb_advb\"" >> .env; \
 	else \
@@ -39,7 +41,7 @@ build:
 # Avvia il server
 start:
 	@echo "Avvio del server..."
-	nodemon
+	nodemon app.js
 
 # Pulizia dei file compilati
 clean:
