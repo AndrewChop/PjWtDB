@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const studentItems = document.getElementById('student-items');
@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let originalCardNumber = '';
 
     // Imposta l'URL del server
-    const serverUrl= "http://localhost:3000";
+    const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
 
     // WebSocket aggiornato per usare `serverUrl`
-    const socket = new WebSocket(`ws://localhost:3000`);
+    const socket = new WebSocket(`ws://${SERVER_HOST}:${SERVER_PORT}`);
 
     socket.onopen = function () {
         console.log('WebSocket connection established');

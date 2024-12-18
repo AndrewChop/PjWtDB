@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const eventItems = document.getElementById('event-items');
@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let events = [];
 
     // Imposta l'URL del server
-    const serverUrl= "http://localhost:3000";
+    const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
 
     // WebSocket aggiornato per usare `serverUrl`
-    const socket = new WebSocket(`ws://localhost:3000`);
+    const socket = new WebSocket(`ws://${SERVER_HOST}:${SERVER_PORT}`);
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const formattedDate = formatDateToItalian(event.date);
             eventItem.innerHTML = `
                 <span>${event.name}</span>
-                <span>${event.type}</span>
+                <span>${event.eventType}</span>
                 <span>€${event.price}</span>
                 <span>${formattedDate}</span>
                 <button class="edit-button" data-id="${event.id}">Edit</button>
@@ -329,6 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editType.value = event.eventType;
         editPrice.value = event.price;
         editNumberParticipant.value = event.participants;
+        console.log(event);
                 
         const saveEditButton = document.getElementById('save-edit-button');
         saveEditButton.setAttribute('data-id', event.id);
@@ -366,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
             price: document.getElementById('edit-price').value.trim(),
             numberParticipant: document.getElementById('edit-number-participant').value.trim()
         };
-    
+        
         try {
             const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/event/update', {
