@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Imposta l'URL del server
     const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
 
-    // WebSocket aggiornato per usare `serverUrl`
     const socket = new WebSocket(`ws://${SERVER_HOST}:${SERVER_PORT}`);
 
     socket.onopen = function () {
@@ -246,7 +245,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    async function updateEvent(event) {
+    async function updateEvent(editedEvent) {
+
         try {
             const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/event/update', {
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(event)
+                body: JSON.stringify(editedEvent)
             });
 
             if (!response.ok) {
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const updatedEvent = await response.json();
-            const index = events.findIndex(ev => ev.id === parseInt(updatedEvent.id));
+            const index = events.findIndex(event => event.id === parseInt(updatedEvent.id));
             if (index !== -1) {
                 events[index] = updatedEvent;
                 renderEventList(events);
@@ -276,27 +276,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function removeEvent(eventId) {
-        try {
-            const token = localStorage.getItem('jwtToken');
-            const response = await fetch('/api/event/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ eventId })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to remove event');
+            try {
+                const token = localStorage.getItem('jwtToken');
+                fetch('/api/event/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ eventId })
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to remove event');
+                    }
+                    return response.json();
+                }).then(removedEvent => {
+                    events = events.filter(event => event.id !== parseInt(removedEvent.id));
+                    renderEventList(events);
+                });
+            } catch (error) {
+                console.error('Error removing event:', error);
             }
-
-            const removedEvent = await response.json();
-            events = events.filter(event => event.id !== parseInt(removedEvent.id));
-            renderEventList(events);
-        } catch (error) {
-            console.error('Error removing event:', error);
-        }
     }
     
 
@@ -329,7 +329,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         editType.value = event.eventType;
         editPrice.value = event.price;
         editNumberParticipant.value = event.participants;
-        console.log(event);
                 
         const saveEditButton = document.getElementById('save-edit-button');
         saveEditButton.setAttribute('data-id', event.id);
@@ -356,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const saveEditButton = document.getElementById('save-edit-button');
     saveEditButton.addEventListener('click', async () => {
         const editedEvent = {
-            id: saveEditButton.getAttribute('data-id'),
+            eventId: saveEditButton.getAttribute('data-id'),
             name: document.getElementById('edit-name').value.trim(),
             place: document.getElementById('edit-place').value.trim(),
             address: document.getElementById('edit-address').value.trim(),
@@ -367,61 +366,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             price: document.getElementById('edit-price').value.trim(),
             numberParticipant: document.getElementById('edit-number-participant').value.trim()
         };
-        
-        try {
-            const token = localStorage.getItem('jwtToken');
-            const response = await fetch('/api/event/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(editedEvent)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update event');
-            }
-
-            const updatedEvent = await response.json();
-            const index = events.findIndex(event => event.id === parseInt(updatedEvent.id));
-            if (index !== -1) {
-                events[index] = updatedEvent;
-                renderEventList(events);
-            }
-
-            hideEditForm();
-        } catch (error) {
-            console.error('Error updating event:', error);
-        }
+        updateEvent(editedEvent);
     });
  
     // Gestore di eventi per il click sul pulsante "Remove"
     function handleRemoveButtonClick(event) {
         if (event.target.classList.contains('remove-button')) {
             const eventId = event.target.getAttribute('data-id');
-
-            try {
-                const token = localStorage.getItem('jwtToken');
-                fetch('/api/event/remove', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ eventId })
-                }).then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to remove event');
-                    }
-                    return response.json();
-                }).then(removedEvent => {
-                    events = events.filter(event => event.id !== parseInt(removedEvent.id));
-                    renderEventList(events);
-                });
-            } catch (error) {
-                console.error('Error removing event:', error);
-            }
+            removeEvent(eventId);
         }
     }
 
@@ -433,8 +385,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Aggiungi un gestore di eventi per il clic sul pulsante
     removeAllButton.addEventListener('click', () => {
-        events = [];        
-        renderEventList(events);
+        events.forEach(event => {
+            removeEvent(event.id);
+        });
     });
 
     // Trova il pulsante "Sort by Date" nell'HTML
