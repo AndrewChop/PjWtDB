@@ -68,11 +68,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             transactions = await response.json();
+            console.log('loadTransactionsFromAPI', transactions);
             renderTransactionList(transactions);
-            updateTotalsDisplay();
         } catch (error) {
             console.error('Failed to load transactions from API:', error);
         }
+    }
+    function formatDateToItalian(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('it-IT', options);
     }
 
     // Funzione per renderizzare la lista delle transazioni
@@ -82,17 +86,19 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         transactionList.forEach(transaction => {
             const transactionItem = document.createElement('li');
+            const formattedDate = formatDateToItalian(transaction.date);
             transactionItem.innerHTML = `
                 <span>${transaction.id}</span>
                 <span>${transaction.name}</span>
-                <span>${transaction.type}</span>
-                <span>${transaction.cash}€</span>
-                <span>${transaction.date}</span>
+                <span>${transaction.transactionType}</span>
+                <span>${transaction.amount}€</span>
+                <span>${formattedDate}</span>
                 <button class="edit-button" data-id="${transaction.id}">Edit</button>
                 <button class="remove-button" data-id="${transaction.id}">Remove</button>
             `;
             transactionItems.appendChild(transactionItem);
-            console.log(transactionItems)
+            console.log('renderTransactionList', transactionList);
+            updateTotalsDisplay();
         });
     }
 
@@ -113,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     function filterTransactions(query) {
         console.log('filterTransactions IN', query, transactions);
         const filteredTransactions = transactions.filter(transaction => {
-            const transactionDetail = `${transaction.name} ${transaction.cash}`;
+            const transactionDetail = `${transaction.name} ${transaction.amount}`;
             return transactionDetail.toLowerCase().includes(query.toLowerCase());
         });
         console.log('filterTransactions OUT', filteredTransactions);
@@ -172,9 +178,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             const newTransaction = {
                 id: transactions.length + 1,
                 name: transactionName,
-                type: transactionType,
-                cash: transactionCash,
-                category_: transactionCategory,
+                transactionType: transactionType,
+                amount: transactionCash,
+                category: transactionCategory,
                 channel: transactionChannel,
                 date: transactionDate,
                 note: transactionNote
@@ -229,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         editCash.value = transaction.amount;
         editCategory.value = transaction.category;
         editChannel.value = transaction.channel;
-        editDate.value = transaction.date;
+        editDate.value = transaction.date.split('T')[0];
         editNote.value = transaction.note;
 
         const saveEditButton = document.getElementById('save-edit-button');
@@ -301,12 +307,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error updating transaction:', error);
         }
     }
-
-    function handleRemoveButtonClick(event) {
-        if (event.target.classList.contains('remove-button')) {
-            const id = event.target.getAttribute('data-id');
-
-            try {
+    function removeTransaction(id) {
+         try {
                 const token = localStorage.getItem('jwtToken');
                 fetch('/api/transaction/remove', {
                     method: 'POST',
@@ -314,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ id })
+                    body: JSON.stringify({ "transactionId":id })
                 }).then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to remove transaction');
@@ -328,6 +330,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             } catch (error) {
                 console.error('Error removing transaction:', error);
             }
+    }
+
+    function handleRemoveButtonClick(event) {
+        if (event.target.classList.contains('remove-button')) {
+            const id = event.target.getAttribute('data-id');
+
+           removeTransaction(id);
         }
     }
 
@@ -369,37 +378,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         transactionNote.value = '';
     }
 
-
-
-
-
-
-    // Funzione per aggiungere una nuova transazione alla lista
-    function addNewTransaction(transaction) {
-        transactions.push(transaction);
-        renderTransactionList(transactions);
-        updateTotalsDisplay();
-        saveTransactionListToLocalStorage(transactions);
-    }
-    
-    function saveTransactionListToLocalStorage(transactionList) {
-        localStorage.setItem('transactionList', JSON.stringify(transactionList));
-    }
-
-    
-    
-    // Inizializza la lista delle transazioni
-    transactions = JSON.parse(localStorage.getItem('transactionList')) || [];
-    renderTransactionList(transactions);
-    updateTotalsDisplay();
-   
-
     // Aggiungi un gestore di eventi alla lista delle transazioni per gestire il click sugli elementi transazione
     transactionItems.addEventListener('click', handleTransactionItemClick);
 
     
     // Gestore di eventi per il click sul pulsante "Remove"
-    function handleRemoveButtonClick(event) {
+    function hsandleRemoveButtonClick(event) {
         if (event.target.classList.contains('remove-button')) {
             const id = event.target.getAttribute('data-id'); 
             // Trova l'indice della transazione da rimuovere nell'array "transactions"
@@ -412,9 +396,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // Aggiorna la lista delle transazioni
                 renderTransactionList(transactions);
                 updateTotalsDisplay();
-    
-                // Salva l'array aggiornato nella localStorage
-                saveTransactionListToLocalStorage(transactions);
             }
         }
     }
@@ -428,10 +409,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Aggiungi un gestore di eventi per il clic sul pulsante
     removeAllButton.addEventListener('click', () => {
-        transactions = [];        
-        renderTransactionList(transactions); 
-        updateTotalsDisplay();       
-        saveTransactionListToLocalStorage(transactions);
+        transactions.forEach(transaction => {
+            // Rimuovi la transazione dall'array
+            removeTransaction(transaction.id);
+        });
     });
 
     // Trova il pulsante "Sort by Date" nell'HTML
@@ -462,10 +443,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         let totalOut = 0;
     
         transactions.forEach(transaction => {
-            if (transaction.type === 'IN') {
-                totalIn += parseFloat(transaction.cash);
-            } else if (transaction.type === 'OUT') {
-                totalOut += parseFloat(transaction.cash);
+            type = transaction.transactionType;
+            amount = parseFloat(transaction.amount);
+            if (type === 'IN') {
+                totalIn += amount;
+            } else if (type === 'OUT') {
+                totalOut += amount;
             }
         });
     
