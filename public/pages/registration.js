@@ -7,7 +7,6 @@ document.getElementById('cancel-button').addEventListener('click', handleCancelB
 //const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 // Definisci una variabile per l'URL del server
-
 const { SERVER_HOST, SERVER_PORT } = await fetch('/config').then(response => response.json());
 
 document.getElementById('registration-form').addEventListener('submit', async function(event) {
@@ -65,7 +64,6 @@ document.getElementById('registration-form').addEventListener('submit', async fu
     } */
 // Invio dei dati al server
 const serverUrl = `http://${SERVER_HOST}:${SERVER_PORT}`;
-console.log("Server URL:", serverUrl);
     fetch(`${serverUrl}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
