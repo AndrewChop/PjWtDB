@@ -35,33 +35,8 @@ document.getElementById('registration-form').addEventListener('submit', async fu
     submitButton.textContent = 'Registration in progress...';
     submitButton.disabled = true;
 
-/*     try {
-        const response = await fetch('http://192.168.1.2:3000/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-
-        if (!response.ok) {
-            if (response.status === 409) {
-                throw new Error('Email already in use! Please try another email address.');
-            } else {
-                throw new Error('Error in the registration!');
-            }
-        }
-
-        const data = await response.json();
-        console.log(data);
-        localStorage.setItem('jwtToken', data.token);
-        window.location.href = 'complete-profile.html'; 
-    } catch (error) {
-        console.error('Registration error:', error);
-        alert('An error has occurred: ' + error.message);
-        submitButton.textContent = 'Sign Up';
-        submitButton.disabled = false;
-    } */
 // Invio dei dati al server
-    fetch(`${window.config.serverUrl}/api/register`, {
+    fetch(`/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

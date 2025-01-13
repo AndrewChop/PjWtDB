@@ -108,32 +108,5 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         console.error('Error saving user data:', error);
         alert(error.message);
     } 
-/*
-    // Invio dei dati al server
-    fetch(`${window.config.serverUrl}/api/user/update`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => {
-        if (response.status === 401) {
-            alert('Session expired! Please re-login.');
-            window.location.href = '../index.html'; // Redirigi all'area di login
-        } else if (!response.ok) {
-            throw new Error('Error completing profile.');
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert('Profile completed successfully!');
-        window.location.href = 'homepage.html';
-    })
-    .catch(error => {
-        console.error('Error completing profile:', error);
-        alert('Session expired! Please re-login.');
-        window.location.href = '../index.html';
-    });*/
+
 });
