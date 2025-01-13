@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function loadStudentsFromAPI() {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`${window.config.serverUrl}/api/users/students`, {
+            const response = await fetch(`/api/users/students`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

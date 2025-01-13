@@ -1,13 +1,12 @@
 const config = {
-    //serverHost: '192.168.1.3',
-    serverHost: '0.0.0.0',
-    serverPort: 3000,
+    serverHost: process.env.SERVER_HOST || '0.0.0.0',
+    serverPort: process.env.PORT || 3000,
 };
 
 // URL per le chiamate HTTP/REST
-config.serverUrl = `http://${config.serverHost}:${config.serverPort}`;
+config.serverUrl = `/api`;
 
 // URL per la connessione WebSocket
-config.webSocketUrl = `ws://${config.serverHost}:${config.serverPort}`;
+config.webSocketUrl = `ws`;
 
 module.exports = config;

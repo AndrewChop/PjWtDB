@@ -7,7 +7,7 @@ function checkCredentials() {
     const email = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
 
-    fetch(`${window.config.serverUrl}/api/login`, {
+    fetch(`/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

@@ -842,6 +842,6 @@ app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage')
     }
 });
 
-server.listen(config.serverPort, config.serverHost, () => {
+server.listen(process.env.PORT || 3000, () => {
     console.log(`Server running at ${config.serverUrl}`);
 });

@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function loadVolunteersFromAPI() {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`${window.config.serverUrl}/api/users/volunteers`, {
+            const response = await fetch(`/api/users/volunteers`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

@@ -1,6 +1,6 @@
 window.config = {
-    serverHost: '192.168.1.3',
-    serverPort: 3000,
+    serverUrl: 'https://swen-esn-management-web-platform.onrender.com',
+    webSocketUrl: 'wss://swen-esn-management-web-platform.onrender.com',
 };
 
 // URL per le chiamate HTTP/REST
