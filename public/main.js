@@ -4,10 +4,10 @@ document.getElementById('login-form').addEventListener('submit', function(event)
 });
 
 function checkCredentials() {
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
 
-    fetch('http://192.168.158.164:3000/api/login', {
+    fetch(`${window.config.serverUrl}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -21,7 +21,7 @@ function checkCredentials() {
     })
     .then(data => {
         console.log(data);
-        localStorage.setItem('jwtToken', data.token); // Salvataggio del token nel localStorage
+        localStorage.setItem('jwtToken', data.token);
         console.log('Token saved:', data.token);
         window.location.href = "./pages/homepage.html";
     })

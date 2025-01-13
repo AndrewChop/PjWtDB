@@ -1,0 +1,21 @@
+Quando Visual Studio Code ti avvisa che ti trovi sul branch protetto main, significa che stai tentando di fare modifiche dirette su un branch che è configurato per prevenire modifiche accidentali o non autorizzate. Questa è una pratica comune per proteggere i branch critici come main o master, dove le modifiche dovrebbero essere gestite con attenzione attraverso pull request e revisioni del codice.
+
+Ecco cosa puoi fare:
+
+1. Crea un Nuovo Branch: Prima di iniziare a lavorare sulle tue modifiche, crea un nuovo branch partendo da main. Questo ti permetterà di sviluppare il tuo lavoro in modo isolato, senza influenzare il branch principale. Puoi farlo eseguendo:
+
+bash -- > git checkout -b nome-del-tuo-nuovo-branch
+
+Sostituisci nome-del-tuo-nuovo-branch con un nome significativo per il lavoro che stai per svolgere.
+
+2. Sviluppa sul Nuovo Branch: Una volta che sei sul tuo nuovo branch, puoi procedere con le modifiche al codice, commit, test, ecc.
+
+3. Push il Nuovo Branch: Quando sei pronto, fai il push del tuo nuovo branch al repository remoto (se necessario) con:
+
+bash --> git push origin nome-del-tuo-nuovo-branch
+
+4.Crea una Pull Request: Una volta che le tue modifiche sono pronte per essere integrate nel branch main, crea una pull request tramite l'interfaccia di GitHub, Bitbucket, o qualsiasi altro servizio di hosting Git che stai usando. Questo permette al team di rivedere le modifiche prima che siano fuse nel branch main.
+
+5. Ricevi l'Approvazione e Fai il Merge: Dopo la revisione e l'approvazione della pull request da parte del tuo team, puoi fare il merge delle modifiche nel branch main.
+
+Questa procedura aiuta a mantenere l'integrità del codice nel branch main e facilita una migliore collaborazione e revisione del codice all'interno del team.

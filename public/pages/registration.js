@@ -61,12 +61,13 @@ document.getElementById('registration-form').addEventListener('submit', async fu
         submitButton.disabled = false;
     } */
 // Invio dei dati al server
-    fetch('http://192.168.1.2:3000/api/register', {
+    fetch(`${window.config.serverUrl}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     })
     .then(response => {
+        console.log('Response:', response);
         if (!response.ok) {
             if (response.status === 409) {
                 throw new Error('Email already in use! Please try another email address.');
@@ -81,7 +82,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
         const token = data.token;
         console.log("Token received (REGISTRATION):", data.token);
         localStorage.setItem('jwtToken', token);
-        //window.location.href = '../components/user-profile/profile.html';
+        console.log('Token salvato in localStorage:', localStorage.getItem('jwtToken'));
         window.location.href = 'complete-profile.html';
     })
     .catch(error => {

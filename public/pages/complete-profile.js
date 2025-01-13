@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('jwtToken');
+    console.log('Token retrieved for profile:', token);
     if (!token) {
         alert('Session expired! Please re-login.');
         window.location.href = '../index.html';
@@ -8,17 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.getElementById('profile-form').addEventListener('submit', async function(event) {
     event.preventDefault();
-
-   /*  // Recuperare il token JWT dal localStorage
-    const token = localStorage.getItem('jwtToken');
-    console.log("Token retrieved (COMPLETE-PROFILE):", token); // Aggiungi questa linea per visualizzare il token
-
-    if (!token) {
-        alert('Session expired! Please re-login.');
-        window.location.href = '../index.html'; // Redirigi all'area di login
-        return;
-    } */
-
+    
     // Raccogliere i dati dal form
     const formData = {
         cardNumber: document.getElementById('card-number').value,
@@ -90,7 +81,7 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     
     const token = localStorage.getItem('jwtToken');
 
-    /* try {
+    try {
         const response = await fetch('/api/user/update', {
             method: 'POST',
             headers: { 
@@ -103,7 +94,7 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         if (!response.ok) {
             if (response.status === 401) {
                 alert('Session expired or invalid! Please log in again.');
-                window.location.href = '../index.html'; // Reindirizza all'login
+                window.location.href = '../index.html'; 
             } else {
                 console.error('Failed to save user data:', response);
             }
@@ -116,14 +107,14 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     } catch (error) {
         console.error('Error saving user data:', error);
         alert(error.message);
-    } */
-
+    } 
+/*
     // Invio dei dati al server
-    fetch('http://192.168.1.2:3000/api/user/update', {
+    fetch(`${window.config.serverUrl}/api/user/update`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // Utilizza il token recuperato
+            'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(formData)
     })
@@ -144,5 +135,5 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         console.error('Error completing profile:', error);
         alert('Session expired! Please re-login.');
         window.location.href = '../index.html';
-    });
+    });*/
 });

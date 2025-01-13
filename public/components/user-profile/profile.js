@@ -1,22 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     loadUserData();
     document.getElementById('save-button').addEventListener('click', saveChanges);
+    document.getElementById('delete-button').addEventListener('click', deleteAccount);
 });
-
-/* async function renewToken() {
-    const token = localStorage.getItem('jwtToken');
-    const response = await fetch('/api/renew-token', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('jwtToken', data.token);
-        return data.token;
-    } else {
-        throw new Error('Failed to renew token');
-    }
-} */
 
 async function loadUserData() {
     try {
@@ -35,11 +21,6 @@ async function loadUserData() {
         });
 
         if (response.status === 401) {
-            /* token = await renewToken(); // Try renewing the token
-            response = await fetch('/api/user/data', {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
-            }); */
             alert('Session expired or invalid! Please log in again.');
             window.location.href = '../../index.html'; // Reindirizza all'login
         }
@@ -195,5 +176,31 @@ async function saveChanges() {
         }
     } catch (error) {
         console.error('Error saving user data:', error);
+    }
+}
+
+async function deleteAccount() {
+    const confirmation = confirm('Are you sure you want to delete your account? This action is irreversible.');
+    if (!confirmation) return;
+
+    try {
+        const token = localStorage.getItem('jwtToken');
+        const response = await fetch('/api/user/delete', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            alert('Account successfully deleted. You will be logged out.');
+            localStorage.removeItem('jwtToken');
+            window.location.href = '../../index.html';
+        } else {
+            throw new Error('Error while deleting the account.');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        alert('Unable to delete the account. Please try again later.');
     }
 }

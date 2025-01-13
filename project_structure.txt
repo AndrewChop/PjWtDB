@@ -1,0 +1,100 @@
+.
+├── Makefile
+├── README.md
+├── app.js
+├── config.js
+├── dist
+│   ├── index.js
+│   └── index.js.map
+├── package-lock.json
+├── package.json
+├── prisma
+│   ├── migrations
+│   │   ├── 20240108164436_init
+│   │   │   └── migration.sql
+│   │   ├── 20240111095917_init
+│   │   │   └── migration.sql
+│   │   ├── 20240112214609_init
+│   │   │   └── migration.sql
+│   │   ├── 20240116161632_init
+│   │   │   └── migration.sql
+│   │   ├── 20240116162046_init
+│   │   │   └── migration.sql
+│   │   ├── 20240120170053_init
+│   │   │   └── migration.sql
+│   │   ├── 20240121184106_init
+│   │   │   └── migration.sql
+│   │   ├── 20240321120438_init
+│   │   │   └── migration.sql
+│   │   ├── 20240525174402_may_migration
+│   │   │   └── migration.sql
+│   │   ├── 20240612100839_add_profile_image_field
+│   │   │   └── migration.sql
+│   │   ├── 20240630164613_make_password_optional
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   └── schema.prisma
+├── project_structure.txt
+├── public
+│   ├── assets
+│   │   ├── icons
+│   │   │   ├── favicon.ico
+│   │   │   ├── icon1.png
+│   │   │   ├── icon2.png
+│   │   │   ├── icon3.png
+│   │   │   └── logo.png
+│   │   ├── libs
+│   │   │   ├── complete.css
+│   │   │   ├── discounts.css
+│   │   │   ├── events.css
+│   │   │   ├── homepage.css
+│   │   │   ├── profile.css
+│   │   │   ├── registration.css
+│   │   │   ├── students.css
+│   │   │   ├── style.css
+│   │   │   ├── transactions.css
+│   │   │   └── volunteers.css
+│   │   └── profile
+│   │       ├── 27_profile.jpg
+│   │       ├── 28_profile.jpg
+│   │       ├── 30_profile.jpg
+│   │       ├── 57_profile.jpg
+│   │       └── profile.jpg
+│   ├── components
+│   │   ├── discounting
+│   │   │   ├── discounts.html
+│   │   │   └── discounts.js
+│   │   ├── event
+│   │   │   ├── events.html
+│   │   │   └── events.js
+│   │   ├── guest-profile
+│   │   │   ├── students.html
+│   │   │   ├── students.js
+│   │   │   ├── volunteers.html
+│   │   │   └── volunteers.js
+│   │   ├── treasury
+│   │   │   ├── transactions.html
+│   │   │   └── transactions.js
+│   │   └── user-profile
+│   │       ├── profile.html
+│   │       └── profile.js
+│   ├── config.js
+│   ├── index.html
+│   ├── main.js
+│   └── pages
+│       ├── complete-profile.html
+│       ├── complete-profile.js
+│       ├── homepage.html
+│       ├── homepage.js
+│       ├── registration.html
+│       ├── registration.js
+│       └── terms.html
+├── resetDatabase.js
+├── src
+│   └── index.ts
+├── structure_project.txt
+├── testCredenziali.js
+├── tsconfig.json
+└── warn.txt
+
+28 directories, 70 files

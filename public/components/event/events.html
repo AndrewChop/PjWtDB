@@ -55,8 +55,6 @@
         <div class="edit-event-container">
             <div class="edit-event-content">
                 <form class="objective-data-form">
-                    <label for="event-code">Code:</label>
-                    <input type="number" id="event-code" min="1" class="objective-data-input">
 
                     <label for="event-name">Name:</label>
                     <input type="text" id="event-name" class="objective-data-input">
@@ -78,12 +76,13 @@
 
                     <label for="event-type">Type</label>
                     <select id="event-type">
-                        <option value="Culture">Culture</option>
-                        <option value="Social Inclusion">Social Inclusion</option>
-                        <option value="Education & Youth">Education & Youth</option>
-                        <option value="Health & Well-being">Health & Well-being</option>
-                        <option value="Skills & Employability">Skills & Employability</option>
-                        <option value="Environmental Sustainability">Environmental Sustainability</option>                     
+                        <option value="none"> </option>
+                        <option value="CULTURE">Culture</option>
+                        <option value="SOCIAL_INCLUSION">Social Inclusion</option>
+                        <option value="EDUCATION_YOUTH">Education & Youth</option>
+                        <option value="HEALTH_WELLBEING">Health & Well-being</option>
+                        <option value="SKILLS_EMPLOYABILITY">Skills & Employability</option>
+                        <option value="ENVIRONMENTAL_SUSTAINABILITY">Environmental Sustainability</option>                    
                     </select>
                     
                     <label for="event-price">Price:</label>
@@ -107,10 +106,7 @@
         </div>
         <div class="edit-event-container">
             <div class="edit-event-content">
-                <form class="objective-data-form">                    
-                    <label for="edit-event-code">Code:</label>
-                    <input type="number" id="edit-code" min="1" class="objective-data-input">
-
+                <form class="objective-data-form">
                     <label for="edit-event-name">Event name:</label>
                     <input type="text" id="edit-name" class="objective-data-input">
 
@@ -131,12 +127,13 @@
 
                     <label for="edit-event-type">Type</label>
                     <select id="edit-type">
-                        <option value="Culture">Culture</option>
-                        <option value="Social Inclusion">Social Inclusion</option>
-                        <option value="Education & Youth">Education & Youth</option>
-                        <option value="Health & Well-being">Health & Well-being</option>
-                        <option value="Skills & Employability">Skills & Employability</option>
-                        <option value="Environmental Sustainability">Environmental Sustainability</option>                     
+                        <option value="none"> </option>
+                        <option value="CULTURE">Culture</option>
+                        <option value="SOCIAL_INCLUSION">Social Inclusion</option>
+                        <option value="EDUCATION_YOUTH">Education & Youth</option>
+                        <option value="HEALTH_WELLBEING">Health & Well-being</option>
+                        <option value="SKILLS_EMPLOYABILITY">Skills & Employability</option>
+                        <option value="ENVIRONMENTAL_SUSTAINABILITY">Environmental Sustainability</option>                     
                     </select>
 
                     <label for="edit-event-price">Price:</label>
@@ -175,9 +172,7 @@
         document.getElementById('add-event-button').addEventListener('click', toggleUserMenu);
     </script>
 
-        
-    
+    <script src="/config.js"></script>
     <script src="events.js"></script>
-    
 </body>
 </html>

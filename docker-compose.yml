@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - JWT_SECRET=DFkjmqDb5oBWiJvYnAMNQ0gHfF5iuU6oiXz+3ei/o979YUPfzSIdkt8bDzucqVJKq9d3Z27rrY/mtsappg+fKg==
+      - DATABASE_URL=postgresql://projectdb_advb_user:8tNIpuv80wKXeL0TpkI7I5tBxM7zcgxY@dpg-cme168ed3nmc73do2hb0-a.frankfurt-postgres.render.com/projectdb_advb
+    volumes:
+      - /Users/Shared/DiscoF/UNIMARCONI/Tesi/progetto/progetto_con_database:/app
+    command: ["sh", "-c", "npx prisma generate && npx nodemon app.js"]
+
+volumes:
+  db_data:

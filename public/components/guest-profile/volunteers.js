@@ -1,18 +1,19 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const userItems = document.getElementById('user-items');
 
     let users = [];
 
-    const socket = new WebSocket('ws://192.168.158.164:3000');
+    const socket = new WebSocket(window.config.webSocketUrl);
+    console.log("WebSocket initialized:", window.config.webSocketUrl);
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
     };
 
     socket.onmessage = function (event) {
-        console.log('Message received:', event.data); // Aggiungi questo log per debug
+        console.log('Message received:', event.data);
         if (event.data === "Welcome in the server WebSocket!") {
             console.log("Received welcome message, not a JSON, skipping parsing.");
             return;
@@ -29,6 +30,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     users.push(updatedUser);
                 }
                 renderUserList(users);
+            } else if (message.type === 'REMOVE_USER') {
+                console.log('Received remove:', message.payload);
+                const removedUserId = message.payload.id;
+                users = users.filter(user => user.id !== removedUserId);
+                renderUserList(users);
             }
         } catch (error) {
             console.error('Failed to parse message:', error);
@@ -42,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function loadVolunteersFromAPI() {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch('/api/users/volunteers', {
+            const response = await fetch(`${window.config.serverUrl}/api/users/volunteers`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -92,6 +98,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // Aggiungi un gestore di eventi alla lista degli utenti per gestire il click sugli elementi utente
     userItems.addEventListener('click', handleUserItemClick);
 
+    function formatDateForInput(dateString) {
+        if (!dateString) return ''; // Gestione di date non valide o nulle
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     // Funzione per popolare il form di visualizzazione con i dettagli dell'utente selezionato
     function populateViewForm(user) {
         const viewCardNumber = document.getElementById('view-card-number');
@@ -134,15 +149,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const userViewForm = document.getElementById('user-view-form');
         userViewForm.classList.remove('hidden');
-    }
-
-    function formatDateForInput(dateString) {
-        if (!dateString) return ''; // Gestione di date non valide o nulle
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
     }
 
     // Funzione per nascondere il form di visualizzazione utente

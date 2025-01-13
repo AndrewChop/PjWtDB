@@ -1,8 +1,9 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const studentItems = document.getElementById('student-items');
     const addStudentButton = document.getElementById('add-student-button');
+    const cardInput = document.getElementById('student-card-number');
 
     // Lista degli utenti 
     let students = [];
@@ -10,7 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Variabile per memorizzare il cardNumber originale
     let originalCardNumber = '';
 
-    const socket = new WebSocket('ws://192.168.158.164:3000');
+    const socket = new WebSocket(window.config.webSocketUrl);
+    console.log("WebSocket initialized:", window.config.webSocketUrl);
+
 
     socket.onopen = function () {
         console.log('WebSocket connection established');
@@ -26,8 +29,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_STUDENT') {
                 console.log('Received add:', message.payload);
-                students.push(message.payload);
-                renderStudentList(students);
+                const newStudent = message.payload;
+                if (!students.some(student => student.id === newStudent.id)) {
+                    students.push(newStudent);
+                    renderStudentList(students);
+                }
             } else if (message.type === 'UPDATE_STUDENT') {
                 console.log('Received update:', message.payload);
                 const updatedStudent = message.payload;
@@ -54,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function loadStudentsFromAPI() {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch('/api/users/students', {
+            const response = await fetch(`${window.config.serverUrl}/api/users/students`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -63,8 +69,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
+            const apiStudents = await response.json();
 
-            students = await response.json();
+            // Unisci senza duplicati
+            apiStudents.forEach(apiStudent => {
+                if (!students.some(student => student.id === apiStudent.id)) {
+                    students.push(apiStudent);
+                }
+            });
             renderStudentList(students);
         } catch (error) {
             console.error('Failed to load users from API:', error);
@@ -106,6 +118,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return regex.test(cardNumber);
     }
 
+    // Trasforma automaticamente i caratteri in maiuscolo durante la digitazione
+    cardInput.addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+    });
+
     // Funzione per convalidare l'età
     function isAtLeast18YearsOld(birthDate) {
         const today = new Date();
@@ -125,8 +142,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function setMinExpirationDate(inputId) {
         const expirationDateInput = document.getElementById(inputId);
         const today = new Date();
-        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
-        const minDate = nextYear.toISOString().split('T')[0]; // Formatta la data come YYYY-MM-DD
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()+1);
+        const minDate = nextYear.toISOString().split('T')[0]; 
         expirationDateInput.min = minDate;
     }
 
@@ -276,13 +293,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     hostUniversity: studentHostUniversity,
                     exchangeDuration: studentExchangeDuration,
                     studentNumber: studentStudentNumber,
-                    addressOrigin: studentAddressOrigin,
-                    cityOrigin: studentCityOrigin,
-                    countryOrigin: studentCountryOrigin,
+                    addressCityOfOrigin: studentAddressOrigin,
+                    cityOfOrigin: studentCityOrigin,
+                    countryOfOrigin: studentCountryOrigin,
                     documentType: studentDocumentType,
-                    numberDoc: studentNumberDoc,
-                    expirationDate: studentExpirationDate,
-                    issuedBy: studentIssuedBy
+                    documentNumber: studentNumberDoc,
+                    documentExpiration: studentExpirationDate,
+                    documentIssuer: studentIssuedBy
                 };
 
                 try {
@@ -293,39 +310,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({
-                        cardNumber: studentCardNumber,
-                        email: studentEmail,
-                        name: studentName,
-                        surname: studentSurname,
-                        gender: studentGender,
-                        birthDate: studentBirthDate,
-                        nationality: studentNationality,
-                        phoneNumber: studentPhone,
-                        studyField: studentStudyField,
-                        originUniversity: studentOriginUniversity,
-                        hostUniversity: studentHostUniversity,
-                        exchangeDuration: studentExchangeDuration,
-                        studentNumber: studentStudentNumber,
-                        addressCityOfOrigin: studentAddressOrigin,
-                        cityOfOrigin: studentCityOrigin,
-                        countryOfOrigin: studentCountryOrigin,
-                        documentType: studentDocumentType,
-                        documentNumber: studentNumberDoc,
-                        documentExpiration: studentExpirationDate,
-                        documentIssuer: studentIssuedBy
-                        })
+                        body: JSON.stringify(newStudent)
                     });
 
                     if (!response.ok) {
                         throw new Error('Failed to add student');
                     }
 
-                    const newStudent = await response.json();
-                    students.push(newStudent);
-                    renderStudentList(students);
+                    resetStudentFormFields(); 
                     hideStudentForm();
-                    resetStudentFormFields();
                 } catch (error) {
                     console.error('Error adding student:', error);
                 }
@@ -364,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Funzione per popolare il form di modifica con i dettagli dello studente selezionato
     function populateEditForm(student) {
+        console.error('Student:', student);
         document.getElementById('edit-card-number').value = student.cardNumber;
         document.getElementById('edit-email').value = student.email;
         document.getElementById('edit-name').value = student.name;
@@ -371,19 +365,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-gender').value = student.gender;
         document.getElementById('edit-birth-date').value = (student.birthDate).split("T")[0];
         document.getElementById('edit-nationality').value = student.nationality;
-        document.getElementById('edit-phone').value = student.phone;
+        document.getElementById('edit-phone').value = student.phoneNumber;
         document.getElementById('edit-study-field').value = student.studyField;
         document.getElementById('edit-origin-university').value = student.originUniversity;
         document.getElementById('edit-host-university').value = student.hostUniversity;
         document.getElementById('edit-exchange-duration').value = student.exchangeDuration;
         document.getElementById('edit-student-number').value = student.studentNumber;
-        document.getElementById('edit-address-origin').value = student.addressOrigin;
-        document.getElementById('edit-city-origin').value = student.cityOrigin;
-        document.getElementById('edit-country-origin').value = student.countryOrigin;
+        document.getElementById('edit-address-origin').value = student.addressCityOfOrigin;
+        document.getElementById('edit-city-origin').value = student.cityOfOrigin;
+        document.getElementById('edit-country-origin').value = student.countryOfOrigin;
         document.getElementById('edit-document-type').value = student.documentType;
-        document.getElementById('edit-number-doc').value = student.numberDoc;
-        document.getElementById('edit-expiration-date').value = student.expirationDate;
-        document.getElementById('edit-issued-by').value = student.issuedBy;
+        document.getElementById('edit-number-doc').value = student.documentNumber;
+        document.getElementById('edit-expiration-date').value = student.documentExpiration? (student.documentExpiration).split("T")[0] : '';
+        document.getElementById('edit-issued-by').value = student.documentIssuer;
 
         originalCardNumber = student.cardNumber;
 
@@ -391,6 +385,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const studentEditForm = document.getElementById('student-edit-form');
         studentEditForm.classList.remove('hidden');
+
+        const saveEditButton = document.getElementById('save-edit-button');
+        saveEditButton.setAttribute('data-id', student.id);
     }
 
     // Gestore di eventi per il click sul pulsante "Edit"
@@ -410,10 +407,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    const removeAllStudentsButton = document.getElementById('remove-all-button');
+
+    removeAllStudentsButton.addEventListener('click', async () => {
+        students.forEach(student => {
+            removeStudent(student.cardNumber);
+        })
+    });
+
     // Endpoint per rimuovere uno studente
     async function removeStudent(cardNumber) {
         try {
-            console.log('Removing student with cardNumber:', cardNumber);  // Aggiunto log per controllare cardNumber
+            console.log('Removing student with cardNumber:', cardNumber);
             
             const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/student/remove', { 
@@ -430,6 +435,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const result = await response.json();
+            students = students.filter(student => student.cardNumber !== cardNumber);
+            renderStudentList(students);
             console.log('Student removed successfully:', result);
         } catch (error) {
             console.error('Error removing student:', error);
@@ -467,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Controlla se l'utente ha tentato di modificare il cardNumber
         if (editedCardNumber !== originalCardNumber) {
-            alert('Please contact the admin to change the card number.');
+            alert('You cannot change the card number.');
             return;
         }
 
@@ -490,8 +497,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        const studentId = saveEditButton.getAttribute('data-id');
+
         // Crea un oggetto utente con i dettagli modificati
         const editedStudent = {
+            id: studentId,
+            studentId: originalCardNumber,
             cardNumber: editedCardNumber,
             email: editedEmail,
             name: editedName,
@@ -499,19 +510,19 @@ document.addEventListener('DOMContentLoaded', function () {
             gender: editedGender,
             birthDate: editedBirthDate,
             nationality: editedNationality,
-            phone: editedPhone,
+            phoneNumber: editedPhone,
             studyField: editedStudyField,
             originUniversity: editedOriginUniversity,
             hostUniversity: editedHostUniversity,
             exchangeDuration: editedExchangeDuration,
             studentNumber: editedStudentNumber,
-            addressOrigin: editedAddressOrigin,
-            cityOrigin: editedCityOrigin,
-            countryOrigin: editedCountryOrigin,
+            addressCityOfOrigin: editedAddressOrigin,
+            cityOfOrigin: editedCityOrigin,
+            countryOfOrigin: editedCountryOrigin,
             documentType: editedDocumentType,
-            numberDoc: editedNumberDoc,
-            expirationDate: editedExpirationDate,
-            issuedBy: editedIssuedBy
+            documentNumber: editedNumberDoc,
+            documentExpiration: editedExpirationDate || null,
+            documentIssuer: editedIssuedBy
         };
 
         try {
@@ -522,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ studentId: originalCardNumber, ...editedStudent })
+                body: JSON.stringify(editedStudent)
             });
 
             if (!response.ok) {
@@ -531,9 +542,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const result = await response.json();
             console.log('Student updated successfully:', result);
+            const index = students.findIndex(student => student.id === parseInt(studentId));
+            if (index !== -1) {
+                students[index] = result;
+                renderStudentList(students);
+            }
 
             // Chiudi il form di modifica
             hideEditForm();
+
 
         } catch (error) { 
             console.error('Error updating student:', error);

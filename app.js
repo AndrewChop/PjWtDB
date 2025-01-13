@@ -1,20 +1,20 @@
-require('dotenv').config(); // Deve essere la prima linea eseguita
+const config = require('./config');
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
+const {PrismaClient, TransactionType, Category, EventType} = require('@prisma/client');
 const cors = require('cors');
 const http = require('http');
 const WebSocket = require('ws');
 const multer = require('multer');
 const path = require('path');
 
-// Verificare che la chiave sia stata caricata correttamente
 console.log('The JWT secret key is:', process.env.JWT_SECRET);
+console.log('Server URL:', config.serverUrl);
+console.log('WebSocket URL:', config.webSocketUrl);
 
 const app = express();
-const port = 3000;
 const prisma = new PrismaClient();
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -23,13 +23,13 @@ const JWT_SECRET = process.env.JWT_SECRET;
 app.use(express.json());
 
 // Serve i file statici dalla cartella 'public'
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configura il middleware CORS
 app.use(cors({
-    origin: 'http://192.168.158.164:3000', // Permette solo richieste da questa origine
-    methods: ['GET', 'POST'], // Metodi consentiti
-    credentials: true // Permette credenziali come cookies, autorizzazione headers ecc.
+    origin: config.serverUrl,
+    methods: ['GET', 'POST'],
+    credentials: true
 }));
 
 // Configurazione di multer per il caricamento dei file
@@ -38,7 +38,6 @@ const storage = multer.diskStorage({
         cb(null, 'public/assets/profile/');
     },
     filename: function (req, file, cb) {
-        // Usa l'ID dell'utente per il nome del file
         const userId = req.user.userId;
         cb(null, `${userId}_profile.jpg`);
     }
@@ -51,7 +50,7 @@ const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
     console.log('New connection WebSocket');
-    
+
     ws.on('message', (message) => {
         console.log('Message received:', message);
     });
@@ -61,7 +60,7 @@ wss.on('connection', (ws) => {
     });
 
     ws.send('Welcome in the server WebSocket!');
-    
+
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
     });
@@ -96,9 +95,10 @@ app.post('/api/register', async (req, res) => {
         // Hash della password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Calcola il ruolo da assegnare
+        /* // Calcola il ruolo da assegnare
         const userCount = await prisma.user.count();
-        const assignedRole = userCount === 0 ? 'ADMIN' : inputRole || 'VOLUNTEER';
+        const assignedRole = userCount === 0 ? 'ADMIN' : inputRole || 'VOLUNTEER'; */
+        const assignedRole = 'VOLUNTEER';
 
         // Crea l'utente 
         const newUser = await prisma.user.create({
@@ -113,7 +113,7 @@ app.post('/api/register', async (req, res) => {
 
         const token = jwt.sign({ userId: newUser.id, role: newUser.role }, /* process.env. */JWT_SECRET/* , { expiresIn: '1h' } */);
         console.log('Token generated (API-REGISTER):', token);
-        res.status(201).json({ message: 'User registered successfully', user: newUser });
+        res.status(201).json({ message: 'User registered successfully', user: newUser, token: token });
     } catch (error) {
         console.error('Detailed error in registration:', error);
         res.status(500).json({ message: 'Error in registration', error: error.message });
@@ -134,8 +134,8 @@ app.post('/api/login', async (req, res) => {
         /* if (!process.env.JWT_SECRET) {
             console.error('JWT_SECRET isn\'t defined');
             throw new Error('Internal server error');
-        }  */   
-        const token = jwt.sign({ userId: user.id, role: user.role }, /* process.env. */JWT_SECRET, { expiresIn: '3600s' });
+        }  */
+        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, /* { expiresIn: '3h' }*/);
         console.log('Token generated:', token);
         //document.cookie = `token=${token}`;
         res.json({ token });
@@ -209,10 +209,30 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
             }
         });
         res.json({ message: 'Profile successfully updated', user: updatedUser });
-        broadcast({ type: 'UPDATE_USER', payload: updatedUser});
+        broadcast({ type: 'UPDATE_USER', payload: updatedUser });
     } catch (error) {
         console.error('Detailed error when updating profile:', error);
         res.status(500).json({ message: 'Error when updating profile', error: error.message });
+    }
+});
+
+// Elimina l'account dell'utente 
+app.delete('/api/user/delete', verifyToken, async (req, res) => {
+    console.log('Request received on /api/user/delete', req.body);
+    try {
+        const userId = req.user.userId; 
+        console.log(`Deleting user with ID: ${userId}`);
+        
+        await prisma.user.delete({
+            where: { id: userId }
+        });
+        console.log(`Account eliminato per l'utente con ID: ${userId}`);
+        // Esegui il broadcast per notificare la rimozione
+        broadcast({ type: 'USER_DELETED', payload: { userId } });
+        res.status(200).json({ message: 'Account successfully deleted.' });
+    } catch (error) {
+        console.error('Error while deleting the user:', error);
+        res.status(500).json({ message: 'Error while deleting the account.', error: error.message  });
     }
 });
 
@@ -222,6 +242,8 @@ function verifyToken(req, res, next) {
     console.log("JWT token verification...");
 
     const authHeader = req.headers.authorization;
+    console.log('Authorization header:', req.headers.authorization);
+
     if (!authHeader) {
         return res.status(401).json({ message: 'Unauthorised access: header authorisation missing.' });
     }
@@ -235,12 +257,20 @@ function verifyToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, /* process.env. */JWT_SECRET);
+        
+        console.log('JWT_SECRET:', JWT_SECRET);
+        console.log('Token received for verification:', token);
+
         console.log('Token decoded:', decoded);
         req.user = decoded;
         next();
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            console.error('Token expired:', error);
+            return res.status(401).json({ message: 'Token expired. Please log in again.' });
+        }
         console.error('Invalid token:', error);
-        return res.status(401).send('Unauthorised access. Invalid token');
+        return res.status(401).json({ message: 'Unauthorized access. Invalid token.' });
     }
 }
 
@@ -268,7 +298,7 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
             name: user.name,
             surname: user.surname,
             gender: user.gender,
-            birthdate: user.birthDate,
+            birthDate: user.birthDate,
             nationality: user.nationality,
             phoneNumber: user.phoneNumber,
             studyField: user.studyField,
@@ -395,7 +425,7 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
                 documentExpiration: new Date(documentExpiration),
                 documentIssuer,
                 role: 'STUDENT',
-                password: null // Ho aggiunto un valore predefinito per il campo facoltativo 'password'
+                password: null
             }
         });
         console.log('Student added successfully');
@@ -417,20 +447,20 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
         name,
         surname,
         gender,
-        //birthDate,
+        birthDate,
         nationality,
         phoneNumber,
         studyField,
         originUniversity,
         hostUniversity,
-        //exchangeDuration,
+        exchangeDuration,
         studentNumber,
         countryOfOrigin,
         cityOfOrigin,
         addressCityOfOrigin,
         documentType,
         documentNumber,
-        //documentExpiration,
+        documentExpiration,
         documentIssuer
     } = req.body;
 
@@ -443,20 +473,20 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
                 name,
                 surname,
                 gender,
-                //birthDate: new Date(birthDate),
+                birthDate: new Date(birthDate),
                 nationality,
                 phoneNumber,
                 studyField,
                 originUniversity,
                 hostUniversity,
-                //exchangeDuration: parseInt(exchangeDuration),
+                exchangeDuration: parseInt(exchangeDuration),
                 studentNumber,
                 countryOfOrigin,
                 cityOfOrigin,
                 addressCityOfOrigin,
                 documentType,
                 documentNumber,
-                //documentExpiration: new Date(documentExpiration),
+                documentExpiration: new Date(documentExpiration),
                 documentIssuer
             }
         });
@@ -471,7 +501,7 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
 
 
 // Endpoint per rimuovere uno studente
-app.post('/api/student/remove', verifyToken, async (req, res) => { 
+app.post('/api/student/remove', verifyToken, async (req, res) => {
     console.log('Request received on /api/student/remove', req.body);
     const { cardNumber } = req.body;
 
@@ -497,8 +527,8 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
 // Endpoint per aggiungere un evento
 app.post('/api/event/add', verifyToken, async (req, res) => {
     console.log("Sto aggiungendo un evento");
+    console.error("User ID: " + req.user.userId);
     const {
-        code,
         name,
         place,
         address,
@@ -513,23 +543,26 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
     try {
         const newEvent = await prisma.event.create({
             data: {
-                code,
                 name,
                 place,
                 address,
                 date: new Date(date),
                 time,
                 description,
-                type,
+                eventType: EventType[type],
                 price: parseFloat(price),
-                participants: parseInt(numberParticipant), 
-                /* organizerId: req.user.userId // Associa l'evento all'organizzatore */
+                participants: parseInt(numberParticipant),
+
+                organizerId: req.user.userId
             }
         });
+        console.log("Trying to add " + newEvent);
         res.json(newEvent);
-        broadcast({ type: 'ADD_EVENT', payload: newEvent }); 
+        console.log(req)
+        broadcast({ type: 'ADD_EVENT', payload: newEvent });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to add event' });
+        console.error("Error: " + error);
+        res.status(500).json({message: 'Failed to add event'});
     }
 });
 
@@ -537,38 +570,38 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
 app.post('/api/event/update', verifyToken, async (req, res) => {
     const {
         eventId,
-        code,
         name,
         place,
         address,
         date,
         time,
         description,
-        type,
+        eventType,
         price,
-        numberParticipant
+        participants
     } = req.body;
 
     try {
         const updatedEvent = await prisma.event.update({
-            where: { id: parseInt(eventId) },
+            where: {id: parseInt(eventId)},
             data: {
-                code,
                 name,
                 place,
                 address,
                 date: new Date(date),
                 time,
                 description,
-                type,
+                eventType,
                 price: parseFloat(price),
-                participants: parseInt(numberParticipant)
+                participants
             }
         });
+        console.log("Event updated:", updatedEvent);
         res.json(updatedEvent);
-        broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent }); 
+        broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to update event' });
+        console.error("Error updating event:", error);
+        res.status(500).json({message: 'Failed to update event', error: error.message });
     }
 });
 
@@ -581,7 +614,7 @@ app.post('/api/event/remove', verifyToken, async (req, res) => {
             where: { id: parseInt(eventId) }
         });
         res.json(removedEvent);
-        broadcast({ type: 'REMOVE_EVENT', payload: removedEvent }); 
+        broadcast({ type: 'REMOVE_EVENT', payload: removedEvent });
     } catch (error) {
         res.status(500).json({ message: 'Failed to remove event' });
     }
@@ -589,8 +622,8 @@ app.post('/api/event/remove', verifyToken, async (req, res) => {
 
 // Endpoint per aggiungere una transazione
 app.post('/api/transaction/add', verifyToken, async (req, res) => {
+    console.log("Adding transaction...");
     const {
-        code,
         name,
         transactionType,
         amount,
@@ -601,30 +634,34 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
     } = req.body;
 
     try {
+        /* if (!name || !transactionType || !amount || !category || !channel || !date) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        } */
+
         const newTransaction = await prisma.treasury.create({
             data: {
-                code,
                 name,
-                transactionType,
+                transactionType: TransactionType[transactionType],
                 amount: parseFloat(amount),
-                category,
+                category: Category[category],
                 channel,
                 date: new Date(date),
                 note
             }
         });
+        console.log('Transaction added successfully:', newTransaction);
         res.json(newTransaction);
-        broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction }); 
+        broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to add transaction' });
+        console.error('Failed to add transaction:', error.message);
+        res.status(500).json({ message: 'Failed to add transaction', error: error.message});
     }
 });
 
 // Endpoint per aggiornare una transazione
 app.post('/api/transaction/update', verifyToken, async (req, res) => {
     const {
-        transactionId,
-        code,
+        id,
         name,
         transactionType,
         amount,
@@ -634,24 +671,40 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
         note
     } = req.body;
 
+    transactionId = id;
+    console.log('Check ID: done');
+    console.log('Transaction ID:', transactionId);
+
+    const parsedTransactionId = parseInt(transactionId, 10);
+
+    // Verifica se il record esiste
+    const existingTransaction = await prisma.treasury.findUnique({
+        where: { id: parsedTransactionId }
+    });
+
+    if (!existingTransaction) {
+        return res.status(404).json({ message: 'Transaction not found' });
+    }
+
     try {
         const updatedTransaction = await prisma.treasury.update({
-            where: { id: parseInt(transactionId) },
+            where: { id: parsedTransactionId },
             data: {
-                code,
                 name,
                 transactionType,
                 amount: parseFloat(amount),
                 category,
                 channel,
                 date: new Date(date),
-                note
+                note: note || null
             }
         });
+        console.log('Transaction updated successfully:', updatedTransaction);
         res.json(updatedTransaction);
-        broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction }); 
+        broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to update transaction' });
+        console.error('Error updating transaction:', error);
+        res.status(500).json({ message: 'Failed to update transaction', error: error.message});
     }
 });
 
@@ -670,21 +723,108 @@ app.post('/api/transaction/remove', verifyToken, async (req, res) => {
     }
 });
 
+// Endpoint per ottenere tutti gli sconti
+app.get('/api/discounts', async (req, res) => {
+    try {
+        const discounts = await prisma.discount.findMany();
+        res.json(discounts);
+    } catch (error) {
+        console.error('Failed to retrieve discounts:', error);
+        res.status(500).send('Failed to retrieve discounts');
+    }
+});
+
+// Endpoint per aggiungere un evento
+app.post('/api/discount/add', verifyToken, async (req, res) => {
+    const {
+        code,
+        name,
+        discountType,
+        rate,
+        expirationDate,
+        description,
+        link
+    } = req.body;
+    try {
+        const newDiscount = await prisma.discount.create({
+            data: {
+                code,
+                name,
+                discountType,
+                rate: parseFloat(rate),
+                expirationDate: new Date(expirationDate),
+                description,
+                link
+
+            }
+        });
+        res.json(newDiscount);
+    } catch (error) {
+        console.error("Error: " + error);
+        res.status(500).json({message: 'Failed to add discount'});
+    }
+});
 
 
+// Endpoint per rimuovere un discount
+app.post('/api/discount/remove', verifyToken, async (req, res) => {
+    const {discountId} = req.body;
+
+    try {
+        const removedEvent = await prisma.discount.delete({
+            where: {id: parseInt(discountId)}
+        });
+        res.json(removedEvent);
+    } catch (error) {
+        console.error('Failed to remove event:', error);
+        res.status(500).json({message: 'Failed to remove event'});
+    }
+});
 
 
+// Endpoint per aggiornare uno sconto
+app.post('/api/discount/update', verifyToken, async (req, res) => {
+    const {
+        eventId,
+        code,
+        name,
+        type,
+        rate,
+        date,
+        description,
+        link
+    } = req.body;
+
+    try {
+        const updatedDiscount = await prisma.discount.update({
+            where: {id: parseInt(eventId)},
+            data: {
+                code,
+                name,
+                discountType: type,
+                rate: parseFloat(rate),
+                expirationDate: new Date(date),
+                description,
+                link
+            }
+        });
+        res.json(updatedDiscount);
+    } catch (error) {
+        console.error('Failed to update discount:', error);
+        res.status(500).json({message: 'Failed to update discount'});
+    }
+});
 
 
 // Endpoint per caricare l'immagine del profilo
 app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
     console.log('Request to upload profile image received');
-    
+
     if (!req.file) {
         console.log('No file uploaded');
         return res.status(400).send('No file uploaded.');
     }
-    
+
     const imageUrl = `/assets/profile/${req.file.filename}`;
     console.log('Image URL:', imageUrl);
 
@@ -702,13 +842,6 @@ app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage')
     }
 });
 
-/* // Endpoint per rinnovare il token JWT
-app.post('/api/renew-token', verifyToken, (req, res) => {
-    const user = req.user;
-    const newToken = jwt.sign({ userId: user.userId, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token: newToken });
-}); */
-
-server.listen(port, '0.0.0.0', () => {
-    console.log(`Server listening on http://192.168.158.164:${port}`);
+server.listen(config.serverPort, config.serverHost, () => {
+    console.log(`Server running at ${config.serverUrl}`);
 });
