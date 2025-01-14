@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupProfileLink();
     setupLogoutLink();
-    setupUploadProfileImage(); // Aggiungi questa linea
-    loadUserProfileImage(); // Aggiungi questa linea
+    setupUploadProfileImage();
+    loadUserProfileImage();
     console.log('Page loaded correctly!');
-
-    setupDropdowns(); // Aggiungi questa linea
+    setupDropdowns();
 });
 
 function setupProfileLink() {
@@ -44,7 +43,7 @@ function performLogout() {
     }
 }
 
-function setupUploadProfileImage() {
+/* function setupUploadProfileImage() {
     const uploadButton = document.getElementById('uploadProfileImage');
     if (uploadButton) {
         uploadButton.addEventListener('click', function() {
@@ -61,9 +60,46 @@ function setupUploadProfileImage() {
             fileInput.click();
         });
     }
+} */
+
+function setupUploadProfileImage() {
+    const uploadButton = document.getElementById('uploadProfileImage');
+    if (uploadButton) {
+        uploadButton.addEventListener('click', () => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+
+            fileInput.onchange = event => {
+                const file = event.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('profileImage', file);
+
+                    fetch('/api/upload-profile-image', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.imageUrl) {
+                            document.querySelector('.profile-image').src = data.imageUrl + `?t=${Date.now()}`;
+                            alert('Profile image updated successfully!');
+                        }
+                    })
+                    .catch(error => console.error('Error uploading profile image:', error));
+                }
+            };
+
+            fileInput.click();
+        });
+    }
 }
 
-function uploadProfileImage(file) {
+/* function uploadProfileImage(file) {
     const formData = new FormData();
     formData.append('profileImage', file);
 
@@ -91,7 +127,7 @@ function uploadProfileImage(file) {
         console.error('Error:', error);
         alert('Failed to upload profile image');
     });
-}
+} */
 
 function loadUserProfileImage() {
     console.log('Loading user profile image...');
@@ -137,7 +173,7 @@ function setupDropdowns() {
                 if (!dropdown.matches(':hover') && !button.matches(':hover')) {
                     dropdown.style.display = 'none';
                 }
-            }, 200); // Ritardo opzionale per migliorare l'esperienza utente
+            }, 200);
         });
 
         // Previeni che il menu si nasconda se il cursore è sul menu

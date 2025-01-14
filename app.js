@@ -8,6 +8,7 @@ const cors = require('cors');
 const http = require('http');
 const WebSocket = require('ws');
 const multer = require('multer');
+const fs = require('fs');
 const path = require('path');
 
 console.log('The JWT secret key is:', process.env.JWT_SECRET);
@@ -22,8 +23,18 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Middleware per analizzare i corpi JSON nelle richieste in arrivo
 app.use(express.json());
 
-// Serve i file statici dalla cartella 'public'
-app.use(express.static(path.join(__dirname, 'public')));
+/* // Serve i file statici dalla cartella 'public'
+app.use(express.static(path.join(__dirname, 'public'))); */
+
+// Definisci il percorso della directory di caricamento
+const uploadDir = path.join(__dirname, 'public', 'uploads');
+
+// Assicurati che la directory esista
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+    console.log(`Directory created at: ${uploadDir}`);
+}
+
 
 // Configura il middleware CORS
 app.use(cors({
@@ -33,7 +44,7 @@ app.use(cors({
 }));
 
 // Configurazione di multer per il caricamento dei file
-const storage = multer.diskStorage({
+/* const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'public/assets/profile/');
     },
@@ -41,9 +52,31 @@ const storage = multer.diskStorage({
         const userId = req.user.userId;
         cb(null, `${userId}_profile.jpg`);
     }
+}); */
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const fileExtension = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
+    }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+    storage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // Limita a 2MB per sicurezza
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only JPEG, PNG, and GIF files are allowed.'));
+        }
+    }
+});
+module.exports = upload;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -816,7 +849,7 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
 });
 
 
-// Endpoint per caricare l'immagine del profilo
+/* // Endpoint per caricare l'immagine del profilo
 app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
     console.log('Request to upload profile image received');
 
@@ -839,6 +872,31 @@ app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage')
     } catch (error) {
         console.error('Error updating profile image URL:', error);
         res.status(500).send('Error updating profile image URL');
+    }
+}); */
+
+app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
+    console.log('Request to upload profile image received');
+    try {
+        if (!req.file) {
+            console.log('No file uploaded');
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        // Genera l'URL pubblico per l'immagine
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+        // Salva l'URL nel database
+        await prisma.user.update({
+            where: { id: req.user.userId },
+            data: { profileImage: imageUrl },
+        });
+
+        console.log('User profile image URL updated in database:');
+        res.json({ message: 'Image uploaded successfully', imageUrl });
+    } catch (error) {
+        console.error('Error uploading profile image:', error);
+        res.status(500).json({ message: 'Failed to upload profile image' });
     }
 });
 
