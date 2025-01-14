@@ -43,25 +43,6 @@ function performLogout() {
     }
 }
 
-/* function setupUploadProfileImage() {
-    const uploadButton = document.getElementById('uploadProfileImage');
-    if (uploadButton) {
-        uploadButton.addEventListener('click', function() {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.onchange = function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    console.log('File selected for upload:', file);
-                    uploadProfileImage(file);
-                }
-            };
-            fileInput.click();
-        });
-    }
-} */
-
 function setupUploadProfileImage() {
     const uploadButton = document.getElementById('uploadProfileImage');
     if (uploadButton) {
@@ -105,36 +86,6 @@ function setupUploadProfileImage() {
         });
     }
 }
-
-/* function uploadProfileImage(file) {
-    const formData = new FormData();
-    formData.append('profileImage', file);
-
-    console.log('Uploading profile image...');
-    
-    fetch(`/api/upload-profile-image`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-        },
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to upload profile image');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Profile image uploaded successfully:', data);
-        const profileImage = document.querySelector('.profile-image');
-        profileImage.src = data.imageUrl + `?t=${new Date().getTime()}`;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to upload profile image');
-    });
-} */
 
 function loadUserProfileImage() {
     console.log('Loading user profile image...');

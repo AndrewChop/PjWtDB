@@ -3,9 +3,11 @@ document.getElementById('login-form').addEventListener('submit', function(event)
     checkCredentials();
 });
 
+// Funzione per verificare le credenziali
 function checkCredentials() {
     const email = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
+    const rememberMe = document.getElementById('rememberMe').checked;
 
     fetch(`/api/login`, {
         method: 'POST',
@@ -23,6 +25,14 @@ function checkCredentials() {
         console.log(data);
         localStorage.setItem('jwtToken', data.token);
         console.log('Token saved:', data.token);
+
+        // Salva le credenziali se "Remember me" è selezionato
+        if (rememberMe) {
+            saveCredentials(email, password);
+        } else {
+            removeCredentials();
+        }
+
         window.location.href = "./pages/homepage.html";
     })
     .catch(error => {
@@ -63,6 +73,7 @@ window.addEventListener("load", function () {
     }
 });
 
+// Gestione del checkbox "Remember me"
 document.querySelector(".remember-checkbox").addEventListener("change", function () {
     if (!this.checked) {
         removeCredentials();

@@ -5,11 +5,23 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Session expired! Please re-login.');
         window.location.href = '../index.html';
     }
+
+    // Configura il valore minimo per il campo expiration date
+    const expirationDateInput = document.getElementById('expiration-date');
+    const today = new Date();
+    const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+    expirationDateInput.min = nextYear.toISOString().split('T')[0];
+
+    const cardNumberInput = document.getElementById('card-number');
+    cardNumberInput.addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+    });
+
 });
 
 document.getElementById('profile-form').addEventListener('submit', async function(event) {
     event.preventDefault();
-    
+
     // Raccogliere i dati dal form
     const formData = {
         cardNumber: document.getElementById('card-number').value,
@@ -37,7 +49,7 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         const regex = /^\d{7}[a-zA-Z]{0,4}$/;
         return regex.test(cardNumber);
     }
-    
+
     // Funzione per convalidare l'età
     function isAtLeast18YearsOld(birthDate) {
         const today = new Date();
@@ -45,40 +57,40 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         const age = today.getFullYear() - birthDateObj.getFullYear();
         const monthDifference = today.getMonth() - birthDateObj.getMonth();
         const dayDifference = today.getDate() - birthDateObj.getDate();
-            
+
         if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
             return age - 1 >= 18;
         }
         return age >= 18;
     }
-    
-    // Funzione per impostare la data minima per l'expiration date
+
+    // Funzione per convalidare la data di scadenza
     function isValidExpirationDate(expirationDate) {
         const today = new Date();
         const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
         return new Date(expirationDate) >= nextYear;
     }
-    
+
     // Convalida i campi
     let validationErrors = [];
-    
+
     if (!isValidCardNumber(formData.cardNumber)) {
         validationErrors.push('Invalid card number. It must contain exactly 7 numbers and up to 4 characters.');
     }
-    
+
     if (!isAtLeast18YearsOld(formData.birthDate)) {
         validationErrors.push('The user must be at least 18 years old.');
     }
-    
+
     if (!isValidExpirationDate(formData.documentExpiration)) {
         validationErrors.push('Expiration date must be at least one year from today.');
     }
-    
+
     if (validationErrors.length > 0) {
         alert(validationErrors.join('\n'));
         return;
     }
-    
+
     const token = localStorage.getItem('jwtToken');
 
     try {
@@ -107,6 +119,5 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     } catch (error) {
         console.error('Error saving user data:', error);
         alert(error.message);
-    } 
-
+    }
 });

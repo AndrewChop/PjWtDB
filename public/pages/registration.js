@@ -10,9 +10,12 @@ document.getElementById('cancel-button').addEventListener('click', handleCancelB
 document.getElementById('registration-form').addEventListener('submit', async function(event) {
     event.preventDefault();
 
-    const email = document.getElementById('email').value;
+    let email = document.getElementById('email').value;
     const password = document.getElementById('psw').value;
     const passwordRepeat = document.getElementById('psw-repeat').value;
+
+    email = email.toLowerCase();
+    document.getElementById('email').value = email;
 
     /*if (!passwordRegex.test(password)) {
         alert('La password deve contenere almeno 8 caratteri, un carattere maiuscolo e un numero.');
@@ -21,12 +24,12 @@ document.getElementById('registration-form').addEventListener('submit', async fu
 
     // Validazione della password e dell'email
     if (password !== passwordRepeat) {
-        alert("Le password non coincidono.");
+        alert("The passwords are differents.");
         return;
     }
 
     if (!validateEmail(email)) {
-        alert("Formato email non valido.");
+        alert("Email format not valid.");
         return;
     }
 

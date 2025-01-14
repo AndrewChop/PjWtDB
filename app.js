@@ -33,16 +33,6 @@ app.use(cors({
     credentials: true
 }));
 
-// Configurazione di multer per il caricamento dei file
-/* const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/assets/profile/');
-    },
-    filename: function (req, file, cb) {
-        const userId = req.user.userId;
-        cb(null, `${userId}_profile.jpg`);
-    }
-}); */
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path.join(__dirname, 'public/uploads');
@@ -95,7 +85,7 @@ function broadcast(data) {
 // Definizioni delle Route
 app.post('/api/register', async (req, res) => {
     console.log('Request received on /api/register', req.body);
-    const { email, password, role: inputRole } = req.body;
+    const { email, password/* , role: inputRole  */} = req.body;
 
     try {
         // Verifica se esiste già un utente con la stessa email
@@ -111,21 +101,21 @@ app.post('/api/register', async (req, res) => {
 
         /* // Calcola il ruolo da assegnare
         const userCount = await prisma.user.count();
-        const assignedRole = userCount === 0 ? 'ADMIN' : inputRole || 'VOLUNTEER'; */
-        const assignedRole = 'VOLUNTEER';
+        const assignedRole = userCount === 0 ? 'ADMIN' : inputRole || 'VOLUNTEER'; 
+        const assignedRole = 'VOLUNTEER';*/
 
         // Crea l'utente 
         const newUser = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
-                role: assignedRole
-                /* token: //passare token randomizzato */
+                /* role: assignedRole */
+                role: 'VOLUNTEER'
             }
         });
 
 
-        const token = jwt.sign({ userId: newUser.id, role: newUser.role }, /* process.env. */JWT_SECRET/* , { expiresIn: '1h' } */);
+        const token = jwt.sign({ userId: newUser.id, role: newUser.role }, JWT_SECRET);
         console.log('Token generated (API-REGISTER):', token);
         res.status(201).json({ message: 'User registered successfully', user: newUser, token: token });
     } catch (error) {
@@ -149,9 +139,8 @@ app.post('/api/login', async (req, res) => {
             console.error('JWT_SECRET isn\'t defined');
             throw new Error('Internal server error');
         }  */
-        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, /* { expiresIn: '3h' }*/);
+        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET);
         console.log('Token generated:', token);
-        //document.cookie = `token=${token}`;
         res.json({ token });
     } catch (error) {
         console.error('Detailed error when logging in:', error);
@@ -162,7 +151,7 @@ app.post('/api/login', async (req, res) => {
 // Endpoint per l'aggiornamento del profilo utente
 app.post('/api/user/update', verifyToken, async (req, res) => {
     console.log('Request received on /api/user/update', req.body);
-    const userId = req.user.userId; // ottenuto dal token JWT
+    const userId = req.user.userId; 
 
     // Recupera l'utente esistente dal database
     const existingUser = await prisma.user.findUnique({
@@ -270,7 +259,7 @@ function verifyToken(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(token, /* process.env. */JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         
         console.log('JWT_SECRET:', JWT_SECRET);
         console.log('Token received for verification:', token);
@@ -335,7 +324,6 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
     }
 });
 
-
 // Endpoint per ottenere tutti i volontari
 app.get('/api/users/volunteers', async (req, res) => {
     try {
@@ -348,7 +336,6 @@ app.get('/api/users/volunteers', async (req, res) => {
         res.status(500).send('Failed to retrieve volunteer data');
     }
 });
-
 
 // Endpoint per ottenere tutti gli studenti
 app.get('/api/users/students', async (req, res) => {
@@ -384,9 +371,6 @@ app.get('/api/transactions', async (req, res) => {
         res.status(500).send('Failed to retrieve transactions');
     }
 });
-
-
-
 
 // Endpoint per aggiungere uno studente
 app.post('/api/student/add', verifyToken, async (req, res) => {
@@ -828,33 +812,6 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
         res.status(500).json({message: 'Failed to update discount'});
     }
 });
-
-
-/* // Endpoint per caricare l'immagine del profilo
-app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
-    console.log('Request to upload profile image received');
-
-    if (!req.file) {
-        console.log('No file uploaded');
-        return res.status(400).send('No file uploaded.');
-    }
-
-    const imageUrl = `/assets/profile/${req.file.filename}`;
-    console.log('Image URL:', imageUrl);
-
-    try {
-        const updatedUser = await prisma.user.update({
-            where: { id: req.user.userId },
-            data: { profileImage: imageUrl }
-        });
-        console.log('User profile image URL updated in database:', updatedUser);
-
-        res.json({ imageUrl });
-    } catch (error) {
-        console.error('Error updating profile image URL:', error);
-        res.status(500).send('Error updating profile image URL');
-    }
-}); */
 
 app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
     console.log('Request to upload profile image received');

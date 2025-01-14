@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUserData();
     document.getElementById('save-button').addEventListener('click', saveChanges);
     document.getElementById('delete-button').addEventListener('click', deleteAccount);
+
+    const cardNumberInput = document.getElementById('user-card-number');
+    cardNumberInput.addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+    });
 });
 
 async function loadUserData() {

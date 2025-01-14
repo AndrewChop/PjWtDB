@@ -43,7 +43,10 @@ body {
     height: 40px;
     border-radius: 50%; 
     margin: 10px; 
-    cursor: pointer; 
+    cursor: pointer;
+    display: block; 
+    object-fit: cover; 
+    overflow: hidden;
 }
 
 
