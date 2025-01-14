@@ -81,13 +81,20 @@ function setupUploadProfileImage() {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
                         },
-                        body: formData
+                        body: formData,
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to upload profile image');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.imageUrl) {
                             document.querySelector('.profile-image').src = data.imageUrl + `?t=${Date.now()}`;
                             alert('Profile image updated successfully!');
+                        } else {
+                            alert('Failed to update profile image.');
                         }
                     })
                     .catch(error => console.error('Error uploading profile image:', error));
@@ -147,7 +154,7 @@ function loadUserProfileImage() {
     .then(data => {
         console.log('User data loaded:', data);
         if (data.profileImage) {
-            document.querySelector('.profile-image').src = data.profileImage;
+            document.querySelector('.profile-image').src = data.profileImage + `?t=${Date.now()}`;
         }
     })
     .catch(error => {
