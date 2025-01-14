@@ -8,7 +8,6 @@ const cors = require('cors');
 const http = require('http');
 const WebSocket = require('ws');
 const multer = require('multer');
-const fs = require('fs');
 const path = require('path');
 
 console.log('The JWT secret key is:', process.env.JWT_SECRET);
@@ -23,18 +22,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Middleware per analizzare i corpi JSON nelle richieste in arrivo
 app.use(express.json());
 
-/* // Serve i file statici dalla cartella 'public'
-app.use(express.static(path.join(__dirname, 'public'))); */
-
-// Definisci il percorso della directory di caricamento
-const uploadDir = path.join(__dirname, 'public', 'uploads');
-
-// Assicurati che la directory esista
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-    console.log(`Directory created at: ${uploadDir}`);
-}
-
+// Serve i file statici dalla cartella 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configura il middleware CORS
 app.use(cors({
@@ -55,28 +44,15 @@ app.use(cors({
 }); */
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        cb(null, path.join(__dirname, 'public'));
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const fileExtension = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
-    }
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}-${file.originalname}`);
+    },
 });
 
-const upload = multer({
-    storage,
-    limits: { fileSize: 2 * 1024 * 1024 }, // Limita a 2MB per sicurezza
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only JPEG, PNG, and GIF files are allowed.'));
-        }
-    }
-});
-module.exports = upload;
+const upload = multer({ storage: storage });
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
