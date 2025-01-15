@@ -70,18 +70,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function capitalizeFirstLetter(text) {
+        if (!text) return '';
+        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+    }    
+
     // Funzione per renderizzare la lista dei discounts
     function renderDiscountList(discountList) {
-        /* const discountItems = document.getElementById('discount-items'); */
         discountItems.innerHTML = '';
 
         discountList.forEach(discount => {
             //console.error('discount', discount);
             const discountItem = document.createElement('li');
             const formattedDate = formatDateToItalian(discount.expirationDate);
+            const formattedType = capitalizeFirstLetter(discount.discountType);
+            
             discountItem.innerHTML = `
                 <span>${discount.name}</span>
-                <span>${discount.discountType}</span>
+                <span>${formattedType}</span>
                 <span>${discount.rate}%</span>
                 <span>${formattedDate}</span>
                 <button class="edit-button" data-id="${discount.id}">Edit</button>

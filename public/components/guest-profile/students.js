@@ -317,6 +317,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                         throw new Error('Failed to add student');
                     }
 
+                    const savedStudent = await response.json();
+
+                    // Aggiungi il nuovo studente all'elenco locale solo se non esiste già
+                    if (!students.find(student => student.cardNumber === savedStudent.cardNumber)) {
+                        students.push(savedStudent);
+                    }
+
                     resetStudentFormFields(); 
                     hideStudentForm();
                 } catch (error) {
