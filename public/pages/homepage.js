@@ -1,4 +1,40 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function () {
+    const token = localStorage.getItem('jwtToken');
+
+    // Verifica se il token esiste e reindirizza al login se non presente
+    if (!token) {
+        alert('Session expired or invalid! Please log in.');
+        window.location.href = '../index.html';
+        return;
+    }
+
+    try {
+        // Recupera i dati dell'utente con il token
+        const userResponse = await fetch('/api/user/data', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!userResponse.ok) {
+            if (userResponse.status === 401) {
+                alert('Session expired or unauthorized! Please log in.');
+                window.location.href = '../index.html';
+            } else {
+                throw new Error('Failed to fetch user data.');
+            }
+        }
+
+        const userData = await userResponse.json();
+
+        // Aggiorna la UI con i dati dell'utente
+        document.querySelector('.profile-image').src = userData.profileImage || '../assets/profile/default.jpg';
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        window.location.href = '../index.html';
+        return;
+    }
     setupProfileLink();
     setupLogoutLink();
     setupUploadProfileImage();
@@ -6,6 +42,37 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded correctly!');
     setupDropdowns();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* document.addEventListener('DOMContentLoaded', function() {
+    setupProfileLink();
+    setupLogoutLink();
+    setupUploadProfileImage();
+    loadUserProfileImage();
+    console.log('Page loaded correctly!');
+    setupDropdowns();
+}); */
 
 function setupProfileLink() {
     const profileLink = document.getElementById('profileLink');
@@ -39,6 +106,7 @@ function performLogout() {
         console.warn("LocalStorage not available");
     }
     if (typeof window !== 'undefined' && window !== null) {
+        localStorage.removeItem('jwtToken');
         window.location.href = '../index.html';
     }
 }

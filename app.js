@@ -325,7 +325,7 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
 });
 
 // Endpoint per ottenere tutti i volontari
-app.get('/api/users/volunteers', async (req, res) => {
+app.get('/api/users/volunteers', verifyToken, async (req, res) => {
     try {
         const volunteers = await prisma.user.findMany({
             where: { role: 'VOLUNTEER' }
@@ -338,7 +338,7 @@ app.get('/api/users/volunteers', async (req, res) => {
 });
 
 // Endpoint per ottenere tutti gli studenti
-app.get('/api/users/students', async (req, res) => {
+app.get('/api/users/students', verifyToken, async (req, res) => {
     try {
         const students = await prisma.user.findMany({
             where: { role: 'STUDENT' }
@@ -351,7 +351,7 @@ app.get('/api/users/students', async (req, res) => {
 });
 
 // Endpoint per ottenere tutti gli eventi
-app.get('/api/events', async (req, res) => {
+app.get('/api/events', verifyToken, async (req, res) => {
     try {
         const events = await prisma.event.findMany();
         res.json(events);
@@ -362,7 +362,7 @@ app.get('/api/events', async (req, res) => {
 });
 
 // Endpoint per ottenere tutte le transazioni
-app.get('/api/transactions', async (req, res) => {
+app.get('/api/transactions', verifyToken, async (req, res) => {
     try {
         const transactions = await prisma.treasury.findMany();
         res.json(transactions);
@@ -722,7 +722,7 @@ app.post('/api/transaction/remove', verifyToken, async (req, res) => {
 });
 
 // Endpoint per ottenere tutti gli sconti
-app.get('/api/discounts', async (req, res) => {
+app.get('/api/discounts', verifyToken, async (req, res) => {
     try {
         const discounts = await prisma.discount.findMany();
         res.json(discounts);
