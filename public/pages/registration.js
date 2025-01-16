@@ -1,6 +1,84 @@
 function handleCancelButtonClick() {
     window.location.href = '../index.html';
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('registration-form').addEventListener('submit', handleRegistrationFormSubmit);
+});
+
+async function handleRegistrationFormSubmit(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value.toLowerCase();
+    const password = document.getElementById('psw').value;
+    const passwordRepeat = document.getElementById('psw-repeat').value;
+    //const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!validateEmail(email)) {
+        alert("Email format not valid.");
+        return;
+    }
+
+    if (!email.endsWith('@esnpisa.it')) {
+        alert('You must use an @esnpisa.it email address.');
+        return;
+    }
+
+    if (password !== passwordRepeat) {
+        alert("The passwords do not match.");
+        return;
+    }
+
+    /*if (!passwordRegex.test(password)) {
+        alert('La password deve contenere almeno 8 caratteri, un carattere maiuscolo e un numero.');
+        return;
+    } */
+
+    const submitButton = document.querySelector('.signupbtn');
+    submitButton.textContent = 'Sending verification email...';
+    submitButton.disabled = true;
+
+    try {
+        // Invio della richiesta per la verifica email
+        const response = await fetch('/api/auth/send-verification-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage || 'Failed to send verification email.');
+        }
+
+        alert('Verification email sent. Please check your inbox.');
+        submitButton.textContent = 'Sign Up';
+        submitButton.disabled = false;
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);
+        submitButton.textContent = 'Sign Up';
+        submitButton.disabled = false;
+    }
+}
+
+function validateEmail(email) {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,10}$/;
+    return re.test(String(email).toLowerCase());
+}
+
+
+
+
+
+
+
+
+
+
+/* function handleCancelButtonClick() {
+    window.location.href = '../index.html';
+}
   
 document.getElementById('cancel-button').addEventListener('click', handleCancelButtonClick);
 
@@ -20,7 +98,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
     /*if (!passwordRegex.test(password)) {
         alert('La password deve contenere almeno 8 caratteri, un carattere maiuscolo e un numero.');
         return;
-    }*/
+    }  //         /*
 
     // Validazione della password e dell'email
     if (password !== passwordRepeat) {
@@ -75,3 +153,4 @@ function validateEmail(email) {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,10}$/;
     return re.test(String(email).toLowerCase());
 }
+ */

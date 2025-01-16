@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const formattedType = capitalizeFirstLetter(discount.discountType);
             
             discountItem.innerHTML = `
+                <span>${discount.code}</span>
                 <span>${discount.name}</span>
                 <span>${formattedType}</span>
                 <span>${discount.rate}%</span>

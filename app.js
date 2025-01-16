@@ -3,13 +3,20 @@ const config = require('./config');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+
 const {PrismaClient, TransactionType, Category, EventType} = require('@prisma/client');
 const cors = require('cors');
+
 const http = require('http');
 const WebSocket = require('ws');
+
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const verificationTokens = {};
 
 console.log('The JWT secret key is:', process.env.JWT_SECRET);
 console.log('Server URL:', config.serverUrl);
@@ -82,10 +89,91 @@ function broadcast(data) {
     }
 }
 
+app.post('/api/auth/send-verification-email', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !email.endsWith('@esnpisa.it')) {
+        return res.status(400).send('Invalid email domain');
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    verificationTokens[email] = { token, password };
+
+    const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Email Verification',
+        text: `Click the link to verify your email: ${verificationLink}` //RENDERE PIU' ELABORATO
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.status(200).send('Verification email sent');
+    } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).send('Failed to send email');
+    }
+});
+
+app.get('/verify-email', async (req, res) => {
+    const { token, email } = req.query;
+
+    const record = verificationTokens[email];
+    if (!record || record.token !== token) {
+        return res.status(400).send('Invalid or expired token.');
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(record.password, saltRounds);
+
+        // Salva l'utente verificato nel database
+        const newUser = await prisma.user.create({
+            data: {
+                email,
+                password: hashedPassword,
+                role: 'VOLUNTEER'
+            }
+        });
+
+        // Elimina il token usato
+        delete verificationTokens[email];
+
+        // Reindirizza alla pagina di completamento del profilo
+        res.redirect(`/complete-profile.html?email=${encodeURIComponent(email)}`);
+    } catch (error) {
+        console.error('Error during user creation:', error);
+        res.status(500).send('Failed to complete the registration.');
+    }
+});
+
+/* 
+app.get('/verify-email', (req, res) => {
+    const { token, email } = req.query;
+
+    if (verificationTokens[email] === token) {
+        delete verificationTokens[email]; 
+        res.send('Email verified! You can now log in.');
+    } else {
+        res.status(400).send('Invalid or expired token');
+    }
+});
+
+
+
 // Definizioni delle Route
 app.post('/api/register', async (req, res) => {
     console.log('Request received on /api/register', req.body);
-    const { email, password/* , role: inputRole  */} = req.body;
+    const { email, password} = req.body;
 
     try {
         // Verifica se esiste già un utente con la stessa email
@@ -99,21 +187,14 @@ app.post('/api/register', async (req, res) => {
         // Hash della password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        /* // Calcola il ruolo da assegnare
-        const userCount = await prisma.user.count();
-        const assignedRole = userCount === 0 ? 'ADMIN' : inputRole || 'VOLUNTEER'; 
-        const assignedRole = 'VOLUNTEER';*/
-
         // Crea l'utente 
         const newUser = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
-                /* role: assignedRole */
                 role: 'VOLUNTEER'
             }
         });
-
 
         const token = jwt.sign({ userId: newUser.id, role: newUser.role }, JWT_SECRET);
         console.log('Token generated (API-REGISTER):', token);
@@ -122,7 +203,9 @@ app.post('/api/register', async (req, res) => {
         console.error('Detailed error in registration:', error);
         res.status(500).json({ message: 'Error in registration', error: error.message });
     }
-});
+}); */
+
+
 
 // Endpoint per il login
 app.post('/api/login', async (req, res) => {
@@ -139,7 +222,8 @@ app.post('/api/login', async (req, res) => {
             console.error('JWT_SECRET isn\'t defined');
             throw new Error('Internal server error');
         }  */
-        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET);
+
+        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
         console.log('Token generated:', token);
         res.json({ token });
     } catch (error) {
