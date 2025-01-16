@@ -118,6 +118,7 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
 
     try {
         await transporter.sendMail(mailOptions);
+        console.log('Verification email sent to:', email);
         res.status(200).send('Verification email sent');
     } catch (error) {
         console.error('Error sending email:', error);

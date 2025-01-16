@@ -2,6 +2,8 @@ function handleCancelButtonClick() {
     window.location.href = '../index.html';
 }
 
+document.getElementById('cancel-button').addEventListener('click', handleCancelButtonClick);
+
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('registration-form').addEventListener('submit', handleRegistrationFormSubmit);
 });
