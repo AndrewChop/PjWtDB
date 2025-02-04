@@ -91,32 +91,39 @@ function broadcast(data) {
 
 app.post('/api/auth/send-verification-email', async (req, res) => {
     const { email, password } = req.body;
-
+    console.log('EMAIL_USER:', process.env.EMAIL_USER);
+    console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Loaded' : 'Not Loaded');
     if (!email || !email.endsWith('@esnpisa.it')) {
         return res.status(400).send('Invalid email domain');
     }
-
-    const token = crypto.randomBytes(32).toString('hex');
-    verificationTokens[email] = { token, password };
-
-    const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
-
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
-        }
-    });
-
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Email Verification',
-        text: `Click the link to verify your email: ${verificationLink}` //RENDERE PIU' ELABORATO
-    };
-
     try {
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            return res.status(400).send('Email already in use!');
+        }
+
+        const token = crypto.randomBytes(32).toString('hex');
+        console.log("Il token è: " + token);
+        verificationTokens[email] = { token, password };
+
+        const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+        console.log('Verification link:', verificationLink);
+
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Email Verification',
+            text: `Click the link to verify your email: ${verificationLink}` //RENDERE PIU' ELABORATO
+        };
+
         await transporter.sendMail(mailOptions);
         console.log('Verification email sent to:', email);
         res.status(200).send('Verification email sent');
@@ -135,6 +142,15 @@ app.get('/verify-email', async (req, res) => {
     }
 
     try {
+        /* const existingUser = await prisma.user.findUnique({
+            where: { email }
+        });
+
+        if (existingUser) {
+            // Restituisci un errore se l'email è già registrata
+            return res.status(409).json({ message: 'Email already registered. Please log in or use another email.' });
+        }
+        
         const hashedPassword = await bcrypt.hash(record.password, saltRounds);
 
         // Salva l'utente verificato nel database
@@ -144,16 +160,56 @@ app.get('/verify-email', async (req, res) => {
                 password: hashedPassword,
                 role: 'VOLUNTEER'
             }
-        });
+        }); */
+        // Hash della password
+        const hashedPassword = await bcrypt.hash(record.password, saltRounds);
+
+        // Salva l'utente verificato nel database o aggiorna il campo isVerified
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            // Se l'utente esiste già, aggiorna il campo isVerified
+            await prisma.user.update({
+                where: { email },
+                data: { isVerified: true }
+            });
+        } else {
+            // Crea un nuovo utente
+            await prisma.user.create({
+                data: {
+                    email,
+                    password: hashedPassword,
+                    role: 'VOLUNTEER',
+                    isVerified: true
+                }
+            });
+        }
 
         // Elimina il token usato
-        delete verificationTokens[email];
+        //delete verificationTokens[email];
 
         // Reindirizza alla pagina di completamento del profilo
-        res.redirect(`/complete-profile.html?email=${encodeURIComponent(email)}`);
+        res.redirect(`/pages/complete-profile.html?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error('Error during user creation:', error);
         res.status(500).send('Failed to complete the registration.');
+    }
+});
+
+app.post('/api/verify-token', (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Unauthorized: No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        res.status(200).json({ message: 'Token is valid', decoded });
+    } catch (error) {
+        console.error('Token verification failed:', error);
+        res.status(401).json({ message: 'Unauthorized: Token invalid or expired' });
     }
 });
 

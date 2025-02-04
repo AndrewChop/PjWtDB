@@ -36,6 +36,8 @@ model User {
   documentIssuer       String?
   profileImage         String?
 
+  isVerified  Boolean  @default(false)
+
   // Relazioni
   eventsOrganized      Event[]        @relation("UserEvents")
 
