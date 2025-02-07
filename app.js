@@ -15,7 +15,8 @@ const fs = require('fs');
 const path = require('path');
 
 const nodemailer = require('nodemailer');
-const crypto = require('crypto');
+const escape = require('escape-html');
+//const crypto = require('crypto');
 const verificationTokens = {};
 
 console.log('The JWT secret key is:', process.env.JWT_SECRET);
@@ -102,11 +103,12 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
             return res.status(400).send('Email already in use!');
         }
 
-        const token = crypto.randomBytes(32).toString('hex');
+        //const token = crypto.randomBytes(32).toString('hex');
+        const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
         console.log("Il token è: " + token);
         verificationTokens[email] = { token, password };
 
-        const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+        const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
         console.log('Verification link:', verificationLink);
 
         const transporter = nodemailer.createTransport({
@@ -120,8 +122,26 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Email Verification',
-            text: `Click the link to verify your email: ${verificationLink}` //RENDERE PIU' ELABORATO
+            subject: 'Verify Your Email - SWEN Platform',
+            html: `
+                <div style="font-family: Roboto; line-height: 1.6; color: #333;">
+                    <h2 style="color: #0056b3;">Welcome to ESN Pisa!</h2>
+                    <p>Dear user,</p>
+                    <p>Thank you for registering on our platform. To complete your registration, please verify your email address by clicking the button below:</p>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <a href="${escape(verificationLink)}" 
+                           style="background-color: #0056b3; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                           Verify Your Email
+                        </a>
+                    </div>
+                    <p>For security reasons, this link will expire in 24 hours.</p>
+                    <p>If you did not register on our platform, please ignore this email.</p>
+                    <p>For any issues or questions, feel free to contact our support team:</p>
+                    <p>📧 support@esnpisa.it</p>
+                    <hr style="border: none; border-top: 1px solid #ddd;">
+                    <p style="font-size: 14px; color: #777;">The SWEN Team</p>
+                </div>
+            `
         };
 
         await transporter.sendMail(mailOptions);
@@ -134,64 +154,45 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
 });
 
 app.get('/verify-email', async (req, res) => {
-    const { token, email } = req.query;
-
-    const record = verificationTokens[email];
-    if (!record || record.token !== token) {
-        return res.status(400).send('Invalid or expired token.');
-    }
+    const { token } = req.query;
 
     try {
-        /* const existingUser = await prisma.user.findUnique({
+        const decoded = jwt.verify(token, JWT_SECRET); // Decodifica il token
+        const email = decoded.email;
+        const record = verificationTokens[email];
+
+        const existingUser = await prisma.user.findUnique({
             where: { email }
         });
 
         if (existingUser) {
-            // Restituisci un errore se l'email è già registrata
             return res.status(409).json({ message: 'Email already registered. Please log in or use another email.' });
         }
-        
+
+        if (!record || record.token !== token) {
+            return res.status(400).send('Invalid or expired token.');
+        }
+
         const hashedPassword = await bcrypt.hash(record.password, saltRounds);
 
-        // Salva l'utente verificato nel database
         const newUser = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
-                role: 'VOLUNTEER'
+                role: 'VOLUNTEER',
+                isVerified: true
             }
-        }); */
-        // Hash della password
-        const hashedPassword = await bcrypt.hash(record.password, saltRounds);
+        });
 
-        // Salva l'utente verificato nel database o aggiorna il campo isVerified
-        const existingUser = await prisma.user.findUnique({ where: { email } });
-        if (existingUser) {
-            // Se l'utente esiste già, aggiorna il campo isVerified
-            await prisma.user.update({
-                where: { email },
-                data: { isVerified: true }
-            });
-        } else {
-            // Crea un nuovo utente
-            await prisma.user.create({
-                data: {
-                    email,
-                    password: hashedPassword,
-                    role: 'VOLUNTEER',
-                    isVerified: true
-                }
-            });
-        }
+        delete verificationTokens[email];
 
-        // Elimina il token usato
-        //delete verificationTokens[email];
+        // Creiamo un nuovo token di sessione
+        const sessionToken = jwt.sign({ userId: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '24h' });
 
-        // Reindirizza alla pagina di completamento del profilo
-        res.redirect(`/pages/complete-profile.html?email=${encodeURIComponent(email)}`);
+        res.redirect(`/pages/complete-profile.html?token=${sessionToken}`); 
     } catch (error) {
-        console.error('Error during user creation:', error);
-        res.status(500).send('Failed to complete the registration.');
+        console.error('Error during email verification:', error);
+        res.status(500).send('Failed to verify email.');
     }
 });
 
@@ -212,57 +213,6 @@ app.post('/api/verify-token', (req, res) => {
         res.status(401).json({ message: 'Unauthorized: Token invalid or expired' });
     }
 });
-
-/* 
-app.get('/verify-email', (req, res) => {
-    const { token, email } = req.query;
-
-    if (verificationTokens[email] === token) {
-        delete verificationTokens[email]; 
-        res.send('Email verified! You can now log in.');
-    } else {
-        res.status(400).send('Invalid or expired token');
-    }
-});
-
-
-
-// Definizioni delle Route
-app.post('/api/register', async (req, res) => {
-    console.log('Request received on /api/register', req.body);
-    const { email, password} = req.body;
-
-    try {
-        // Verifica se esiste già un utente con la stessa email
-        const existingUser = await prisma.user.findUnique({ where: { email } });
-        if (existingUser) {
-            // Se l'utente esiste, invia un messaggio di errore
-            console.log('Existing user');
-            return res.status(409).json({ message: 'Email already used' });
-        }
-
-        // Hash della password
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-        // Crea l'utente 
-        const newUser = await prisma.user.create({
-            data: {
-                email,
-                password: hashedPassword,
-                role: 'VOLUNTEER'
-            }
-        });
-
-        const token = jwt.sign({ userId: newUser.id, role: newUser.role }, JWT_SECRET);
-        console.log('Token generated (API-REGISTER):', token);
-        res.status(201).json({ message: 'User registered successfully', user: newUser, token: token });
-    } catch (error) {
-        console.error('Detailed error in registration:', error);
-        res.status(500).json({ message: 'Error in registration', error: error.message });
-    }
-}); */
-
-
 
 // Endpoint per il login
 app.post('/api/login', async (req, res) => {

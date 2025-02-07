@@ -59,7 +59,7 @@ async function handleRegistrationFormSubmit(event) {
             throw new Error(errorMessage || 'Failed to send verification email.');
         }
 
-        alert('Verification email sent Please check your inbox!');
+        alert('Verification email sent. Please check your inbox!');
         console.log("Mail inviata con successo");
         submitButton.textContent = 'Sign Up';
         submitButton.disabled = false;
