@@ -182,13 +182,22 @@ body.hidden {
     }
 
     .user-items li {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         padding: 10px;
+        flex-wrap: wrap;
+    }
+
+    .user-items li span {
+        flex: 1 1 auto;
+        margin-bottom: 5px;
     }
 
     .user-items li button {
-        align-items: flex-end;
+        align-self: center;
+        margin-left: auto;
+        cursor: pointer;
     }
 
     .personal-data-form {
@@ -229,18 +238,31 @@ body.hidden {
     .search-bar {
         padding: 5px;
     }
-
+    
     .logo {
-        width: 25px;
-        height: 25px;
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
     }
 
     .user-list {
         padding: 5px;
     }
+    .user-items li {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 10px;
+    }
 
     .user-items li button {
-        align-items: flex-end;
+        align-self: flex-end;
+        margin-top: auto;
+        margin-bottom: auto;
+        margin-left: 0;
+        cursor: pointer;
+        text-align: center;
     }
 
     .personal-data-input {

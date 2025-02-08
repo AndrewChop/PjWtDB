@@ -861,6 +861,7 @@ app.post('/api/discount/add', verifyToken, async (req, res) => {
             }
         });
         res.json(newDiscount);
+        broadcast({ type: 'ADD_DISCOUNT', payload: newDiscount });
     } catch (error) {
         console.error("Error: " + error);
         res.status(500).json({message: 'Failed to add discount'});
@@ -875,6 +876,7 @@ app.post('/api/discount/remove', verifyToken, async (req, res) => {
             where: {id: parseInt(discountId)}
         });
         res.json(removedEvent);
+        broadcast({ type: 'REMOVE_DISCOUNT', payload: removedDiscount });
     } catch (error) {
         console.error('Failed to remove event:', error);
         res.status(500).json({message: 'Failed to remove event'});
@@ -907,6 +909,7 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
             }
         });
         res.json(updatedDiscount);
+        broadcast({ type: 'UPDATE_DISCOUNT', payload: updatedDiscount });
     } catch (error) {
         console.error('Failed to update discount:', error);
         res.status(500).json({message: 'Failed to update discount'});

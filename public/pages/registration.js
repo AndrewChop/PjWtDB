@@ -14,7 +14,7 @@ async function handleRegistrationFormSubmit(event) {
     const email = document.getElementById('email').value.toLowerCase();
     const password = document.getElementById('psw').value;
     const passwordRepeat = document.getElementById('psw-repeat').value;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    //const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     if (!validateEmail(email)) {
         alert("Email format not valid.");
@@ -31,10 +31,10 @@ async function handleRegistrationFormSubmit(event) {
         return;
     }
 
-    if (!passwordRegex.test(password)) {
+    /* if (!passwordRegex.test(password)) {
         alert('The password must contain at least 8 characters, a capital letter and a number.');
         return;
-    }
+    } */
 
     const submitButton = document.querySelector('.signupbtn');
     submitButton.textContent = 'Sending verification email...';

@@ -54,24 +54,42 @@ textarea {
 
 .total-wrapper {
     display: flex;
-    justify-content: space-between;
-    margin-right: 50px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 10px 0;
     font-weight: bold;
-    font-size: 24px;
+    font-size: 20px;
+    padding: 10px;
+    background-color: #f8f9fc;
+    border-radius: 8px;
+}
+
+.total-wrapper .total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 18px;
+    width: 120px;
+    text-align: center;
 }
 
 .total-in {
-    color: green;
+    background-color: #d4edda;
+    color: #155724;
 }
 
 .total-out {
-    color: red;
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 .net-total {
-    color: black;
+    background-color: #d1ecf1;
+    color: #0c5460;
 }
-
 
 .transactions-list {
     display: flex;
@@ -91,9 +109,8 @@ textarea {
 .button-container {
     display: flex;
     justify-content: flex-end;
-    width: 103%;
-    margin-top: 20px;
-    margin-right: 26px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 #remove-all-button,
@@ -126,12 +143,17 @@ textarea {
 }
 
 .transaction-items li span {
+    display: block;
     flex: 1;
+    font-size: 0.9rem;
+    word-wrap: break-word;
 }
 
 .edit-button,
 .remove-button {
-    margin-left: 10px;
+    font-size: 0.7rem;
+    margin-left: 5px;
+    cursor: pointer;
 }
 
 .hidden {
@@ -290,4 +312,100 @@ body.hidden {
     padding: 20px;
     box-sizing: border-box;
     overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        height: auto;
+    }
+
+    .logo {
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    #search-input {
+        width: 100%;
+    }
+
+    #search-button {
+        padding: 10px;
+    }
+
+    .button-container {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .button-container button {
+        width: 100%;
+        font-size: 0.8rem;
+    }
+
+    .transaction-items li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .total-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .total-wrapper .total {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    #remove-all-button,
+    #sort-by-date-button {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+
+    .transaction-items li .edit-button,
+    .transaction-items li .remove-button {
+        align-self: flex-end;
+        margin: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        padding: 5px;
+    }
+
+    .logo {
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    .total-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .total-wrapper .total {
+        font-size: 16px;
+        width: 100%;
+    }
+
+    #remove-all-button,
+    #sort-by-date-button {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+
+    .transaction-items li {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    
 }

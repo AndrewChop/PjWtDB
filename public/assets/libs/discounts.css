@@ -37,7 +37,7 @@ textarea {
     margin-right: 10px;
 }
   
-#search-button, #add-student-button {
+#search-button, #add-discount-button {
     padding: 10px 20px;
     background-color: #4e73df;
     color: white;
@@ -97,6 +97,7 @@ textarea {
 
 .discount-items li {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     padding: 10px;
@@ -269,4 +270,54 @@ body.hidden {
     padding: 20px;
     box-sizing: border-box;
     overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        height: auto;
+    }
+
+    .logo {
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    #search-input {
+        width: 100%;
+    }
+
+    #search-button {
+        padding: 10px;
+    }
+
+    .discount-items li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .edit-button, .remove-button {
+        align-self: flex-end;
+        margin: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        padding: 5px;
+    }
+
+    .logo {
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    .discount-items li {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
 }

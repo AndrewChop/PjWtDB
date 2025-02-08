@@ -80,25 +80,33 @@ body {
     list-style-type: none;
     padding: 0;
     width: 100%;
-}
-
-.student-items li {
+  }
+  
+  .student-items li {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 10px;
+    align-items: center;
     border: 1px solid #ccc;
-    margin: 5px 0;
-}
-
-.student-items li span {
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
+  
+  .student-items li span {
     flex: 1;
-}
-
-.edit-button,
-.remove-button {
-    margin-left: 10px;
-}
+    text-align: left;
+    font-size: 14px;
+    word-wrap: break-word;
+  }
+  
+  .student-items li .edit-button,
+  .student-items li .remove-button {
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
 
 .personal-data-form {
     display: flex;
@@ -115,7 +123,6 @@ body {
     padding: 5px;
     margin-bottom: 20px;
 }
-
 
 .edit-student-header {
     width: 100%; 
@@ -215,7 +222,6 @@ body {
     font-weight: bolder;
 }
 
-
 .menu-items li {
     height: 50px;
     display: flex;
@@ -284,7 +290,7 @@ body.hidden {
         width: 100%;
     }
 
-    #search-button, #add-student-button {
+    #search-button {
         padding: 10px;
     }
 
@@ -295,9 +301,19 @@ body.hidden {
     }
 
     .student-items li {
+        flex-direction: column;
         align-items: flex-start;
-        justify-content: space-between;
-        padding: 10px;
+    }
+    
+    .student-items li span {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+    
+    .student-items li .edit-button,
+    .student-items li .remove-button {
+        align-self: flex-end;
+        margin: 3px;
     }
 
     .personal-data-form {
@@ -341,12 +357,29 @@ body.hidden {
     }
 
     .logo {
-        width: 25px;
-        height: 25px;
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
     }
 
     .student-list {
         padding: 5px;
+    }
+
+    .student-items li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .student-items li span {
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+    
+    .student-items li .edit-button,
+    .student-items li .remove-button {
+        align-self: flex-end;
+        margin: 3px;
     }
 
     .personal-data-input {

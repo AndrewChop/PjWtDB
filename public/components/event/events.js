@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function loadEventsFromAPI() {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`/api/events`, {
+            const response = await fetch('/api/events', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -229,7 +229,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (!response.ok) {
                 throw new Error('Failed to add event');
             }
-
+            const newEvent = await response.json();
+            events.push(newEvent);
+            renderEventList(events);
             //console.log("Event added successfully, waiting for WebSocket update.");
         } catch (error) {
             console.error('Error adding event:', error);

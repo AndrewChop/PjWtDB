@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span>${discount.code}</span>
                     <span>${discount.name}</span>
                     <span>${formattedType}</span>
-                    <span>${discount.rate}%</span>
                     <span>${formattedDate}</span>
                     <button class="edit-button" data-id="${discount.id}">Edit</button>
                     <button class="remove-button" data-id="${discount.id}">Remove</button>

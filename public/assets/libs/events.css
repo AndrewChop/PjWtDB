@@ -70,9 +70,8 @@ textarea {
 .button-container {
     display: flex;
     justify-content: flex-end;
-    width: 103%;
-    margin-top: 20px;
-    margin-right: 26px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 #remove-all-button,
@@ -99,13 +98,19 @@ textarea {
 }
 
 .event-items li span {
+    display: block;
     flex: 1;
-}
+    font-size: 0.9rem;
+    word-wrap: break-word;
+  }
 
-.edit-button,
-.remove-button {
-    margin-left: 10px;
-}
+  .event-items li .edit-button,
+  .event-items li .remove-button {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    margin-left: 5px;
+    cursor: pointer;
+  }
 
 .hidden {
     display: none;
@@ -264,3 +269,84 @@ body.hidden {
     box-sizing: border-box;
     overflow-y: auto;
 }
+
+@media (max-width: 768px) {
+    .search-bar {
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        height: auto;
+    }
+
+    .logo {
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
+    }
+
+    #search-input {
+        width: 100%;
+    }
+
+    #search-button {
+        padding: 10px;
+    }
+
+    .button-container {
+      flex-direction: column;
+      align-items: flex-end;
+    }
+  
+    .button-container button {
+      width: 100%;
+      font-size: 0.8rem;
+    }
+  
+    .event-items li {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .event-items li span {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+  
+    .event-items li .edit-button,
+    .event-items li .remove-button {
+        align-self: flex-end;
+        margin: 3px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .search-bar {
+        padding: 5px;
+    }
+
+    .button-container {
+      gap: 5px;
+    }
+  
+    .button-container button {
+      font-size: 0.6rem;
+      padding: 4px 8px;
+    }
+  
+    .event-items li {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 5px;
+    }
+  
+    .event-items li span {
+      font-size: 0.8rem;
+    }
+  
+    .event-items li .edit-button,
+    .event-items li .remove-button {
+      font-size: 0.6rem;
+      padding: 4px 8px;
+      margin: 5px 0;
+    }
+  }
