@@ -60,7 +60,7 @@ button.submit-btn {
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    width: calc(100% - 20px); /* Stessa larghezza degli input */
+    width: calc(100% - 20px);
     box-sizing: border-box;
 }
 
@@ -68,7 +68,6 @@ button.submit-btn:hover {
     opacity: 0.9;
 }
 
-/* Media query per schermi più piccoli */
 @media screen and (max-width: 768px) {
     .container {
         width: 90%; 

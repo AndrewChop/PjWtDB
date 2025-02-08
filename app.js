@@ -19,27 +19,28 @@ const escape = require('escape-html');
 //const crypto = require('crypto');
 const verificationTokens = {};
 
-console.log('The JWT secret key is:', process.env.JWT_SECRET);
+/* console.log('The JWT secret key is:', process.env.JWT_SECRET);
 console.log('Server URL:', config.serverUrl);
-console.log('WebSocket URL:', config.webSocketUrl);
+console.log('WebSocket URL:', config.webSocketUrl); */
 
 const app = express();
 const prisma = new PrismaClient();
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Middleware per analizzare i corpi JSON nelle richieste in arrivo
+// MIDDLEWARE
+
 app.use(express.json());
 
-// Serve i file statici dalla cartella 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configura il middleware CORS
 app.use(cors({
     origin: config.serverUrl,
     methods: ['GET', 'POST'],
     credentials: true
 }));
+
+// WEBSOCKET AND OTHERS
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -90,12 +91,14 @@ function broadcast(data) {
     }
 }
 
+// AUTHENTICATION AND REGISTRATION
+
 app.post('/api/auth/send-verification-email', async (req, res) => {
     const { email, password } = req.body;
-    console.log('EMAIL_USER:', process.env.EMAIL_USER);
-    console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Loaded' : 'Not Loaded');
+/*     console.log('EMAIL_USER:', process.env.EMAIL_USER);
+    console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Loaded' : 'Not Loaded'); */
     if (!email || !email.endsWith('@esnpisa.it')) {
-        return res.status(400).send('Invalid email domain');
+        return res.status(400).send('Invalid email domain!');
     }
     try {
         const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -103,13 +106,12 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
             return res.status(400).send('Email already in use!');
         }
 
-        //const token = crypto.randomBytes(32).toString('hex');
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
-        console.log("Il token è: " + token);
+        //console.log("Il token è: " + token);
         verificationTokens[email] = { token, password };
 
         const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
-        console.log('Verification link:', verificationLink);
+        //console.log('Verification link:', verificationLink);
 
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
@@ -124,13 +126,14 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
             to: email,
             subject: 'Verify Your Email - SWEN Platform',
             html: `
-                <div style="font-family: Roboto; line-height: 1.6; color: #333;">
-                    <h2 style="color: #0056b3;">Welcome to ESN Pisa!</h2>
+                <div style="font-family: 'Lato', 'Roboto'; line-height: 1.6; color: #000000;">
+                    <h2 style="color: #4e73df;">Welcome to ESN Pisa!</h2>
                     <p>Dear user,</p>
-                    <p>Thank you for registering on our platform. To complete your registration, please verify your email address by clicking the button below:</p>
+                    <p>Thank you for registering on our platform.</p> 
+                    <p>To complete your registration, please verify your email address by clicking the button below:</p>
                     <div style="text-align: center; margin: 20px 0;">
                         <a href="${escape(verificationLink)}" 
-                           style="background-color: #0056b3; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                           style="background-color: #4e73df; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-size: 16px;">
                            Verify Your Email
                         </a>
                     </div>
@@ -145,7 +148,7 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
-        console.log('Verification email sent to:', email);
+        //console.log('Verification email sent to:', email);
         res.status(200).send('Verification email sent');
     } catch (error) {
         console.error('Error sending email:', error);
@@ -157,7 +160,7 @@ app.get('/verify-email', async (req, res) => {
     const { token } = req.query;
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET); // Decodifica il token
+        const decoded = jwt.verify(token, JWT_SECRET);
         const email = decoded.email;
         const record = verificationTokens[email];
 
@@ -166,7 +169,7 @@ app.get('/verify-email', async (req, res) => {
         });
 
         if (existingUser) {
-            return res.status(409).json({ message: 'Email already registered. Please log in or use another email.' });
+            return res.status(409).json({ message: 'Email already registered! Please log in or use another email.' });
         }
 
         if (!record || record.token !== token) {
@@ -186,7 +189,6 @@ app.get('/verify-email', async (req, res) => {
 
         delete verificationTokens[email];
 
-        // Creiamo un nuovo token di sessione
         const sessionToken = jwt.sign({ userId: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '24h' });
 
         res.redirect(`/pages/complete-profile.html?token=${sessionToken}`); 
@@ -214,9 +216,45 @@ app.post('/api/verify-token', (req, res) => {
     }
 });
 
-// Endpoint per il login
+function verifyToken(req, res, next) {
+    /* console.log('Request received on /api/user/...', req.headers);
+    console.log("JWT token verification..."); */
+
+    const authHeader = req.headers.authorization;
+    //console.log('Authorization header:', req.headers.authorization);
+
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Unauthorised access: header authorisation missing.' });
+    }
+    const token = authHeader.split(' ')[1];
+    //console.log('Token received:', token);
+
+    if (!token || token === 'null') {
+        //console.log('Token not provided');
+        return res.status(401).send('Unauthorised access. Token not provided.');
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        /* console.log('JWT_SECRET:', JWT_SECRET);
+        console.log('Token received for verification:', token);
+
+        console.log('Token decoded:', decoded); */
+        req.user = decoded;
+        next();
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            console.error('Token expired:', error);
+            return res.status(401).json({ message: 'Token expired! Please log in again.' });
+        }
+        console.error('Invalid token:', error);
+        return res.status(401).json({ message: 'Unauthorized access! Invalid token.' });
+    }
+}
+
 app.post('/api/login', async (req, res) => {
-    console.log('Request received on /api/login', req.body);
+    //console.log('Request received on /api/login', req.body);
     const { email, password } = req.body;
 
     try {
@@ -231,7 +269,7 @@ app.post('/api/login', async (req, res) => {
         }  */
 
         const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-        console.log('Token generated:', token);
+        //console.log('Token generated:', token);
         res.json({ token });
     } catch (error) {
         console.error('Detailed error when logging in:', error);
@@ -239,9 +277,10 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Endpoint per l'aggiornamento del profilo utente
+// USER PROFILE MANAGEMENT
+
 app.post('/api/user/update', verifyToken, async (req, res) => {
-    console.log('Request received on /api/user/update', req.body);
+    //console.log('Request received on /api/user/update', req.body);
     const userId = req.user.userId; 
 
     // Recupera l'utente esistente dal database
@@ -250,7 +289,7 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
     });
 
     if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "User not found!" });
     }
 
     const {
@@ -310,17 +349,16 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
     }
 });
 
-// Elimina l'account dell'utente 
 app.delete('/api/user/delete', verifyToken, async (req, res) => {
-    console.log('Request received on /api/user/delete', req.body);
+    //console.log('Request received on /api/user/delete', req.body);
     try {
         const userId = req.user.userId; 
-        console.log(`Deleting user with ID: ${userId}`);
+        //console.log(`Deleting user with ID: ${userId}`);
         
         await prisma.user.delete({
             where: { id: userId }
         });
-        console.log(`Account eliminato per l'utente con ID: ${userId}`);
+        //console.log(`Account eliminato per l'utente con ID: ${userId}`);
         // Esegui il broadcast per notificare la rimozione
         broadcast({ type: 'USER_DELETED', payload: { userId } });
         res.status(200).json({ message: 'Account successfully deleted.' });
@@ -330,61 +368,19 @@ app.delete('/api/user/delete', verifyToken, async (req, res) => {
     }
 });
 
-// Middleware per verificare il token JWT
-function verifyToken(req, res, next) {
-    console.log('Request received on /api/user/...', req.headers);
-    console.log("JWT token verification...");
-
-    const authHeader = req.headers.authorization;
-    console.log('Authorization header:', req.headers.authorization);
-
-    if (!authHeader) {
-        return res.status(401).json({ message: 'Unauthorised access: header authorisation missing.' });
-    }
-    const token = authHeader.split(' ')[1];
-    console.log('Token received:', token);
-
-    if (!token || token === 'null') {
-        console.log('Token not provided');
-        return res.status(401).send('Unauthorised access. Token not provided.');
-    }
-
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        
-        console.log('JWT_SECRET:', JWT_SECRET);
-        console.log('Token received for verification:', token);
-
-        console.log('Token decoded:', decoded);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            console.error('Token expired:', error);
-            return res.status(401).json({ message: 'Token expired. Please log in again.' });
-        }
-        console.error('Invalid token:', error);
-        return res.status(401).json({ message: 'Unauthorized access. Invalid token.' });
-    }
-}
-
-// Endpoint per ottenere i dati dell'utente
 app.get('/api/user/data', verifyToken, async (req, res) => {
     try {
-        // Ottieni l'ID dell'utente dal token JWT
         const userId = req.user.userId;
 
-        // Trova l'utente nel database
         const user = await prisma.user.findUnique({
             where: { id: userId }
         });
 
         if (!user) {
-            console.log('User not found');
+            //console.log('User not found');
             return res.status(404).send('User not found');
         }
 
-        // Invia i dati dell'utente al client
         res.json({
             cardNumber: user.cardNumber,
             email: user.email,
@@ -415,7 +411,31 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per ottenere tutti i volontari
+app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
+    //console.log('Request to upload profile image received');
+    try {
+        if (!req.file) {
+            //console.log('No file uploaded');
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+        await prisma.user.update({
+            where: { id: req.user.userId },
+            data: { profileImage: imageUrl },
+        });
+
+        //console.log('User profile image URL updated in database:');
+        res.json({ message: 'Image uploaded successfully', imageUrl });
+    } catch (error) {
+        console.error('Error uploading profile image:', error);
+        res.status(500).json({ message: 'Failed to upload profile image' });
+    }
+});
+
+// VOLUNTEER MANAGEMENT
+
 app.get('/api/users/volunteers', verifyToken, async (req, res) => {
     try {
         const volunteers = await prisma.user.findMany({
@@ -423,12 +443,13 @@ app.get('/api/users/volunteers', verifyToken, async (req, res) => {
         });
         res.json(volunteers);
     } catch (error) {
-        console.log('Failed to retrieve volunteers:', error);
+        //console.log('Failed to retrieve volunteers:', error);
         res.status(500).send('Failed to retrieve volunteer data');
     }
 });
 
-// Endpoint per ottenere tutti gli studenti
+// STUDENT MANAGEMENT
+
 app.get('/api/users/students', verifyToken, async (req, res) => {
     try {
         const students = await prisma.user.findMany({
@@ -441,31 +462,8 @@ app.get('/api/users/students', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per ottenere tutti gli eventi
-app.get('/api/events', verifyToken, async (req, res) => {
-    try {
-        const events = await prisma.event.findMany();
-        res.json(events);
-    } catch (error) {
-        console.error('Failed to retrieve events:', error);
-        res.status(500).send('Failed to retrieve events');
-    }
-});
-
-// Endpoint per ottenere tutte le transazioni
-app.get('/api/transactions', verifyToken, async (req, res) => {
-    try {
-        const transactions = await prisma.treasury.findMany();
-        res.json(transactions);
-    } catch (error) {
-        console.error('Failed to retrieve transactions:', error);
-        res.status(500).send('Failed to retrieve transactions');
-    }
-});
-
-// Endpoint per aggiungere uno studente
 app.post('/api/student/add', verifyToken, async (req, res) => {
-    console.log('Request received on /api/student/add', req.body);
+    //console.log('Request received on /api/student/add', req.body);
 
     const {
         cardNumber,
@@ -517,7 +515,7 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
                 password: null
             }
         });
-        console.log('Student added successfully');
+        //console.log('Student added successfully');
         res.json(newStudent);
         broadcast({ type: 'ADD_STUDENT', payload: newStudent });
     } catch (error) {
@@ -526,9 +524,8 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per aggiornare uno studente
 app.post('/api/student/update', verifyToken, async (req, res) => {
-    console.log('Request received on /api/student/update', req.body);
+    //console.log('Request received on /api/student/update', req.body);
     const {
         studentId,
         cardNumber,
@@ -579,7 +576,7 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
                 documentIssuer
             }
         });
-        console.log('Student updated successfully');
+        //console.log('Student updated successfully');
         res.json(updatedStudent);
         broadcast({ type: 'UPDATE_STUDENT', payload: updatedStudent });
     } catch (error) {
@@ -588,14 +585,12 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
     }
 });
 
-
-// Endpoint per rimuovere uno studente
 app.post('/api/student/remove', verifyToken, async (req, res) => {
-    console.log('Request received on /api/student/remove', req.body);
+    //console.log('Request received on /api/student/remove', req.body);
     const { cardNumber } = req.body;
 
     if (!cardNumber) {
-        console.log('Invalid card number:', cardNumber);
+        //console.log('Invalid card number:', cardNumber);
         return res.status(400).json({ message: 'Invalid card number' });
     }
 
@@ -604,7 +599,7 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
             where: { cardNumber }
         });
 
-        console.log('Student removed successfully');
+        //console.log('Student removed successfully');
         res.json(removedStudent);
         broadcast({ type: 'REMOVE_STUDENT', payload: removedStudent });
     } catch (error) {
@@ -613,9 +608,20 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per aggiungere un evento
+// EVENT MANAGEMENT
+
+app.get('/api/events', verifyToken, async (req, res) => {
+    try {
+        const events = await prisma.event.findMany();
+        res.json(events);
+    } catch (error) {
+        console.error('Failed to retrieve events:', error);
+        res.status(500).send('Failed to retrieve events');
+    }
+});
+
 app.post('/api/event/add', verifyToken, async (req, res) => {
-    console.log("Sto aggiungendo un evento");
+    //console.log("Sto aggiungendo un evento");
     console.error("User ID: " + req.user.userId);
     const {
         name,
@@ -645,9 +651,9 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
                 organizerId: req.user.userId
             }
         });
-        console.log("Trying to add " + newEvent);
+        //console.log("Trying to add " + newEvent);
         res.json(newEvent);
-        console.log(req)
+        //console.log(req)
         broadcast({ type: 'ADD_EVENT', payload: newEvent });
     } catch (error) {
         console.error("Error: " + error);
@@ -655,7 +661,6 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per aggiornare un evento
 app.post('/api/event/update', verifyToken, async (req, res) => {
     const {
         eventId,
@@ -685,7 +690,7 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
                 participants
             }
         });
-        console.log("Event updated:", updatedEvent);
+        //console.log("Event updated:", updatedEvent);
         res.json(updatedEvent);
         broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent });
     } catch (error) {
@@ -694,7 +699,6 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per rimuovere un evento
 app.post('/api/event/remove', verifyToken, async (req, res) => {
     const { eventId } = req.body;
 
@@ -709,9 +713,20 @@ app.post('/api/event/remove', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per aggiungere una transazione
+// TRANSACTIONS MANAGEMENT
+
+app.get('/api/transactions', verifyToken, async (req, res) => {
+    try {
+        const transactions = await prisma.treasury.findMany();
+        res.json(transactions);
+    } catch (error) {
+        console.error('Failed to retrieve transactions:', error);
+        res.status(500).send('Failed to retrieve transactions');
+    }
+});
+
 app.post('/api/transaction/add', verifyToken, async (req, res) => {
-    console.log("Adding transaction...");
+    //console.log("Adding transaction...");
     const {
         name,
         transactionType,
@@ -723,9 +738,9 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
     } = req.body;
 
     try {
-        /* if (!name || !transactionType || !amount || !category || !channel || !date) {
+        if (!name || !transactionType || !amount || !category || !channel || !date) {
             return res.status(400).json({ message: 'All fields are required.' });
-        } */
+        }
 
         const newTransaction = await prisma.treasury.create({
             data: {
@@ -738,7 +753,7 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
                 note
             }
         });
-        console.log('Transaction added successfully:', newTransaction);
+        //console.log('Transaction added successfully:', newTransaction);
         res.json(newTransaction);
         broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction });
     } catch (error) {
@@ -747,7 +762,6 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per aggiornare una transazione
 app.post('/api/transaction/update', verifyToken, async (req, res) => {
     const {
         id,
@@ -761,8 +775,8 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
     } = req.body;
 
     transactionId = id;
-    console.log('Check ID: done');
-    console.log('Transaction ID:', transactionId);
+    /* console.log('Check ID: done');
+    console.log('Transaction ID:', transactionId); */
 
     const parsedTransactionId = parseInt(transactionId, 10);
 
@@ -788,7 +802,7 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
                 note: note || null
             }
         });
-        console.log('Transaction updated successfully:', updatedTransaction);
+        //console.log('Transaction updated successfully:', updatedTransaction);
         res.json(updatedTransaction);
         broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction });
     } catch (error) {
@@ -797,7 +811,6 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per rimuovere una transazione
 app.post('/api/transaction/remove', verifyToken, async (req, res) => {
     const { transactionId } = req.body;
 
@@ -812,7 +825,8 @@ app.post('/api/transaction/remove', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per ottenere tutti gli sconti
+// DISCOUNT MANAGEMENT
+
 app.get('/api/discounts', verifyToken, async (req, res) => {
     try {
         const discounts = await prisma.discount.findMany();
@@ -823,7 +837,6 @@ app.get('/api/discounts', verifyToken, async (req, res) => {
     }
 });
 
-// Endpoint per aggiungere un evento
 app.post('/api/discount/add', verifyToken, async (req, res) => {
     const {
         code,
@@ -854,8 +867,6 @@ app.post('/api/discount/add', verifyToken, async (req, res) => {
     }
 });
 
-
-// Endpoint per rimuovere un discount
 app.post('/api/discount/remove', verifyToken, async (req, res) => {
     const {discountId} = req.body;
 
@@ -870,8 +881,6 @@ app.post('/api/discount/remove', verifyToken, async (req, res) => {
     }
 });
 
-
-// Endpoint per aggiornare uno sconto
 app.post('/api/discount/update', verifyToken, async (req, res) => {
     const {
         eventId,
@@ -904,31 +913,8 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
     }
 });
 
-app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
-    console.log('Request to upload profile image received');
-    try {
-        if (!req.file) {
-            console.log('No file uploaded');
-            return res.status(400).json({ message: 'No file uploaded' });
-        }
-
-        // Genera l'URL pubblico per l'immagine
-        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-
-        // Salva l'URL nel database
-        await prisma.user.update({
-            where: { id: req.user.userId },
-            data: { profileImage: imageUrl },
-        });
-
-        console.log('User profile image URL updated in database:');
-        res.json({ message: 'Image uploaded successfully', imageUrl });
-    } catch (error) {
-        console.error('Error uploading profile image:', error);
-        res.status(500).json({ message: 'Failed to upload profile image' });
-    }
-});
+// SOCKET.IO
 
 server.listen(process.env.PORT || 3000, () => {
-    console.log(`Server running at ${config.serverUrl}`);
+    //console.log(`Server running at ${config.serverUrl}`);
 });

@@ -100,9 +100,6 @@ body {
     margin-left: 10px;
 }
 
-
-
-/* Stile del form per l'aggiunta di uno studente */
 .personal-data-form {
     display: flex;
     flex-direction: column;
@@ -168,20 +165,16 @@ body {
     margin-left: 10px;
 }
 
-/* Stilizza il div per il pulsante "Remove All" */
 .remove-all-students {
-    text-align: right; /* Allinea il testo a destra */
-    margin-right: 10px; /* Aggiungi uno spazio tra il titolo e il pulsante */
+    text-align: right;
+    margin-right: 10px;
 }
 
-/* Stilizza il pulsante "Remove All" */
 #remove-all-button {
-    padding: 5px 10px; /* Aggiungi spaziatura interna al pulsante (personalizzabile) */
-    cursor: pointer; /* Cambia il cursore al passaggio del mouse */
+    padding: 5px 10px; 
+    cursor: pointer;
 }
 
-
-/* CSS per il menu a tendina del botton + */
 .add-menu {
     position: fixed;
     bottom: 20px;
@@ -273,7 +266,6 @@ body.hidden {
     overflow-y: auto;
 }
 
-/* Media query per schermi più piccoli */
 @media (max-width: 768px) {
     .search-bar {
         align-items: center;
@@ -283,7 +275,7 @@ body.hidden {
     }
 
     .logo {
-        width: 30px; /* Riduce la dimensione del logo */
+        width: 30px;
         height: 30px;
         margin-left: 10px;
     }

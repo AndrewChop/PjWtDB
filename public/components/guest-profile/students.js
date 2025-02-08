@@ -5,37 +5,35 @@ document.addEventListener('DOMContentLoaded', async function () {
     const addStudentButton = document.getElementById('add-student-button');
     const cardInput = document.getElementById('student-card-number');
 
-    // Lista degli utenti 
     let students = [];
     
-    // Variabile per memorizzare il cardNumber originale
     let originalCardNumber = '';
 
     const socket = new WebSocket(window.config.webSocketUrl);
-    console.log("WebSocket initialized:", window.config.webSocketUrl);
+    //console.log("WebSocket initialized:", window.config.webSocketUrl);
 
 
     socket.onopen = function () {
-        console.log('WebSocket connection established');
+        //console.log('WebSocket connection established');
     };
 
     socket.onmessage = function (event) {
-        console.log('Message received:', event.data);
+        //console.log('Message received:', event.data);
         if (event.data === "Welcome in the server WebSocket!") {
-            console.log("Received welcome message, not a JSON, skipping parsing.");
+            //console.log("Received welcome message, not a JSON, skipping parsing.");
             return;
         }
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_STUDENT') {
-                console.log('Received add:', message.payload);
+                //console.log('Received add:', message.payload);
                 const newStudent = message.payload;
                 if (!students.some(student => student.id === newStudent.id)) {
                     students.push(newStudent);
                     renderStudentList(students);
                 }
             } else if (message.type === 'UPDATE_STUDENT') {
-                console.log('Received update:', message.payload);
+                //console.log('Received update:', message.payload);
                 const updatedStudent = message.payload;
                 const indexOfStudentToUpdate = students.findIndex(student => student.id === updatedStudent.id);
                 if (indexOfStudentToUpdate !== -1) {
@@ -43,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 renderStudentList(students);
             } else if (message.type === 'REMOVE_STUDENT') {
-                console.log('Received remove:', message.payload);
+                //console.log('Received remove:', message.payload);
                 const removedStudent = message.payload;
                 students = students.filter(student => student.id !== removedStudent.id);
                 renderStudentList(students);
@@ -54,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     };
 
     socket.onclose = function () {
-        console.log('WebSocket connection closed');
+        //console.log('WebSocket connection closed');
     };
 
     async function loadStudentsFromAPI() {
@@ -71,7 +69,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             const apiStudents = await response.json();
 
-            // Unisci senza duplicati
             apiStudents.forEach(apiStudent => {
                 if (!students.some(student => student.id === apiStudent.id)) {
                     students.push(apiStudent);
@@ -83,7 +80,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Funzione per renderizzare la lista degli studenti
     function renderStudentList(studentList) {
         const studentItems = document.getElementById('student-items');
         if (students.length === 0) {
@@ -106,24 +102,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Funzione per verificare se un cardNumber esiste già
     function isCardNumberUnique(cardNumber, excludeCardNumber = null) {
         return !students.some(student => student.cardNumber === cardNumber && student.cardNumber !== excludeCardNumber);
     }
 
-    // Funzione per convalidare il cardNumber
     function isValidCardNumber(cardNumber) {
-        // Espressione regolare per 7 numeri e massimo 4 caratteri
         const regex = /^\d{7}[a-zA-Z]{0,4}$/;
         return regex.test(cardNumber);
     }
 
-    // Trasforma automaticamente i caratteri in maiuscolo durante la digitazione
     cardInput.addEventListener('input', function () {
         this.value = this.value.toUpperCase();
     });
 
-    // Funzione per convalidare l'età
     function isAtLeast18YearsOld(birthDate) {
         const today = new Date();
         const birthDateObj = new Date(birthDate);
@@ -131,14 +122,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         const monthDifference = today.getMonth() - birthDateObj.getMonth();
         const dayDifference = today.getDate() - birthDateObj.getDate();
         
-        // Verifica l'età
         if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
             return age - 1 >= 18;
         }
         return age >= 18;
     }
 
-    // Funzione per impostare la data minima per l'expiration date
     function setMinExpirationDate(inputId) {
         const expirationDateInput = document.getElementById(inputId);
         const today = new Date();
@@ -147,9 +136,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         expirationDateInput.min = minDate;
     }
 
-
-
-    // Gestione dell'evento di ricerca
     searchButton.addEventListener('click', () => {
         const query = searchInput.value.trim();
         filterStudents(query);
@@ -162,19 +148,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterStudents(query) {
         const normalizedQuery = query.toLowerCase().trim();
 
         const filteredStudents = students.filter(student => {
             const fullName = `${student.cardNumber} ${student.name} ${student.surname} ${student.email} ${student.exchangeDuration}`.toLowerCase();
 
-            // Controllare se la query è presente nel nome completo o nel numero della carta
             if (fullName.includes(normalizedQuery) || student.cardNumber.toLowerCase().includes(normalizedQuery)) {
                 return true;
             }
 
-            // Controllare se la query è un numero o un numero seguito dalla parola "months"
             const monthsPattern = /^(\d+)\s*months?$/;
             const match = normalizedQuery.match(monthsPattern);
 
@@ -183,7 +166,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return queryMonths === parseInt(student.exchangeDuration, 10);
             }
 
-            // Controllare se la query è solo un numero
             if (!isNaN(normalizedQuery) && parseInt(normalizedQuery, 10) === parseInt(student.exchangeDuration, 10)) {
                 return true;
             }
@@ -194,43 +176,36 @@ document.addEventListener('DOMContentLoaded', async function () {
         renderStudentList(filteredStudents);
     }
 
-    // Gestione dell'evento di aggiunta studente
     addStudentButton.addEventListener('click', () => {
         showStudentForm(); 
     });
 
-    // Funzione per mostrare il form di inserimento studente
     function showStudentForm() {
         const studentForm = document.getElementById('student-form');
         studentForm.classList.remove('hidden');
-        setMinExpirationDate('student-expiration-date'); // Imposta la data minima per l'expiration date
+        setMinExpirationDate('student-expiration-date');
     }
 
-    // Funzione per nascondere il form di inserimento studente
     function hideStudentForm() {
         const studentForm = document.getElementById('student-form');
         studentForm.classList.add('hidden');
     }
 
-    // Function to hide the student edit form
     function hideEditForm() {
         const studentEditForm = document.getElementById('student-edit-form');
         studentEditForm.classList.add('hidden');
     }
 
-    // Add event listener to the cancel button in the student add form
     const cancelStudentButton = document.getElementById('cancel-student');
     cancelStudentButton.addEventListener('click', () => {
         hideStudentForm();
     });
 
-    // Add event listener to the cancel button in the student edit form
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
     });    
 
-    // Pulsante per confermare l'aggiunta dello studente
     const confirmAddStudentButton = document.getElementById('confirm-student');
     confirmAddStudentButton.addEventListener('click', async () => {
         const studentCardNumber = document.getElementById('student-card-number').value.trim();        
@@ -319,7 +294,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     const savedStudent = await response.json();
 
-                    // Aggiungi il nuovo studente all'elenco locale solo se non esiste già
                     if (!students.find(student => student.cardNumber === savedStudent.cardNumber)) {
                         students.push(savedStudent);
                     }
@@ -337,7 +311,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Funzione per reimpostare i valori dei campi del form
     function resetStudentFormFields() {
         document.getElementById('student-card-number').value = '';
         document.getElementById('student-email').value = '';
@@ -361,8 +334,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('student-issued-by').value = '';
     }
 
-
-    // Funzione per popolare il form di modifica con i dettagli dello studente selezionato
     function populateEditForm(student) {
         console.error('Student:', student);
         document.getElementById('edit-card-number').value = student.cardNumber;
@@ -388,7 +359,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         originalCardNumber = student.cardNumber;
 
-        setMinExpirationDate('edit-expiration-date'); // Imposta la data minima per l'expiration date nel form di modifica
+        setMinExpirationDate('edit-expiration-date');
 
         const studentEditForm = document.getElementById('student-edit-form');
         studentEditForm.classList.remove('hidden');
@@ -397,7 +368,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         saveEditButton.setAttribute('data-id', student.id);
     }
 
-    // Gestore di eventi per il click sul pulsante "Edit"
     function handleStudentItemClick(event) {
         if (event.target.classList.contains('edit-button')) {
             const cardNumber = event.target.getAttribute('data-cardNumber');
@@ -409,7 +379,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } else if (event.target.classList.contains('remove-button')) {
             const cardNumber = event.target.getAttribute('data-cardNumber');
-            console.log('Card number:', cardNumber);
+            //console.log('Card number:', cardNumber);
             removeStudent(cardNumber);
         }
     }
@@ -422,7 +392,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         })
     });
 
-    // Endpoint per rimuovere uno studente
     async function removeStudent(cardNumber) {
         try {
             console.log('Removing student with cardNumber:', cardNumber);
@@ -450,12 +419,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
-
-    // Aggiungi un gestore di eventi alla lista degli studenti per gestire il click sugli elementi utente
     studentItems.addEventListener('click', handleStudentItemClick);
 
-    // Aggiungi un gestore di eventi per il pulsante "Salva Modifiche" nel form di modifica
     const saveEditButton = document.getElementById('save-edit-button');
     saveEditButton.addEventListener('click', async () => {
         const editedCardNumber = document.getElementById('edit-card-number').value.trim();
@@ -479,7 +444,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         const editedExpirationDate = document.getElementById('edit-expiration-date').value.trim();
         const editedIssuedBy = document.getElementById('edit-issued-by').value.trim();
 
-        // Controlla se l'utente ha tentato di modificare il cardNumber
         if (editedCardNumber !== originalCardNumber) {
             alert('You cannot change the card number.');
             return;
@@ -487,17 +451,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         let validationErrors = [];
 
-        /*if (!isAtLeast18YearsOld(editedBirthDate)) {
+        if (!isAtLeast18YearsOld(editedBirthDate)) {
             validationErrors.push('The student must be at least 18 years old.');
-        }*/
+        }
 
         const today = new Date();
         const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
         const minExpirationDate = nextYear.toISOString().split('T')[0];
 
-        /*if (new Date(editedExpirationDate) < new Date(minExpirationDate)) {
+        if (new Date(editedExpirationDate) < new Date(minExpirationDate)) {
             validationErrors.push('Expiration date must be at least one year from today.');
-        }*/
+        }
 
         if (validationErrors.length > 0) {
             alert(validationErrors.join('\n'));
@@ -506,7 +470,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const studentId = saveEditButton.getAttribute('data-id');
 
-        // Crea un oggetto utente con i dettagli modificati
         const editedStudent = {
             id: studentId,
             studentId: originalCardNumber,
@@ -548,17 +511,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const result = await response.json();
-            console.log('Student updated successfully:', result);
+            //console.log('Student updated successfully:', result);
             const index = students.findIndex(student => student.id === parseInt(studentId));
             if (index !== -1) {
                 students[index] = result;
                 renderStudentList(students);
             }
 
-            // Chiudi il form di modifica
             hideEditForm();
-
-
         } catch (error) { 
             console.error('Error updating student:', error);
         }

@@ -79,8 +79,6 @@ body {
     flex: 1;
 }
 
-
-
 .personal-data-form {
     display: flex;
     flex-direction: column;
@@ -155,17 +153,16 @@ body.hidden {
     overflow: hidden;
 }
 
-/* Media query per schermi più piccoli */
 @media (max-width: 768px) {
     .search-bar {
         align-items: center;
         justify-content: space-between;
-        padding: 10px; /* Riduce il padding per adattarlo ai dispositivi mobili */
-        height: auto; /* Modificato per adattare l'altezza automaticamente */
+        padding: 10px;
+        height: auto;
     }
 
     .logo {
-        width: 30px; /* Riduce la dimensione del logo */
+        width: 30px;
         height: 30px;
         margin-left: 10px;
     }
@@ -188,6 +185,10 @@ body.hidden {
         flex-direction: column;
         align-items: flex-start;
         padding: 10px;
+    }
+
+    .user-items li button {
+        align-items: flex-end;
     }
 
     .personal-data-form {
@@ -236,6 +237,10 @@ body.hidden {
 
     .user-list {
         padding: 5px;
+    }
+
+    .user-items li button {
+        align-items: flex-end;
     }
 
     .personal-data-input {

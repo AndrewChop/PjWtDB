@@ -4,33 +4,32 @@ document.addEventListener('DOMContentLoaded', async function () {
     const transactionItems = document.getElementById('transaction-items');
     const addTransactionButton = document.getElementById('add-transaction-button');
 
-    // Lista delle transazioni
     let transactions = [];
 
     const socket = new WebSocket(window.config.webSocketUrl);
-    console.log("WebSocket initialized:", window.config.webSocketUrl);
+    //console.log("WebSocket initialized:", window.config.webSocketUrl);
 
     socket.onopen = function () {
-        console.log('WebSocket connection established');
+        //console.log('WebSocket connection established');
     };
 
     socket.onmessage = function (event) {
-        console.log('Message received:', event.data);
+        //console.log('Message received:', event.data);
         if (event.data === "Welcome in the server WebSocket!") {
-            console.log("Received welcome message, not a JSON, skipping parsing.");
+            //console.log("Received welcome message, not a JSON, skipping parsing.");
             return;
         }
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_TRANSACTION') {
-                console.log('Received add:', message.payload);
+                //console.log('Received add:', message.payload);
                 if (!transactions.find(transaction => transaction.id === message.payload.id)) {
                     transactions.push(message.payload);
                     renderTransactionList(transactions);
                     updateTotalsDisplay();
                 }
             } else if (message.type === 'UPDATE_TRANSACTION') {
-                console.log('Received update:', message.payload);
+                //console.log('Received update:', message.payload);
                 const updatedTransaction = message.payload;
                 const indexOfTransactionToUpdate = transactions.findIndex(transaction => transaction.id === updatedTransaction.id);
                 if (indexOfTransactionToUpdate !== -1) {
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 renderTransactionList(transactions);
                 updateTotalsDisplay();
             } else if (message.type === 'REMOVE_TRANSACTION') {
-                console.log('Received remove:', message.payload);
+                //console.log('Received remove:', message.payload);
                 const removedTransaction = message.payload;
                 transactions = transactions.filter(transaction => transaction.id !== removedTransaction.id);
                 renderTransactionList(transactions);
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     };
 
     socket.onclose = function () {
-        console.log('WebSocket connection closed');
+        //console.log('WebSocket connection closed');
     };
 
     async function loadTransactionsFromAPI() {
@@ -68,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             transactions = await response.json();
-            console.log('loadTransactionsFromAPI', transactions);
+            //console.log('loadTransactionsFromAPI', transactions);
             renderTransactionList(transactions);
         } catch (error) {
             console.error('Failed to load transactions from API:', error);
@@ -80,30 +79,32 @@ document.addEventListener('DOMContentLoaded', async function () {
         return new Date(dateString).toLocaleDateString('it-IT', options);
     }
 
-    // Funzione per renderizzare la lista delle transazioni
     function renderTransactionList(transactionList) {
-        const transactionItems = document.getElementById('transaction-items');
-        transactionItems.innerHTML = '';
+        if (transactionList.length === 0) {
+            transactionItems.innerHTML = "<p>No transactions found.</p>";
+        } else {
+            const transactionItems = document.getElementById('transaction-items');
+            transactionItems.innerHTML = '';
 
-        transactionList.forEach(transaction => {
-            const transactionItem = document.createElement('li');
-            const formattedDate = formatDateToItalian(transaction.date);
-            transactionItem.innerHTML = `
-                <span>${transaction.id}</span>
-                <span>${transaction.name}</span>
-                <span>${transaction.transactionType}</span>
-                <span>${transaction.amount}€</span>
-                <span>${formattedDate}</span>
-                <button class="edit-button" data-id="${transaction.id}">Edit</button>
-                <button class="remove-button" data-id="${transaction.id}">Remove</button>
-            `;
-            transactionItems.appendChild(transactionItem);
-            console.log('renderTransactionList', transactionList);
-            updateTotalsDisplay();
-        });
+            transactionList.forEach(transaction => {
+                const transactionItem = document.createElement('li');
+                const formattedDate = formatDateToItalian(transaction.date);
+                transactionItem.innerHTML = `
+                    <span>${transaction.id}</span>
+                    <span>${transaction.name}</span>
+                    <span>${transaction.transactionType}</span>
+                    <span>${transaction.amount}€</span>
+                    <span>${formattedDate}</span>
+                    <button class="edit-button" data-id="${transaction.id}">Edit</button>
+                    <button class="remove-button" data-id="${transaction.id}">Remove</button>
+                `;
+                transactionItems.appendChild(transactionItem);
+                //console.log('renderTransactionList', transactionList);
+                updateTotalsDisplay();
+            });
+        }
     }
 
-    // Gestione dell'evento di ricerca
     searchButton.addEventListener('click', () => {
         const query = searchInput.value.trim();
         filterTransactions(query);
@@ -116,53 +117,45 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Funzione per filtrare la lista delle transazioni in base alla ricerca
     function filterTransactions(query) {
-        console.log('filterTransactions IN', query, transactions);
+        //console.log('filterTransactions IN', query, transactions);
         const filteredTransactions = transactions.filter(transaction => {
             const transactionDetail = `${transaction.name} ${transaction.amount}`;
             return transactionDetail.toLowerCase().includes(query.toLowerCase());
         });
-        console.log('filterTransactions OUT', filteredTransactions);
+        //console.log('filterTransactions OUT', filteredTransactions);
         renderTransactionList(filteredTransactions);
     }
 
-    // Gestione dell'evento di aggiunta transazione
     addTransactionButton.addEventListener('click', () => {
         showTransactionForm(); 
     });
 
-    // Funzione per mostrare il form di inserimento transazione
     function showTransactionForm() {
         const transactionForm = document.getElementById('transaction-form');
         transactionForm.classList.remove('hidden');
     }
 
-    // Funzione per nascondere il form di inserimento transazione
     function hideTransactionForm() {
         const transactionForm = document.getElementById('transaction-form');
         transactionForm.classList.add('hidden');
     }
 
-    // Funzione per nascondere il form di modifica transazione
     function hideEditForm() {
         const transactionEditForm = document.getElementById('transaction-edit-form');
         transactionEditForm.classList.add('hidden');
     }
 
-    // Aggiungi ascoltatore di eventi al pulsante di annullamento nel modulo di aggiunta della transazione
     const cancelTransactionButton = document.getElementById('cancel-transaction');
     cancelTransactionButton.addEventListener('click', () => {
         hideTransactionForm();
     });
 
-    // Aggiungi ascoltatore di eventi al pulsante di annullamento nel modulo di modifica della transazione
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
     });  
 
-    // Pulsante per confermare l'aggiunta della transazione
     const confirmAddTransactionButton = document.getElementById('confirm-transaction');
     confirmAddTransactionButton.addEventListener('click', async () => {
         const transactionName = document.getElementById('transaction-name').value.trim();
@@ -222,7 +215,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Funzione per popolare il form di modifica con i dettagli della transazione selezionata
     function populateEditForm(transaction) {
         const editName = document.getElementById('edit-name');
         const editType = document.getElementById('edit-type');
@@ -247,7 +239,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         transactionEditForm.classList.remove('hidden');
     }
 
-    // Gestore di eventi per il click sul pulsante "Edit"
     function handleTransactionItemClick(event) {
         if (event.target.classList.contains('edit-button')) {
             const id = event.target.getAttribute('data-id');  
@@ -279,7 +270,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function updateTransaction(transaction) {
         try {
-            console.log('Updating transaction:', transaction);
+            //console.log('Updating transaction:', transaction);
 
             const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/transaction/update', {
@@ -342,7 +333,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Funzione per reimpostare i valori dei campi del form
     function resetTransactionFormFields() {
         const transactionName = document.getElementById('transaction-name');
         const transactionType = document.getElementById('transaction-type');
@@ -352,7 +342,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         const transactionDate = document.getElementById('transaction-date');
         const transactionNote = document.getElementById('transaction-note');
 
-        // Reimposta i valori dei campi del form a stringa vuota
         transactionName.value = '';
         transactionType.value = '';
         transactionCash.value = '';
@@ -362,63 +351,45 @@ document.addEventListener('DOMContentLoaded', async function () {
         transactionNote.value = '';
     }
 
-    // Aggiungi un gestore di eventi alla lista delle transazioni per gestire il click sugli elementi transazione
     transactionItems.addEventListener('click', handleTransactionItemClick);
 
-    
-    // Gestore di eventi per il click sul pulsante "Remove"
     function hsandleRemoveButtonClick(event) {
         if (event.target.classList.contains('remove-button')) {
             const id = event.target.getAttribute('data-id'); 
-            // Trova l'indice della transazione da rimuovere nell'array "transactions"
             const indexOfTransactionToRemove = transactions.findIndex(transaction => transaction.id === parseInt(id));
             
             if (indexOfTransactionToRemove !== -1) {
-                // Rimuovi la transazione dall'array
                 transactions.splice(indexOfTransactionToRemove, 1);
     
-                // Aggiorna la lista delle transazioni
                 renderTransactionList(transactions);
                 updateTotalsDisplay();
             }
         }
     }
 
-    // Aggiungi un gestore di eventi alla lista delle transazioni per gestire il click sul pulsante "Remove"
     transactionItems.addEventListener('click', handleRemoveButtonClick);
     
-    // Trova il pulsante "Remove All" nell'HTML
     const removeAllButton = document.getElementById('remove-all-button');
 
-    // Aggiungi un gestore di eventi per il clic sul pulsante
     removeAllButton.addEventListener('click', () => {
         transactions.forEach(transaction => {
-            // Rimuovi la transazione dall'array
             removeTransaction(transaction.id);
         });
     });
 
-
-    // Trova il pulsante "Sort by Date" nell'HTML
     const sortByDateButton = document.getElementById('sort-by-date-button');
-
-    // Variabile per tenere traccia dello stato di ordinamento (inizio con ascendente)
+    
     let isSortedAscending = true;
 
-    // Aggiungi un gestore di eventi per il clic sul pulsante
     sortByDateButton.addEventListener('click', () => {
         if (isSortedAscending) {
-            // Ordina le transazioni per data in ordine crescente
             transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
         } else {
-            // Ordina le transazioni per data in ordine decrescente
             transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
-        // Inverti lo stato di ordinamento
         isSortedAscending = !isSortedAscending;
 
-        // Aggiorna la lista 
         renderTransactionList(transactions);
     });
 
@@ -439,25 +410,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         return { totalIn, totalOut };
     }
 
-    /* function calculateTotals() {
-        let totalIn = 0;
-        let totalOut = 0;
-    
-        transactions.forEach(transaction => {
-            if (transaction.type === 'IN') {
-                totalIn += parseFloat(transaction.cash);
-            } else if (transaction.type === 'OUT') {
-                totalOut += parseFloat(transaction.cash);
-            }
-        });
-    
-        return { totalIn, totalOut };
-    } */
-
     function updateTotalsDisplay() {
         const { totalIn, totalOut } = calculateTotals();
     
-        // Aggiorna gli elementi HTML con i totali
         const totalInElement = document.getElementById('total-in');
         const totalOutElement = document.getElementById('total-out');
         const netTotalElement = document.getElementById('net-total');
@@ -465,7 +420,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         totalInElement.textContent = `Total In: €${totalIn.toFixed(2)}`;
         totalOutElement.textContent = `Total Out: €${totalOut.toFixed(2)}`;
     
-        // Calcola il "Net Total" come differenza tra "Total In" e "Total Out"
         const netTotal = totalIn - totalOut;
         netTotalElement.textContent = `Net Total: €${netTotal.toFixed(2)}`;
     }

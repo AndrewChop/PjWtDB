@@ -1,5 +1,3 @@
-/* CSS of index.html */
-
 body, html {
     margin: 0;
     height: 100vh;
@@ -23,16 +21,16 @@ body, html {
 .login-box {
     padding: 20px;
     padding-left: 20px;
-    max-width: 200px; /* Larghezza massima per il login box */
-    width: 100%; /* Larghezza adattabile */
+    max-width: 200px;
+    width: 100%;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    background: transparent; /* Sfondo leggermente trasparente */
+    background: transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Allinea verticalmente */
-    text-align: center; /* Centra il testo */
+    justify-content: center;
+    text-align: center;
 }
 
 .logo-container {
@@ -45,13 +43,13 @@ body, html {
 }
 
 .input-box, .login-button {
-    width: calc(100% - 20px); /* Considera il padding */
+    width: calc(100% - 20px);
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 3px;
     background-color: #f1f1f1;
-    box-sizing: border-box; /* Include padding e bordi nella larghezza */
+    box-sizing: border-box;
 }
 
 .login-box button {
@@ -104,7 +102,7 @@ body, html {
 
 @media screen and (max-width: 600px) {
     .login-box {
-        width: 90%; /* Larghezza maggiore per schermi più piccoli */
+        width: 90%;
         padding: 10px;
     }
 

@@ -30,13 +30,13 @@ body, html {
 }
 
 input[type=text], input[type=password] {
-    width: calc(100% - 20px); /* Sottrai il padding dal 100% della larghezza */
+    width: calc(100% - 20px);
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 3px;
     background-color: #f1f1f1;
-    box-sizing: border-box; /* Include padding e bordi nella larghezza totale */
+    box-sizing: border-box;
 }
 
 
@@ -83,7 +83,6 @@ a {
     color: dodgerblue;
 }
 
-/* Media query per schermi più piccoli */
 @media screen and (max-width: 768px) {
     .container {
         width: 80%;

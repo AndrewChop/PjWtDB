@@ -4,33 +4,32 @@ document.addEventListener('DOMContentLoaded', async function () {
     const eventItems = document.getElementById('event-items');
     const addEventButton = document.getElementById('add-event-button');
 
-    // Lista degli eventi
     let events = [];
 
     const socket = new WebSocket(window.config.webSocketUrl);
-    console.log("WebSocket initialized:", window.config.webSocketUrl);
+    //console.log("WebSocket initialized:", window.config.webSocketUrl);
 
     socket.onopen = function () {
-        console.log('WebSocket connection established');
+        //console.log('WebSocket connection established');
     };
 
     socket.onmessage = function (event) {
-        console.log('Message received:', event.data);
+        //console.log('Message received:', event.data);
         if (event.data === "Welcome in the server WebSocket!") {
-            console.log("Received welcome message, not a JSON, skipping parsing.");
+            //console.log("Received welcome message, not a JSON, skipping parsing.");
             return;
         }
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_EVENT') {
-                console.log('Received add:', message.payload);
+                //console.log('Received add:', message.payload);
                 const existingEvent = events.find(e => e.id === message.payload.id);
                 if (!existingEvent) {
                     events.push(message.payload);
                     renderEventList(events);
                 }
             } else if (message.type === 'UPDATE_EVENT') {
-                console.log('Received update:', message.payload);
+                //console.log('Received update:', message.payload);
                 const updatedEvent = message.payload;
                 const indexOfEventToUpdate = events.findIndex(event => event.id === updatedEvent.id);
                 if (indexOfEventToUpdate !== -1) {
@@ -38,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 renderEventList(events);
             } else if (message.type === 'REMOVE_EVENT') {
-                console.log('Received remove:', message.payload);
+                //console.log('Received remove:', message.payload);
                 const removedEvent = message.payload;
                 events = events.filter(event => event.id !== removedEvent.id);
                 renderEventList(events);
@@ -49,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     };
 
     socket.onclose = function () {
-        console.log('WebSocket connection closed');
+        //console.log('WebSocket connection closed');
     };
 
     async function loadEventsFromAPI() {
@@ -72,29 +71,31 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Funzione per renderizzare la lista degli eventi
     function renderEventList(eventList) {
-        /* const eventItems = document.getElementById('event-items'); */
-        eventItems.innerHTML = '';
+        if (eventList.length === 0) {
+            eventItems.innerHTML = "<p>No events found.</p>";
+        } else {
+            eventItems.innerHTML = '';
 
-        eventList.forEach(event => {
-            
-            const formattedDate = formatDateToItalian(event.date);
-            const formattedEventType = event.eventType
-            .toLowerCase() // Trasforma tutto in minuscolo
-            .replace(/_/g, ' ') // Sostituisce underscore con spazi
-            .replace(/\b\w/g, char => char.toUpperCase());
-            const eventItem = document.createElement('li');
-            eventItem.innerHTML = `
-                <span>${event.name}</span>
-                <span>${formattedEventType}</span>
-                <span>€${event.price}</span>
-                <span>${formattedDate}</span>
-                <button class="edit-button" data-id="${event.id}">Edit</button>
-                <button class="remove-button" data-id="${event.id}">Remove</button>
-            `;
-            eventItems.appendChild(eventItem);
-        });
+            eventList.forEach(event => {
+                
+                const formattedDate = formatDateToItalian(event.date);
+                const formattedEventType = event.eventType
+                .toLowerCase()
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase());
+                const eventItem = document.createElement('li');
+                eventItem.innerHTML = `
+                    <span>${event.name}</span>
+                    <span>${formattedEventType}</span>
+                    <span>€${event.price}</span>
+                    <span>${formattedDate}</span>
+                    <button class="edit-button" data-id="${event.id}">Edit</button>
+                    <button class="remove-button" data-id="${event.id}">Remove</button>
+                `;
+                eventItems.appendChild(eventItem);
+            });
+        }
     }
 
     
@@ -103,20 +104,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         return new Date(dateString).toLocaleDateString('it-IT', options);
     }
     
-    // Funzione per filtrare la lista degli eventi in base alla ricerca
     function filterEvents(query) {
-        console.log('filterEvents IN', query, events);
-        //const normalizedQuery = query.toLowerCase().trim();
+        //console.log('filterEvents IN', query, events);
         const filteredEvents = events.filter(event => {            
             const formattedDate = formatDateToItalian(event.date);
             const eventDetails = `${event.name} ${event.type} ${formattedDate}`;
             return eventDetails.toLowerCase().includes(query.toLowerCase());
         });
-        console.log('filterEvents OUT', filteredEvents);
+        //console.log('filterEvents OUT', filteredEvents);
         renderEventList(filteredEvents);
     }
 
-    // Gestione dell'evento di ricerca
     searchButton.addEventListener('click', () => {
         const query = searchInput.value.trim();
         filterEvents(query);
@@ -129,43 +127,35 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
     
-    // Gestione dell'evento di aggiunta evento
     addEventButton.addEventListener('click', () => {
         showEventForm(); 
     });
 
-    // Funzione per mostrare il form di inserimento evento
     function showEventForm() {
         const eventForm = document.getElementById('event-form');
         eventForm.classList.remove('hidden');
     }
 
-    // Funzione per nascondere il form di inserimento evento
     function hideEventForm() {
         const eventForm = document.getElementById('event-form');
         eventForm.classList.add('hidden');
     }
     
-    // Funzione per nascondere il form di modifica evento
     function hideEditForm() {
         const eventEditForm = document.getElementById('event-edit-form');
         eventEditForm.classList.add('hidden');
     }
 
-    // Aggiungere un ascoltatore di eventi al pulsante di annullamento nel modulo di aggiunta di eventi
     const cancelEventButton = document.getElementById('cancel-event');
     cancelEventButton.addEventListener('click', () => {
         hideEventForm();
     });
 
-    // Aggiungere un ascoltatore di eventi al pulsante di annullamento nel modulo di modifica di eventi
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
     });
 
-
-    // Pulsante per confermare l'aggiunta dell'evento
     const confirmAddEventButton = document.getElementById('confirm-event');
     confirmAddEventButton.addEventListener('click', async () => {
         const eventName = document.getElementById('event-name').value.trim();
@@ -201,7 +191,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Funzione per reimpostare i valori dei campi del form
     function resetEventFormFields() {
         const eventName = document.getElementById('event-name');
         const eventPlace = document.getElementById('event-place');
@@ -213,7 +202,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         const eventPrice = document.getElementById('event-price');
         const eventNumberParticipant = document.getElementById('event-number-participant');
 
-        // Reimposta i valori dei campi del form a stringa vuota
         eventName.value = '';
         eventPlace.value = '';
         eventAddress.value = '';
@@ -225,7 +213,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         eventNumberParticipant.value = '';
     }
 
-    // Funzione per aggiungere un nuovo evento alla lista
     async function addNewEvent(event) {
         try {
             const token = localStorage.getItem('jwtToken');
@@ -238,12 +225,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 body: JSON.stringify(event)
             });
 
-            console.log(response);
+            //console.log(response);
             if (!response.ok) {
                 throw new Error('Failed to add event');
             }
 
-            console.log("Event added successfully, waiting for WebSocket update.");
+            //console.log("Event added successfully, waiting for WebSocket update.");
         } catch (error) {
             console.error('Error adding event:', error);
         }
@@ -272,8 +259,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 renderEventList(events);
             }
 
-            console.log("Event updated successfully:", updatedEvent);
-            //alert("Event updated successfully!");
+            //console.log("Event updated successfully:", updatedEvent);
+            alert("Event updated successfully!");
 
             hideEditForm();
         } catch (error) {
@@ -305,11 +292,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
     
-    // Inizializza la lista degli eventi
     events = JSON.parse(localStorage.getItem('eventList')) || [];
     renderEventList(events);
   
-    // Funzione per popolare il form di modifica con i dettagli dello evento selezionato
     function populateEditForm(event) {
         const editName = document.getElementById('edit-name');
         const editPlace = document.getElementById('edit-place');
@@ -338,10 +323,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         eventEditForm.classList.remove('hidden');
     }
 
-    // Gestore di eventi per il click sul pulsante "Edit"
     function handleEventItemClick(event) {
         if (event.target.classList.contains('edit-button')) {
-            let eventId = event.target.getAttribute('data-id'); // Ho inserito il let perché non è stato dichiarato <<----------
+            let eventId = event.target.getAttribute('data-id'); 
             const eventToEdit = events.find(event => event.id === parseInt(eventId));
             
             if (eventToEdit) {
@@ -350,7 +334,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Aggiungi un gestore di eventi alla lista degli eventi per gestire il click sugli elementi evento
     eventItems.addEventListener('click', handleEventItemClick);
 
     const saveEditButton = document.getElementById('save-edit-button');
@@ -370,7 +353,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         updateEvent(editedEvent);
     });
  
-    // Gestore di eventi per il click sul pulsante "Remove"
     function handleRemoveButtonClick(event) {
         if (event.target.classList.contains('remove-button')) {
             const eventId = event.target.getAttribute('data-id');
@@ -378,39 +360,29 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Aggiungi un gestore di eventi alla lista degli eventi per gestire il click sul pulsante "Remove"
     eventItems.addEventListener('click', handleRemoveButtonClick);
     
-    // Trova il pulsante "Remove All" nell'HTML
     const removeAllButton = document.getElementById('remove-all-button');
 
-    // Aggiungi un gestore di eventi per il clic sul pulsante
     removeAllButton.addEventListener('click', () => {
         events.forEach(event => {
             removeEvent(event.id);
         });
     });
 
-    // Trova il pulsante "Sort by Date" nell'HTML
     const sortByDateButton = document.getElementById('sort-by-date-button');
 
-    // Variabile per tenere traccia dello stato di ordinamento (inizio con ascendente)
     let isSortedAscending = true;
 
-    // Aggiungi un gestore di eventi per il clic sul pulsante
     sortByDateButton.addEventListener('click', () => {
         if (isSortedAscending) {
-            // Ordina gli eventi per data in ordine crescente
             events.sort((a, b) => new Date(a.date) - new Date(b.date));
         } else {
-            // Ordina gli eventi per data in ordine decrescente
             events.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
-        // Inverti lo stato di ordinamento
         isSortedAscending = !isSortedAscending;
 
-        // Aggiorna la lista degli eventi ordinata
         renderEventList(events);
     });
 

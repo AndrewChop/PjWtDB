@@ -6,22 +6,22 @@ document.addEventListener('DOMContentLoaded', async function () {
     let users = [];
 
     const socket = new WebSocket(window.config.webSocketUrl);
-    console.log("WebSocket initialized:", window.config.webSocketUrl);
+    //console.log("WebSocket initialized:", window.config.webSocketUrl);
 
     socket.onopen = function () {
-        console.log('WebSocket connection established');
+        //console.log('WebSocket connection established');
     };
 
     socket.onmessage = function (event) {
-        console.log('Message received:', event.data);
+        //console.log('Message received:', event.data);
         if (event.data === "Welcome in the server WebSocket!") {
-            console.log("Received welcome message, not a JSON, skipping parsing.");
+            //console.log("Received welcome message, not a JSON, skipping parsing.");
             return;
         }
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'UPDATE_USER') {
-                console.log('Received update:', message.payload);
+                //console.log('Received update:', message.payload);
                 const updatedUser = message.payload;
                 const indexOfUserToUpdate = users.findIndex(user => user.id === updatedUser.id);
                 if (indexOfUserToUpdate !== -1) {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 renderUserList(users);
             } else if (message.type === 'REMOVE_USER') {
-                console.log('Received remove:', message.payload);
+                //console.log('Received remove:', message.payload);
                 const removedUserId = message.payload.id;
                 users = users.filter(user => user.id !== removedUserId);
                 renderUserList(users);
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     };
 
     socket.onclose = function () {
-        console.log('WebSocket connection closed');
+        //console.log('WebSocket connection closed');
     };
 
     async function loadVolunteersFromAPI() {
@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Funzione per renderizzare la lista degli utenti
     function renderUserList(userList) {
         if (userList.length === 0) {
             userItems.innerHTML = "<p>No users found.</p>";
@@ -84,7 +83,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Gestore di eventi per il click sul pulsante "View"
     function handleUserItemClick(event) {
         if (event.target.classList.contains('view-button')) {
             const userId = event.target.getAttribute('data-user-id');
@@ -95,11 +93,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Aggiungi un gestore di eventi alla lista degli utenti per gestire il click sugli elementi utente
     userItems.addEventListener('click', handleUserItemClick);
 
     function formatDateForInput(dateString) {
-        if (!dateString) return ''; // Gestione di date non valide o nulle
+        if (!dateString) return '';
         const date = new Date(dateString);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -107,7 +104,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return `${year}-${month}-${day}`;
     }
 
-    // Funzione per popolare il form di visualizzazione con i dettagli dell'utente selezionato
     function populateViewForm(user) {
         const viewCardNumber = document.getElementById('view-card-number');
         const viewEmail = document.getElementById('view-email');
@@ -151,7 +147,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         userViewForm.classList.remove('hidden');
     }
 
-    // Funzione per nascondere il form di visualizzazione utente
     function hideViewForm() {
         const userViewForm = document.getElementById('user-view-form');
         if (userViewForm) {
@@ -164,7 +159,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         closeViewButton.addEventListener('click', hideViewForm);
     }
 
-    // Funzione per filtrare la lista degli utenti in base alla ricerca
     function filterUsers(query) {
         const normalizedQuery = query.toLowerCase().trim();
 
@@ -176,7 +170,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         renderUserList(filteredUsers);
     }
 
-    // Gestione dell'evento di ricerca
     searchButton.addEventListener('click', () => {
         const query = searchInput.value.trim();
         filterUsers(query);

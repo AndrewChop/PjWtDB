@@ -96,7 +96,6 @@ body, html {
     margin-left: 10px;
 }
 
-/* Media query per schermi più piccoli */
 @media (max-width: 768px) {
     .container {
         width: 100%;

@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const token = localStorage.getItem('jwtToken');
 
-    // Verifica se il token esiste e reindirizza al login se non presente
     if (!token) {
         alert('Session expired or invalid! Please log in.');
         window.location.href = '../index.html';
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        // Recupera i dati dell'utente con il token
         const userResponse = await fetch('/api/user/data', {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
@@ -26,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const userData = await userResponse.json();
 
-        // Aggiorna la UI con i dati dell'utente
         document.querySelector('.profile-image').src = userData.profileImage || '../assets/profile/default.jpg';
 
     } catch (error) {
@@ -39,40 +36,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     setupLogoutLink();
     setupUploadProfileImage();
     loadUserProfileImage();
-    console.log('Page loaded correctly!');
+    //console.log('Page loaded correctly!');
     setupDropdowns();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* document.addEventListener('DOMContentLoaded', function() {
-    setupProfileLink();
-    setupLogoutLink();
-    setupUploadProfileImage();
-    loadUserProfileImage();
-    console.log('Page loaded correctly!');
-    setupDropdowns();
-}); */
 
 function setupProfileLink() {
     const profileLink = document.getElementById('profileLink');
@@ -156,7 +122,7 @@ function setupUploadProfileImage() {
 }
 
 function loadUserProfileImage() {
-    console.log('Loading user profile image...');
+    //console.log('Loading user profile image...');
     
     fetch(`/api/user/data`, {
         method: 'GET',
@@ -171,7 +137,7 @@ function loadUserProfileImage() {
         return response.json();
     })
     .then(data => {
-        console.log('User data loaded:', data);
+        //console.log('User data loaded:', data);
         if (data.profileImage) {
             document.querySelector('.profile-image').src = data.profileImage + `?t=${Date.now()}`;
         }
@@ -181,19 +147,16 @@ function loadUserProfileImage() {
     });
 }
 
-// Funzione per configurare l'apertura e la chiusura dei menu a tendina
 function setupDropdowns() {
     const buttons = document.querySelectorAll('.main-button');
 
     buttons.forEach(button => {
         const dropdown = button.querySelector('.dropdown-content');
 
-        // Mostra il menu al passaggio del mouse
         button.addEventListener('mouseenter', () => {
             dropdown.style.display = 'block';
         });
 
-        // Nasconde il menu quando il mouse esce sia dal pulsante che dal menu
         button.addEventListener('mouseleave', () => {
             setTimeout(() => {
                 if (!dropdown.matches(':hover') && !button.matches(':hover')) {
@@ -202,7 +165,6 @@ function setupDropdowns() {
             }, 200);
         });
 
-        // Previeni che il menu si nasconda se il cursore è sul menu
         dropdown.addEventListener('mouseenter', () => {
             dropdown.style.display = 'block';
         });

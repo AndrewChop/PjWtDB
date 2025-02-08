@@ -18,7 +18,7 @@ async function loadUserData() {
             window.location.href = '../index.html';
             return; 
         }
-        console.log('Token (PROFILE):', token);
+        //console.log('Token (PROFILE):', token);
 
         let response = await fetch('/api/user/data', {
             method: 'GET',
@@ -27,13 +27,13 @@ async function loadUserData() {
 
         if (response.status === 401) {
             alert('Session expired or invalid! Please log in again.');
-            window.location.href = '../../index.html'; // Reindirizza all'login
+            window.location.href = '../../index.html';
         }
 
         if (!response.ok) {
             throw new Error('Failed to load user data');
         }
-        console.log('User data loaded successfully');
+        //console.log('User data loaded successfully');
         const userData = await response.json();
         populateForm(userData);
     } catch (error) {
@@ -65,7 +65,7 @@ function populateForm(userData) {
 }
 
 function formatDateForInput(dateString) {
-    if (!dateString) return ''; // Gestione di date non valide o nulle
+    if (!dateString) return ''; 
     const date = new Date(dateString);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -74,7 +74,7 @@ function formatDateForInput(dateString) {
 }
 
 function unformatDateForInput(dateString) {
-    if (!dateString) return ''; // Gestione di date non valide o nulle
+    if (!dateString) return ''; 
     const [year, month, day] = dateString.split('-');
     return `${year}-${month}-${day}`;
 }
@@ -84,13 +84,11 @@ async function saveChanges() {
     const birthDate = document.getElementById('user-birth-date').value;
     const expirationDate = document.getElementById('user-expiration-date').value;
 
-    // Funzione per convalidare il cardNumber
     function isValidCardNumber(cardNumber) {
         const regex = /^\d{7}[a-zA-Z]{0,4}$/;
         return regex.test(cardNumber);
     }
 
-    // Funzione per convalidare l'età
     function isAtLeast18YearsOld(birthDate) {
         const today = new Date();
         const birthDateObj = new Date(birthDate);
@@ -104,7 +102,6 @@ async function saveChanges() {
         return age >= 18;
     }
 
-    // Funzione per impostare la data minima per l'expiration date
     function isValidExpirationDate(expirationDate) {
         const today = new Date();
         const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
@@ -133,9 +130,8 @@ async function saveChanges() {
         documentIssuer: document.getElementById('user-issued-by').value
     };
 
-    console.log("Data to be sent:", userData);
+    //console.log("Data to be sent:", userData);
 
-    // Convalida i campi
     let validationErrors = [];
 
     if (!isValidCardNumber(userData.cardNumber)) {
@@ -168,14 +164,14 @@ async function saveChanges() {
         if (!response.ok) {
             if (response.status === 401) {
                 alert('Session expired or invalid! Please log in again.');
-                window.location.href = '../../index.html'; // Reindirizza all'login
+                window.location.href = '../../index.html';
             } else {
                 console.error('Failed to save user data:', response);
                 alert('Failed to update user data');
             }
             return;
         } else {
-            console.log('User data saved successfully');
+            //console.log('User data saved successfully');
             alert('Profile updated successfully!');
             loadUserData();
         }
@@ -205,7 +201,7 @@ async function deleteAccount() {
             throw new Error('Error while deleting the account.');
         }
     } catch (error) {
-        console.error('Errore:', error);
+        console.error('Error:', error);
         alert('Unable to delete the account. Please try again later.');
     }
 }
