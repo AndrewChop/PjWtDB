@@ -19,10 +19,6 @@ const escape = require('escape-html');
 //const crypto = require('crypto');
 const verificationTokens = {};
 
-/* console.log('The JWT secret key is:', process.env.JWT_SECRET);
-console.log('Server URL:', config.serverUrl);
-console.log('WebSocket URL:', config.webSocketUrl); */
-
 const app = express();
 const prisma = new PrismaClient();
 const saltRounds = 10;
@@ -44,7 +40,7 @@ app.use(cors({
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, 'public/uploads');
+        const uploadDir = path.join(__dirname, 'public/assets/profile');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -62,20 +58,20 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-    console.log('New connection WebSocket');
+    //console.log('New connection WebSocket');
 
     ws.on('message', (message) => {
-        console.log('Message received:', message);
+        //console.log('Message received:', message);
     });
 
     ws.on('close', () => {
-        console.log('Connection WebSocket closed');
+        //console.log('Connection WebSocket closed');
     });
 
     ws.send('Welcome in the server WebSocket!');
 
     ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
+        //console.error('WebSocket error:', error);
     });
 });
 
@@ -95,8 +91,6 @@ function broadcast(data) {
 
 app.post('/api/auth/send-verification-email', async (req, res) => {
     const { email, password } = req.body;
-/*     console.log('EMAIL_USER:', process.env.EMAIL_USER);
-    console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Loaded' : 'Not Loaded'); */
     if (!email || !email.endsWith('@esnpisa.it')) {
         return res.status(400).send('Invalid email domain!');
     }
@@ -107,11 +101,9 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
         }
 
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
-        //console.log("Il token è: " + token);
         verificationTokens[email] = { token, password };
 
         const verificationLink = `${req.protocol}://${req.get('host')}/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
-        //console.log('Verification link:', verificationLink);
 
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
@@ -148,7 +140,6 @@ app.post('/api/auth/send-verification-email', async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
-        //console.log('Verification email sent to:', email);
         res.status(200).send('Verification email sent');
     } catch (error) {
         console.error('Error sending email:', error);
@@ -209,6 +200,11 @@ app.post('/api/verify-token', (req, res) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded;
+        if (!decoded.userId) {
+            console.error('Invalid token:', decoded);
+            return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+        }
         res.status(200).json({ message: 'Token is valid', decoded });
     } catch (error) {
         console.error('Token verification failed:', error);
@@ -217,30 +213,20 @@ app.post('/api/verify-token', (req, res) => {
 });
 
 function verifyToken(req, res, next) {
-    /* console.log('Request received on /api/user/...', req.headers);
-    console.log("JWT token verification..."); */
 
     const authHeader = req.headers.authorization;
-    //console.log('Authorization header:', req.headers.authorization);
 
     if (!authHeader) {
         return res.status(401).json({ message: 'Unauthorised access: header authorisation missing.' });
     }
     const token = authHeader.split(' ')[1];
-    //console.log('Token received:', token);
 
     if (!token || token === 'null') {
-        //console.log('Token not provided');
         return res.status(401).send('Unauthorised access. Token not provided.');
     }
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        
-        /* console.log('JWT_SECRET:', JWT_SECRET);
-        console.log('Token received for verification:', token);
-
-        console.log('Token decoded:', decoded); */
         req.user = decoded;
         next();
     } catch (error) {
@@ -254,7 +240,6 @@ function verifyToken(req, res, next) {
 }
 
 app.post('/api/login', async (req, res) => {
-    //console.log('Request received on /api/login', req.body);
     const { email, password } = req.body;
 
     try {
@@ -269,7 +254,6 @@ app.post('/api/login', async (req, res) => {
         }  */
 
         const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-        //console.log('Token generated:', token);
         res.json({ token });
     } catch (error) {
         console.error('Detailed error when logging in:', error);
@@ -280,7 +264,6 @@ app.post('/api/login', async (req, res) => {
 // USER PROFILE MANAGEMENT
 
 app.post('/api/user/update', verifyToken, async (req, res) => {
-    //console.log('Request received on /api/user/update', req.body);
     const userId = req.user.userId; 
 
     // Recupera l'utente esistente dal database
@@ -349,22 +332,25 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
     }
 });
 
-app.delete('/api/user/delete', verifyToken, async (req, res) => {
-    //console.log('Request received on /api/user/delete', req.body);
+app.post('/api/user/delete', verifyToken, async (req, res) => {
+    console.log('Request received on /api/user/delete', req.body);
     try {
         const userId = req.user.userId; 
-        //console.log(`Deleting user with ID: ${userId}`);
+        if (!userId) {
+            console.error('Invalid user ID:', userId);
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        console.log(`Deleting user with ID: ${userId}`);
         
         await prisma.user.delete({
             where: { id: userId }
         });
-        //console.log(`Account eliminato per l'utente con ID: ${userId}`);
-        // Esegui il broadcast per notificare la rimozione
+        console.log(`Account eliminato per l'utente con ID: ${userId}`);
         broadcast({ type: 'USER_DELETED', payload: { userId } });
         res.status(200).json({ message: 'Account successfully deleted.' });
     } catch (error) {
         console.error('Error while deleting the user:', error);
-        res.status(500).json({ message: 'Error while deleting the account.', error: error.message  });
+        res.status(500).json({ message: 'Error while deleting the account.', error: error.message });
     }
 });
 
@@ -377,7 +363,6 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
         });
 
         if (!user) {
-            //console.log('User not found');
             return res.status(404).send('User not found');
         }
 
@@ -403,7 +388,7 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
             documentNumber: user.documentNumber,
             documentExpiration: user.documentExpiration,
             documentIssuer: user.documentIssuer,
-            profileImage: user.profileImage
+            profileImage: user.profileImage || '/assets/profile/default.png'
         });
     } catch (error) {
         console.error('Error retrieving user data:', error);
@@ -412,21 +397,21 @@ app.get('/api/user/data', verifyToken, async (req, res) => {
 });
 
 app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage'), async (req, res) => {
-    //console.log('Request to upload profile image received');
+    console.log('Request to upload profile image received');
     try {
         if (!req.file) {
-            //console.log('No file uploaded');
+            console.log('No file uploaded');
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        const imageUrl = `http://${req.get('host')}/uploads/${req.file.filename}`;
 
         await prisma.user.update({
             where: { id: req.user.userId },
             data: { profileImage: imageUrl },
         });
 
-        //console.log('User profile image URL updated in database:');
+        console.log('User profile image URL updated in database:');
         res.json({ message: 'Image uploaded successfully', imageUrl });
     } catch (error) {
         console.error('Error uploading profile image:', error);
@@ -463,7 +448,6 @@ app.get('/api/users/students', verifyToken, async (req, res) => {
 });
 
 app.post('/api/student/add', verifyToken, async (req, res) => {
-    //console.log('Request received on /api/student/add', req.body);
 
     const {
         cardNumber,
@@ -515,7 +499,6 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
                 password: null
             }
         });
-        //console.log('Student added successfully');
         res.json(newStudent);
         broadcast({ type: 'ADD_STUDENT', payload: newStudent });
     } catch (error) {
@@ -525,7 +508,6 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
 });
 
 app.post('/api/student/update', verifyToken, async (req, res) => {
-    //console.log('Request received on /api/student/update', req.body);
     const {
         studentId,
         cardNumber,
@@ -576,7 +558,6 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
                 documentIssuer
             }
         });
-        //console.log('Student updated successfully');
         res.json(updatedStudent);
         broadcast({ type: 'UPDATE_STUDENT', payload: updatedStudent });
     } catch (error) {
@@ -586,11 +567,9 @@ app.post('/api/student/update', verifyToken, async (req, res) => {
 });
 
 app.post('/api/student/remove', verifyToken, async (req, res) => {
-    //console.log('Request received on /api/student/remove', req.body);
     const { cardNumber } = req.body;
 
     if (!cardNumber) {
-        //console.log('Invalid card number:', cardNumber);
         return res.status(400).json({ message: 'Invalid card number' });
     }
 
@@ -599,7 +578,6 @@ app.post('/api/student/remove', verifyToken, async (req, res) => {
             where: { cardNumber }
         });
 
-        //console.log('Student removed successfully');
         res.json(removedStudent);
         broadcast({ type: 'REMOVE_STUDENT', payload: removedStudent });
     } catch (error) {
@@ -621,7 +599,6 @@ app.get('/api/events', verifyToken, async (req, res) => {
 });
 
 app.post('/api/event/add', verifyToken, async (req, res) => {
-    //console.log("Sto aggiungendo un evento");
     console.error("User ID: " + req.user.userId);
     const {
         name,
@@ -651,9 +628,7 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
                 organizerId: req.user.userId
             }
         });
-        //console.log("Trying to add " + newEvent);
         res.json(newEvent);
-        //console.log(req)
         broadcast({ type: 'ADD_EVENT', payload: newEvent });
     } catch (error) {
         console.error("Error: " + error);
@@ -690,7 +665,6 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
                 participants
             }
         });
-        //console.log("Event updated:", updatedEvent);
         res.json(updatedEvent);
         broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent });
     } catch (error) {
@@ -726,7 +700,6 @@ app.get('/api/transactions', verifyToken, async (req, res) => {
 });
 
 app.post('/api/transaction/add', verifyToken, async (req, res) => {
-    //console.log("Adding transaction...");
     const {
         name,
         transactionType,
@@ -753,7 +726,6 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
                 note
             }
         });
-        //console.log('Transaction added successfully:', newTransaction);
         res.json(newTransaction);
         broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction });
     } catch (error) {
@@ -775,12 +747,9 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
     } = req.body;
 
     transactionId = id;
-    /* console.log('Check ID: done');
-    console.log('Transaction ID:', transactionId); */
 
     const parsedTransactionId = parseInt(transactionId, 10);
 
-    // Verifica se il record esiste
     const existingTransaction = await prisma.treasury.findUnique({
         where: { id: parsedTransactionId }
     });
@@ -802,7 +771,6 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
                 note: note || null
             }
         });
-        //console.log('Transaction updated successfully:', updatedTransaction);
         res.json(updatedTransaction);
         broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction });
     } catch (error) {
