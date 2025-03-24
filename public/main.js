@@ -15,15 +15,12 @@ function checkCredentials() {
     })
     .then(response => {
         if (!response.ok) {
-            //console.log('Attention!', response.status, response.statusText);
             throw new Error('Invalid credentials');
         }
         return response.json();
     })
     .then(data => {
-        //console.log(data);
         localStorage.setItem('jwtToken', data.token);
-        //console.log('Token saved:', data.token);
 
         if (rememberMe) {
             saveCredentials(email, password);
@@ -34,7 +31,6 @@ function checkCredentials() {
         window.location.href = "./pages/homepage.html";
     })
     .catch(error => {
-        //console.log('An error occurred here:', error);
         console.error('Error:', error);
         alert('Invalid credentials! Please try again.');
     });
