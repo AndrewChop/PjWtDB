@@ -3,10 +3,8 @@ const config = {
     serverPort: process.env.PORT || 3000,
 };
 
-// URL per le chiamate HTTP/REST
 config.serverUrl = `/api`;
 
-// URL per la connessione WebSocket
 config.webSocketUrl = `ws`;
 
 module.exports = config;
