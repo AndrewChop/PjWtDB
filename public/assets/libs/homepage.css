@@ -154,6 +154,30 @@ body {
     text-decoration: none;
 }
 
+.brand-badge {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    font-family: Nunito, sans-serif;
+    color: white;
+    font-size: 12px;
+    z-index: 999;
+    backdrop-filter: blur(6px);
+}
+
+.brand-text {
+    text-align: right;
+    line-height: 1.2;
+}
+
+.brand-sub {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
 @media (max-width: 768px) {
     
     .profile-dropdown ul {
@@ -255,3 +279,4 @@ body {
         font-size: 12px;
     }
 }
+
