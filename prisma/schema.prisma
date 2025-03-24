@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,110 +8,105 @@ datasource db {
 }
 
 model User {
-  id                   Int            @id @default(autoincrement())
-  cardNumber           String?        @unique
-  email                String         @unique
-  password             String?        // Campo facoltativo
-  role                 UserRole       // Campo per distinguere il ruolo dell'utente
-  name                 String?
-  surname              String?
-  gender               Gender?        // Mantiene il campo come opzionale
-  birthDate            DateTime?      // Campo facoltativo
-  nationality          String?
-  phoneNumber          String?
-  studyField           String?
-  originUniversity     String?
-  hostUniversity       University?    // Assicurati che anche l'enum University gestisca un valore nulla
-  exchangeDuration     Int?           // Rendilo opzionale
-  studentNumber        String?
-  countryOfOrigin      String?
-  cityOfOrigin         String?
-  addressCityOfOrigin  String?
-  documentType         DocumentType?  // Mantiene il campo come opzionale
-  documentNumber       String?
-  documentExpiration   DateTime?      // Rendilo opzionale
-  documentIssuer       String?
-  profileImage         String?
-
-  isVerified  Boolean  @default(false)
-
-  // Relazioni
-  eventsOrganized      Event[]        @relation("UserEvents")
+  id                  Int          @id @default(autoincrement())
+  cardNumber          String?      @unique
+  email               String       @unique
+  name                String
+  surname             String
+  gender              Gender
+  birthDate           DateTime
+  nationality         String
+  phoneNumber         String
+  studyField          String
+  originUniversity    String
+  studentNumber       String
+  countryOfOrigin     String
+  cityOfOrigin        String
+  addressCityOfOrigin String
+  documentType        DocumentType
+  documentNumber      String
+  documentExpiration  DateTime
+  documentIssuer      String
+  exchangeDuration    Int?
+  hostUniversity      University?
+  password            String?
+  role                UserRole
+  profileImage        String?
+  isVerified          Boolean?     @default(false)
+  eventsOrganized     Event[]      @relation("UserEvents")
 
   @@map("users")
 }
 
 model Event {
-  id            Int      @id @default(autoincrement())
-  name          String
-  place         String
-  address       String
-  date          DateTime
-  time          String
-  description   String
-  eventType     EventType
-  price         Float
-  participants  Int
-  organizerId   Int
-
-  organizer     User     @relation("UserEvents", fields: [organizerId], references: [id])
+  id           Int       @id @default(autoincrement())
+  name         String
+  place        String
+  address      String
+  date         DateTime
+  time         String
+  description  String
+  eventType    EventType
+  price        Float
+  participants Int
+  organizerId  Int
+  organizer    User      @relation("UserEvents", fields: [organizerId], references: [id])
 
   @@map("events")
 }
 
 model Treasury {
-  id            Int             @id @default(autoincrement())
-  name          String
+  id              Int             @id @default(autoincrement())
+  name            String
   transactionType TransactionType
-  amount        Float
-  category      Category
-  channel       Channel
-  date          DateTime
-  note          String?
+  amount          Float
+  category        Category
+  channel         Channel
+  date            DateTime
+  note            String?
 
   @@map("treasuries")
 }
 
 model Discount {
-  id            Int       @id @default(autoincrement())
-  code          Int
-  name          String
-  discountType  DiscountType
-  rate          Int
+  id             Int          @id @default(autoincrement())
+  code           Int
+  name           String
+  rate           Int
   expirationDate DateTime
-  description   String
-  link          String?
+  description    String
+  link           String?
+  discountType   DiscountType
 
   @@map("discounts")
 }
 
 enum Gender {
-  NONE
   MAN
   WOMAN
   NON_BINARY
   OTHER
   PREFER_NOT_TO_SPECIFY
+  NONE
 }
 
 enum University {
-  NONE
   UNIVERSITA_DI_PISA
   SCUOLA_SUPERIORE_SANT_ANNA
   SCUOLA_NORMALE_SUPERIORE
+  NONE
 }
 
 enum DocumentType {
-  NONE
   PASSPORT
   IDENTITY_CARD
   DRIVER_LICENSE
+  NONE
 }
 
 enum UserRole {
   STUDENT
   VOLUNTEER
-  ADMIN
 }
 
 enum EventType {
