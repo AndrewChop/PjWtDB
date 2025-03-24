@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const userData = await userResponse.json();
 
-        document.querySelector('.profile-image').src = userData.profileImage || '../assets/profile/default.jpg';
+        document.querySelector('.profile-image').src = userData.profileImage && userData.profileImage.trim() !== ''
+            ? userData.profileImage + `?t=${Date.now()}`
+            : '../assets/profile/default.png';
 
     } catch (error) {
         console.error('Error:', error);
@@ -36,24 +38,23 @@ document.addEventListener('DOMContentLoaded', async function () {
     setupLogoutLink();
     setupUploadProfileImage();
     loadUserProfileImage();
-    //console.log('Page loaded correctly!');
     setupDropdowns();
 });
 
 function setupProfileLink() {
     const profileLink = document.getElementById('profileLink');
     if (profileLink) {
-        profileLink.addEventListener('click', function(e) {
+        profileLink.addEventListener('click', function (e) {
             e.preventDefault();
             window.location.href = '../components/user-profile/profile.html';
         });
     }
-} 
+}
 
 function setupLogoutLink() {
     const logoutLink = document.getElementById('logoutLink');
     if (logoutLink) {
-        logoutLink.addEventListener('click', function(e) {
+        logoutLink.addEventListener('click', function (e) {
             e.preventDefault();
             performLogout();
         });
@@ -85,7 +86,7 @@ function setupUploadProfileImage() {
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
 
-            fileInput.onchange = event => {
+            fileInput.onchange = async event => {
                 const file = event.target.files[0];
                 if (file) {
                     const formData = new FormData();
@@ -98,21 +99,26 @@ function setupUploadProfileImage() {
                         },
                         body: formData,
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to upload profile image');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.imageUrl) {
-                            document.querySelector('.profile-image').src = data.imageUrl + `?t=${Date.now()}`;
-                            alert('Profile image updated successfully!');
-                        } else {
-                            alert('Failed to update profile image.');
-                        }
-                    })
-                    .catch(error => console.error('Error uploading profile image:', error));
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to upload profile image');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            const imgElement = document.querySelector('.profile-image');
+                            const defaultImage = '../assets/profile/default.png';
+                            if (data.imageUrl && data.imageUrl.trim() !== '') {
+                                imgElement.src = data.imageUrl + `?t=${Date.now()}`;
+                                alert('Profile image updated successfully!');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                            } else {
+                                imgElement.src = defaultImage;
+                            }
+                        })
+                        .catch(error => console.error('Error uploading profile image:', error));
                 }
             };
 
@@ -122,29 +128,27 @@ function setupUploadProfileImage() {
 }
 
 function loadUserProfileImage() {
-    //console.log('Loading user profile image...');
-    
+
     fetch(`/api/user/data`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
         }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to load user data');
-        }
-        return response.json();
-    })
-    .then(data => {
-        //console.log('User data loaded:', data);
-        if (data.profileImage) {
-            document.querySelector('.profile-image').src = data.profileImage + `?t=${Date.now()}`;
-        }
-    })
-    .catch(error => {
-        console.error('Error loading user profile image:', error);
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load user data');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.profileImage) {
+                document.querySelector('.profile-image').src = data.profileImage + `?t=${Date.now()}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading user profile image:', error);
+        });
 }
 
 function setupDropdowns() {

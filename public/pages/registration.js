@@ -48,18 +48,15 @@ async function handleRegistrationFormSubmit(event) {
         });
         
         if (response.status === 409) {
-            //console.log("Email già in uso");
             throw new Error('Email already registered! Please log in or use another email.');
         }
 
         if (!response.ok) {
             const errorMessage = await response.text();
-            //console.log("Qui è presente un errore:" + errorMessage);
             throw new Error(errorMessage || 'Failed to send verification email.');
         }
 
         alert('Verification email sent. Please check your inbox!');
-        //console.log("Mail inviata con successo");
         submitButton.textContent = 'Sign Up';
         submitButton.disabled = false;
     } catch (error) {

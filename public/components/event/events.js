@@ -22,14 +22,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_EVENT') {
-                //console.log('Received add:', message.payload);
                 const existingEvent = events.find(e => e.id === message.payload.id);
                 if (!existingEvent) {
                     events.push(message.payload);
                     renderEventList(events);
                 }
             } else if (message.type === 'UPDATE_EVENT') {
-                //console.log('Received update:', message.payload);
                 const updatedEvent = message.payload;
                 const indexOfEventToUpdate = events.findIndex(event => event.id === updatedEvent.id);
                 if (indexOfEventToUpdate !== -1) {
@@ -37,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 renderEventList(events);
             } else if (message.type === 'REMOVE_EVENT') {
-                //console.log('Received remove:', message.payload);
                 const removedEvent = message.payload;
                 events = events.filter(event => event.id !== removedEvent.id);
                 renderEventList(events);
@@ -105,13 +102,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     
     function filterEvents(query) {
-        //console.log('filterEvents IN', query, events);
         const filteredEvents = events.filter(event => {            
             const formattedDate = formatDateToItalian(event.date);
             const eventDetails = `${event.name} ${event.type} ${formattedDate}`;
             return eventDetails.toLowerCase().includes(query.toLowerCase());
         });
-        //console.log('filterEvents OUT', filteredEvents);
         renderEventList(filteredEvents);
     }
 
@@ -225,14 +220,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 body: JSON.stringify(event)
             });
 
-            //console.log(response);
             if (!response.ok) {
                 throw new Error('Failed to add event');
             }
             const newEvent = await response.json();
             events.push(newEvent);
             renderEventList(events);
-            //console.log("Event added successfully, waiting for WebSocket update.");
         } catch (error) {
             console.error('Error adding event:', error);
         }
@@ -261,7 +254,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 renderEventList(events);
             }
 
-            //console.log("Event updated successfully:", updatedEvent);
             alert("Event updated successfully!");
 
             hideEditForm();

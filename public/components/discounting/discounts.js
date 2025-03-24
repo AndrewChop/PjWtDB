@@ -22,11 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const message = JSON.parse(discount.data);
             if (message.type === 'ADD_DISCOUNT') {
-                //console.log('Received add:', message.payload);
                 discounts.push(message.payload);
                 renderDiscountList(discounts);
             } else if (message.type === 'UPDATE_DISCOUNT') {
-                //console.log('Received update:', message.payload);
                 const updatedDiscount = message.payload;
                 const indexOfDiscountToUpdate = discounts.findIndex(discount => discount.id === updatedDiscount.id);
                 if (indexOfDiscountToUpdate !== -1) {
@@ -34,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 renderDiscountList(discounts);
             } else if (message.type === 'REMOVE_DISCOUNT') {
-                //console.log('Received remove:', message.payload);
                 const removedDiscount = message.payload;
                 discounts = discounts.filter(discount => discount.id !== removedDiscount.id);
                 renderDiscountList(discounts);
@@ -62,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             discounts = await response.json();
-            //console.error('discounts', discounts);
             renderDiscountList(discounts);
         } catch (error) {
             console.error('Failed to load discounts from API:', error);
@@ -81,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function () {
             discountItems.innerHTML = '';
 
             discountList.forEach(discount => {
-                //console.error('discount', discount);
                 const discountItem = document.createElement('li');
                 const formattedDate = formatDateToItalian(discount.expirationDate);
                 const formattedType = capitalizeFirstLetter(discount.discountType);
@@ -106,14 +101,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function filterDiscounts(query) {
-        //console.log('filterDiscounts IN', query, discounts);
         const normalizedQuery = query.toLowerCase().trim();
         const filteredDiscounts = discounts.filter(discount => {            
             const formattedDate = formatDateToItalian(discount.expirationDate);
             const discountDetails = `${discount.name} ${discount.type} ${formattedDate}`;
             return discountDetails.toLowerCase().includes(query.toLowerCase());
         });
-        //console.log('filterDiscounts OUT', filteredDiscounts);
         renderDiscountList(filteredDiscounts);
     }
 
@@ -219,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(discount)
             });
 
-            //console.log(response);
             if (!response.ok) {
                 throw new Error('Failed to add discount');
             }
@@ -318,7 +310,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const discountToEdit = discounts.find(discount => discount.id === parseInt(discountId));
             
             if (discountToEdit) {
-                //console.log('discountToEdit', discountToEdit);
                 populateEditForm(discountToEdit);
             }
         }

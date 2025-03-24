@@ -2,11 +2,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
-    /* console.log('URL:', window.location.href);
-    console.log('TOKEN from URL:', token); */
-
      if (token) {
-        //console.log('Token salvato nel localStorage', token);
         localStorage.setItem('jwtToken', token);
     } else {
         alert('Session expired! Please re-login.');
@@ -25,19 +21,15 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         if (!response.ok) {
             const errorMessage = await response.text();
-            //console.log("Qui è presente un errore: " + errorMessage);
             throw new Error(errorMessage || 'Token invalid or expired.');
         }
 
-        //console.log('Token is valid');
     } catch (error) {
         console.error('Error verifying token:', error);
         alert('Session expired! Please re-login. <--');
         window.location.href = '../index.html';
         return;
     }
-
-    //console.log('Page loaded correctly!');
 
     document.getElementById('profile-form').addEventListener('submit', handleProfileFormSubmit);
 
@@ -73,8 +65,6 @@ async function handleProfileFormSubmit(event) {
         documentIssuer: document.getElementById('issued-by').value.trim()
     };
 
-    //console.log('Form data:', formData);
-
     const validationErrors = validateProfileForm(formData);
 
     if (validationErrors.length > 0) {
@@ -83,7 +73,6 @@ async function handleProfileFormSubmit(event) {
     }
 
     const token = localStorage.getItem('jwtToken');
-    //console.log("Verifica del token:" + token);
 
     try {
         const response = await fetch('/api/user/update', {

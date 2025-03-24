@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'UPDATE_USER') {
-                //console.log('Received update:', message.payload);
                 const updatedUser = message.payload;
                 const indexOfUserToUpdate = users.findIndex(user => user.id === updatedUser.id);
                 if (indexOfUserToUpdate !== -1) {
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 renderUserList(users);
             } else if (message.type === 'REMOVE_USER') {
-                //console.log('Received remove:', message.payload);
                 const removedUserId = message.payload.id;
                 users = users.filter(user => user.id !== removedUserId);
                 renderUserList(users);

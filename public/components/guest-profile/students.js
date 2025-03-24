@@ -26,14 +26,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_STUDENT') {
-                //console.log('Received add:', message.payload);
                 const newStudent = message.payload;
                 if (!students.some(student => student.id === newStudent.id)) {
                     students.push(newStudent);
                     renderStudentList(students);
                 }
             } else if (message.type === 'UPDATE_STUDENT') {
-                //console.log('Received update:', message.payload);
                 const updatedStudent = message.payload;
                 const indexOfStudentToUpdate = students.findIndex(student => student.id === updatedStudent.id);
                 if (indexOfStudentToUpdate !== -1) {
@@ -41,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 renderStudentList(students);
             } else if (message.type === 'REMOVE_STUDENT') {
-                //console.log('Received remove:', message.payload);
                 const removedStudent = message.payload;
                 students = students.filter(student => student.id !== removedStudent.id);
                 renderStudentList(students);
@@ -379,7 +376,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } else if (event.target.classList.contains('remove-button')) {
             const cardNumber = event.target.getAttribute('data-cardNumber');
-            //console.log('Card number:', cardNumber);
             removeStudent(cardNumber);
         }
     }
@@ -511,7 +507,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const result = await response.json();
-            //console.log('Student updated successfully:', result);
             const index = students.findIndex(student => student.id === parseInt(studentId));
             if (index !== -1) {
                 students[index] = result;

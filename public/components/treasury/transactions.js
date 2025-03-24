@@ -16,20 +16,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     socket.onmessage = function (event) {
         //console.log('Message received:', event.data);
         if (event.data === "Welcome in the server WebSocket!") {
-            //console.log("Received welcome message, not a JSON, skipping parsing.");
             return;
         }
         try {
             const message = JSON.parse(event.data);
             if (message.type === 'ADD_TRANSACTION') {
-                //console.log('Received add:', message.payload);
                 if (!transactions.find(transaction => transaction.id === message.payload.id)) {
                     transactions.push(message.payload);
                     renderTransactionList(transactions);
                     updateTotalsDisplay();
                 }
             } else if (message.type === 'UPDATE_TRANSACTION') {
-                //console.log('Received update:', message.payload);
                 const updatedTransaction = message.payload;
                 const indexOfTransactionToUpdate = transactions.findIndex(transaction => transaction.id === updatedTransaction.id);
                 if (indexOfTransactionToUpdate !== -1) {
@@ -38,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 renderTransactionList(transactions);
                 updateTotalsDisplay();
             } else if (message.type === 'REMOVE_TRANSACTION') {
-                //console.log('Received remove:', message.payload);
                 const removedTransaction = message.payload;
                 transactions = transactions.filter(transaction => transaction.id !== removedTransaction.id);
                 renderTransactionList(transactions);
@@ -67,7 +63,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             transactions = await response.json();
-            //console.log('loadTransactionsFromAPI', transactions);
             renderTransactionList(transactions);
         } catch (error) {
             console.error('Failed to load transactions from API:', error);
@@ -99,7 +94,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <button class="remove-button" data-id="${transaction.id}">Remove</button>
                 `;
                 transactionItems.appendChild(transactionItem);
-                //console.log('renderTransactionList', transactionList);
                 updateTotalsDisplay();
             });
         }
@@ -118,12 +112,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     function filterTransactions(query) {
-        //console.log('filterTransactions IN', query, transactions);
         const filteredTransactions = transactions.filter(transaction => {
             const transactionDetail = `${transaction.name} ${transaction.amount}`;
             return transactionDetail.toLowerCase().includes(query.toLowerCase());
         });
-        //console.log('filterTransactions OUT', filteredTransactions);
         renderTransactionList(filteredTransactions);
     }
 
@@ -270,7 +262,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function updateTransaction(transaction) {
         try {
-            //console.log('Updating transaction:', transaction);
 
             const token = localStorage.getItem('jwtToken');
             const response = await fetch('/api/transaction/update', {
