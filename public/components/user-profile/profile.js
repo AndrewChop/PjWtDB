@@ -18,7 +18,6 @@ async function loadUserData() {
             window.location.href = '../index.html';
             return; 
         }
-        //console.log('Token (PROFILE):', token);
 
         let response = await fetch('/api/user/data', {
             method: 'GET',
@@ -33,7 +32,6 @@ async function loadUserData() {
         if (!response.ok) {
             throw new Error('Failed to load user data');
         }
-        //console.log('User data loaded successfully');
         const userData = await response.json();
         populateForm(userData);
     } catch (error) {
@@ -130,8 +128,6 @@ async function saveChanges() {
         documentIssuer: document.getElementById('user-issued-by').value
     };
 
-    //console.log("Data to be sent:", userData);
-
     let validationErrors = [];
 
     if (!isValidCardNumber(userData.cardNumber)) {
@@ -171,7 +167,6 @@ async function saveChanges() {
             }
             return;
         } else {
-            //console.log('User data saved successfully');
             alert('Profile updated successfully!');
             loadUserData();
         }
@@ -187,7 +182,7 @@ async function deleteAccount() {
     try {
         const token = localStorage.getItem('jwtToken');
         const response = await fetch('/api/user/delete', {
-            method: 'DELETE',
+            method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
