@@ -4,7 +4,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const {PrismaClient, TransactionType, Category, EventType} = require('@prisma/client');
+const { PrismaClient, TransactionType, Category, EventType } = require('@prisma/client');
 const cors = require('cors');
 
 const http = require('http');
@@ -152,6 +152,7 @@ app.get('/verify-email', async (req, res) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+
         const email = decoded.email;
         const record = verificationTokens[email];
 
@@ -174,7 +175,23 @@ app.get('/verify-email', async (req, res) => {
                 email,
                 password: hashedPassword,
                 role: 'VOLUNTEER',
-                isVerified: true
+                isVerified: true,
+                name: 'TBD',
+                surname: 'TBD',
+                gender: 'NONE',
+                birthDate: new Date('2000-01-01'),
+                nationality: 'TBD',
+                phoneNumber: 'TBD',
+                studyField: 'TBD',
+                originUniversity: 'TBD',
+                studentNumber: 'TBD',
+                countryOfOrigin: 'TBD',
+                cityOfOrigin: 'TBD',
+                addressCityOfOrigin: 'TBD',
+                documentType: 'NONE',
+                documentNumber: 'TBD',
+                documentExpiration: new Date('2099-12-31'),
+                documentIssuer: 'TBD'
             }
         });
 
@@ -182,9 +199,9 @@ app.get('/verify-email', async (req, res) => {
 
         const sessionToken = jwt.sign({ userId: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '24h' });
 
-        res.redirect(`/pages/complete-profile.html?token=${sessionToken}`); 
+        res.redirect(`/pages/complete-profile.html?token=${sessionToken}`);
     } catch (error) {
-        console.error('Error during email verification:', error);
+        console.error('Error during email verification:', error.message);
         res.status(500).send('Failed to verify email.');
     }
 });
@@ -264,7 +281,7 @@ app.post('/api/login', async (req, res) => {
 // USER PROFILE MANAGEMENT
 
 app.post('/api/user/update', verifyToken, async (req, res) => {
-    const userId = req.user.userId; 
+    const userId = req.user.userId;
 
     // Recupera l'utente esistente dal database
     const existingUser = await prisma.user.findUnique({
@@ -335,13 +352,13 @@ app.post('/api/user/update', verifyToken, async (req, res) => {
 app.post('/api/user/delete', verifyToken, async (req, res) => {
     console.log('Request received on /api/user/delete', req.body);
     try {
-        const userId = req.user.userId; 
+        const userId = req.user.userId;
         if (!userId) {
             console.error('Invalid user ID:', userId);
             return res.status(400).json({ message: 'Invalid user ID' });
         }
         console.log(`Deleting user with ID: ${userId}`);
-        
+
         await prisma.user.delete({
             where: { id: userId }
         });
@@ -404,7 +421,7 @@ app.post('/api/upload-profile-image', verifyToken, upload.single('profileImage')
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const imageUrl = `http://${req.get('host')}/uploads/${req.file.filename}`;
+        const imageUrl = `/assets/profile/${req.file.filename}`;
 
         await prisma.user.update({
             where: { id: req.user.userId },
@@ -632,7 +649,7 @@ app.post('/api/event/add', verifyToken, async (req, res) => {
         broadcast({ type: 'ADD_EVENT', payload: newEvent });
     } catch (error) {
         console.error("Error: " + error);
-        res.status(500).json({message: 'Failed to add event'});
+        res.status(500).json({ message: 'Failed to add event' });
     }
 });
 
@@ -652,7 +669,7 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
 
     try {
         const updatedEvent = await prisma.event.update({
-            where: {id: parseInt(eventId)},
+            where: { id: parseInt(eventId) },
             data: {
                 name,
                 place,
@@ -669,7 +686,7 @@ app.post('/api/event/update', verifyToken, async (req, res) => {
         broadcast({ type: 'UPDATE_EVENT', payload: updatedEvent });
     } catch (error) {
         console.error("Error updating event:", error);
-        res.status(500).json({message: 'Failed to update event', error: error.message });
+        res.status(500).json({ message: 'Failed to update event', error: error.message });
     }
 });
 
@@ -730,7 +747,7 @@ app.post('/api/transaction/add', verifyToken, async (req, res) => {
         broadcast({ type: 'ADD_TRANSACTION', payload: newTransaction });
     } catch (error) {
         console.error('Failed to add transaction:', error.message);
-        res.status(500).json({ message: 'Failed to add transaction', error: error.message});
+        res.status(500).json({ message: 'Failed to add transaction', error: error.message });
     }
 });
 
@@ -775,7 +792,7 @@ app.post('/api/transaction/update', verifyToken, async (req, res) => {
         broadcast({ type: 'UPDATE_TRANSACTION', payload: updatedTransaction });
     } catch (error) {
         console.error('Error updating transaction:', error);
-        res.status(500).json({ message: 'Failed to update transaction', error: error.message});
+        res.status(500).json({ message: 'Failed to update transaction', error: error.message });
     }
 });
 
@@ -832,22 +849,22 @@ app.post('/api/discount/add', verifyToken, async (req, res) => {
         broadcast({ type: 'ADD_DISCOUNT', payload: newDiscount });
     } catch (error) {
         console.error("Error: " + error);
-        res.status(500).json({message: 'Failed to add discount'});
+        res.status(500).json({ message: 'Failed to add discount' });
     }
 });
 
 app.post('/api/discount/remove', verifyToken, async (req, res) => {
-    const {discountId} = req.body;
+    const { discountId } = req.body;
 
     try {
         const removedEvent = await prisma.discount.delete({
-            where: {id: parseInt(discountId)}
+            where: { id: parseInt(discountId) }
         });
         res.json(removedEvent);
         broadcast({ type: 'REMOVE_DISCOUNT', payload: removedDiscount });
     } catch (error) {
         console.error('Failed to remove event:', error);
-        res.status(500).json({message: 'Failed to remove event'});
+        res.status(500).json({ message: 'Failed to remove event' });
     }
 });
 
@@ -865,7 +882,7 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
 
     try {
         const updatedDiscount = await prisma.discount.update({
-            where: {id: parseInt(eventId)},
+            where: { id: parseInt(eventId) },
             data: {
                 code,
                 name,
@@ -880,7 +897,7 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
         broadcast({ type: 'UPDATE_DISCOUNT', payload: updatedDiscount });
     } catch (error) {
         console.error('Failed to update discount:', error);
-        res.status(500).json({message: 'Failed to update discount'});
+        res.status(500).json({ message: 'Failed to update discount' });
     }
 });
 
