@@ -3,7 +3,6 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma
 COPY public ./public
-COPY src ./src
 RUN npm install
 COPY . .
 RUN npm install -g nodemon
