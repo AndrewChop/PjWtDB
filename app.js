@@ -520,7 +520,7 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
         broadcast({ type: 'ADD_STUDENT', payload: newStudent });
     } catch (error) {
         console.error('Error adding student:', error);
-        res.status(500).json({ message: 'Failed to add student' });
+        res.status(500).json({ message: 'Failed to add student', error: error.message });
     }
 });
 
