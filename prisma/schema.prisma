@@ -49,8 +49,8 @@ model Event {
   eventType    EventType
   price        Float
   participants Int
-  organizerId  Int
-  organizer    User      @relation("UserEvents", fields: [organizerId], references: [id])
+  organizerId  Int?
+  organizer    User?     @relation("UserEvents", fields: [organizerId], references: [id], onDelete: SetNull)
 
   @@map("events")
 }
