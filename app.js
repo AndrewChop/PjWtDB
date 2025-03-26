@@ -499,7 +499,6 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
                 gender,
                 birthDate: new Date(birthDate),
                 nationality,
-                phoneNumber,
                 studyField,
                 originUniversity,
                 hostUniversity,
@@ -513,7 +512,8 @@ app.post('/api/student/add', verifyToken, async (req, res) => {
                 documentExpiration: new Date(documentExpiration),
                 documentIssuer,
                 role: 'STUDENT',
-                password: null
+                password: null,
+                phoneNumber,
             }
         });
         res.json(newStudent);
@@ -857,10 +857,10 @@ app.post('/api/discount/remove', verifyToken, async (req, res) => {
     const { discountId } = req.body;
 
     try {
-        const removedEvent = await prisma.discount.delete({
+        const removedDiscount = await prisma.discount.delete({
             where: { id: parseInt(discountId) }
         });
-        res.json(removedEvent);
+        res.json(removedDiscount);
         broadcast({ type: 'REMOVE_DISCOUNT', payload: removedDiscount });
     } catch (error) {
         console.error('Failed to remove event:', error);
@@ -905,4 +905,14 @@ app.post('/api/discount/update', verifyToken, async (req, res) => {
 
 server.listen(process.env.PORT || 3000, () => {
     //console.log(`Server running at ${config.serverUrl}`);
+});
+
+
+// MANAGEMENT OF GLOBAL ERRORS
+
+app.use((err, req, res, next) => {
+    console.error('Errore non gestito:', err.stack);
+    if (!res.headersSent) {
+        res.status(500).send('Errore interno del server');
+    }
 });
