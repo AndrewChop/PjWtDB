@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const cardInput = document.getElementById('student-card-number');
 
     let students = [];
-    
+
     let originalCardNumber = '';
 
     const socket = new WebSocket(window.config.webSocketUrl);
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const age = today.getFullYear() - birthDateObj.getFullYear();
         const monthDifference = today.getMonth() - birthDateObj.getMonth();
         const dayDifference = today.getDate() - birthDateObj.getDate();
-        
+
         if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
             return age - 1 >= 18;
         }
@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     function setMinExpirationDate(inputId) {
         const expirationDateInput = document.getElementById(inputId);
         const today = new Date();
-        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()+1);
-        const minDate = nextYear.toISOString().split('T')[0]; 
+        const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate() + 1);
+        const minDate = nextYear.toISOString().split('T')[0];
         expirationDateInput.min = minDate;
     }
 
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     addStudentButton.addEventListener('click', () => {
-        showStudentForm(); 
+        showStudentForm();
     });
 
     function showStudentForm() {
@@ -201,11 +201,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     const cancelEditButton = document.getElementById('cancel-edit-button');
     cancelEditButton.addEventListener('click', () => {
         hideEditForm();
-    });    
+    });
 
     const confirmAddStudentButton = document.getElementById('confirm-student');
     confirmAddStudentButton.addEventListener('click', async () => {
-        const studentCardNumber = document.getElementById('student-card-number').value.trim();        
+        const studentCardNumber = document.getElementById('student-card-number').value.trim();
         const studentEmail = document.getElementById('student-email').value.trim();
         const studentName = document.getElementById('student-name').value.trim();
         const studentSurname = document.getElementById('student-surname').value.trim();
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     gender: studentGender,
                     birthDate: studentBirthDate,
                     nationality: studentNationality,
-                    phone: studentPhone,
+                    phoneNumber: studentPhone,
                     studyField: studentStudyField,
                     originUniversity: studentOriginUniversity,
                     hostUniversity: studentHostUniversity,
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         students.push(savedStudent);
                     }
 
-                    resetStudentFormFields(); 
+                    resetStudentFormFields();
                     hideStudentForm();
                 } catch (error) {
                     console.error('Error adding student:', error);
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('edit-country-origin').value = student.countryOfOrigin;
         document.getElementById('edit-document-type').value = student.documentType;
         document.getElementById('edit-number-doc').value = student.documentNumber;
-        document.getElementById('edit-expiration-date').value = student.documentExpiration? (student.documentExpiration).split("T")[0] : '';
+        document.getElementById('edit-expiration-date').value = student.documentExpiration ? (student.documentExpiration).split("T")[0] : '';
         document.getElementById('edit-issued-by').value = student.documentIssuer;
 
         originalCardNumber = student.cardNumber;
@@ -391,9 +391,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function removeStudent(cardNumber) {
         try {
             console.log('Removing student with cardNumber:', cardNumber);
-            
+
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch('/api/student/remove', { 
+            const response = await fetch('/api/student/remove', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch('/api/student/update', { 
+            const response = await fetch('/api/student/update', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             hideEditForm();
-        } catch (error) { 
+        } catch (error) {
             console.error('Error updating student:', error);
         }
     });
@@ -523,28 +523,28 @@ document.addEventListener('DOMContentLoaded', async function () {
     const menuItems = document.querySelector('.menu-items');
 
     if (addButton && menuItems) {
-        addButton.addEventListener('click', function(event) {
+        addButton.addEventListener('click', function (event) {
             menuItems.style.display = (menuItems.style.display === 'block') ? 'none' : 'block';
             event.stopPropagation();
         });
 
-        document.addEventListener('click', function() {
+        document.addEventListener('click', function () {
             menuItems.style.display = 'none';
         });
 
-        menuItems.addEventListener('click', function(event) {
+        menuItems.addEventListener('click', function (event) {
             event.stopPropagation();
         });
 
         const addStudentButton = document.getElementById('add-student-button');
 
         if (addStudentButton) {
-            addStudentButton.addEventListener('click', function(event) {
+            addStudentButton.addEventListener('click', function (event) {
                 event.stopPropagation();
                 showStudentForm();
             });
         }
     }
 
-    loadStudentsFromAPI();    
+    loadStudentsFromAPI();
 });
