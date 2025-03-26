@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function capitalizeFirstLetter(text) {
         if (!text) return '';
         return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-    }    
+    }
 
     function renderDiscountList(discountList) {
         if (discountList.length === 0) {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const discountItem = document.createElement('li');
                 const formattedDate = formatDateToItalian(discount.expirationDate);
                 const formattedType = capitalizeFirstLetter(discount.discountType);
-                
+
                 discountItem.innerHTML = `
                     <span>${discount.code}</span>
                     <span>${discount.name}</span>
@@ -94,15 +94,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    
+
     function formatDateToItalian(dateString) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('it-IT', options);
     }
-    
+
     function filterDiscounts(query) {
         const normalizedQuery = query.toLowerCase().trim();
-        const filteredDiscounts = discounts.filter(discount => {            
+        const filteredDiscounts = discounts.filter(discount => {
             const formattedDate = formatDateToItalian(discount.expirationDate);
             const discountDetails = `${discount.name} ${discount.type} ${formattedDate}`;
             return discountDetails.toLowerCase().includes(query.toLowerCase());
@@ -121,9 +121,9 @@ document.addEventListener('DOMContentLoaded', function () {
             filterDiscounts(query);
         }
     });
-    
+
     addDiscountButton.addEventListener('click', () => {
-        showDiscountForm(); 
+        showDiscountForm();
     });
 
     function showDiscountForm() {
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const discountForm = document.getElementById('discount-form');
         discountForm.classList.add('hidden');
     }
-    
+
     function hideEditForm() {
         const discountEditForm = document.getElementById('discount-edit-form');
         discountEditForm.classList.add('hidden');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             await addNewDiscount(newDiscount);
-            
+
             hideDiscountForm();
             resetDiscountFormFields();
 
@@ -217,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const newDiscount = await response.json();
-            discounts.push(newDiscount);
             renderDiscountList(discounts);
         } catch (error) {
             console.error('Error adding discount:', error);
@@ -254,29 +253,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function removeDiscount(discountId) {
-            try {
-                const token = localStorage.getItem('jwtToken');
-                fetch('/api/discount/remove', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ discountId })
-                }).then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to remove discount');
-                    }
-                    return response.json();
-                }).then(removedDiscount => {
-                    discounts = discounts.filter(discount => discount.id !== parseInt(removedDiscount.id));
-                    renderDiscountList(discounts);
-                });
-            } catch (error) {
-                console.error('Error removing discount:', error);
-            }
+        try {
+            const token = localStorage.getItem('jwtToken');
+            fetch('/api/discount/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ discountId })
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to remove discount');
+                }
+                return response.json();
+            }).then(removedDiscount => {
+                discounts = discounts.filter(discount => discount.id !== parseInt(removedDiscount.id));
+                renderDiscountList(discounts);
+            });
+        } catch (error) {
+            console.error('Error removing discount:', error);
+        }
     }
- 
+
     discounts = JSON.parse(localStorage.getItem('discountList')) || [];
     renderDiscountList(discounts);
 
@@ -308,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (discount.target.classList.contains('edit-button')) {
             const discountId = discount.target.getAttribute('data-id');
             const discountToEdit = discounts.find(discount => discount.id === parseInt(discountId));
-            
+
             if (discountToEdit) {
                 populateEditForm(discountToEdit);
             }
@@ -331,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         updateDiscount(editedDiscount);
     });
- 
+
     function handleRemoveButtonClick(discount) {
         if (discount.target.classList.contains('remove-button')) {
             const discountId = discount.target.getAttribute('data-id');
@@ -340,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     discountItems.addEventListener('click', handleRemoveButtonClick);
-    
+
     const removeAllButton = document.getElementById('remove-all-button');
 
     removeAllButton.addEventListener('click', () => {
@@ -353,23 +352,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuItems = document.querySelector('.menu-items');
 
     if (addButton && menuItems) {
-        addButton.addEventListener('click', function(discount) {
+        addButton.addEventListener('click', function (discount) {
             menuItems.style.display = (menuItems.style.display === 'block') ? 'none' : 'block';
             discount.stopPropagation();
         });
 
-        document.addEventListener('click', function() {
+        document.addEventListener('click', function () {
             menuItems.style.display = 'none';
         });
 
-        menuItems.addEventListener('click', function(discount) {
+        menuItems.addEventListener('click', function (discount) {
             discount.stopPropagation();
         });
 
         const addDiscountButton = document.getElementById('add-discount-button');
 
         if (addDiscountButton) {
-            addDiscountButton.addEventListener('click', function(discount) {
+            addDiscountButton.addEventListener('click', function (discount) {
                 discount.stopPropagation();
                 showDiscountForm();
             });
@@ -377,5 +376,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     loadDiscountsFromAPI();
-    
+
 });
