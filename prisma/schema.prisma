@@ -11,6 +11,8 @@ model User {
   id                  Int          @id @default(autoincrement())
   cardNumber          String?      @unique
   email               String       @unique
+  password            String?
+  role                UserRole
   name                String
   surname             String
   gender              Gender
@@ -19,6 +21,8 @@ model User {
   phoneNumber         String
   studyField          String
   originUniversity    String
+  hostUniversity      University?
+  exchangeDuration    Int?
   studentNumber       String
   countryOfOrigin     String
   cityOfOrigin        String
@@ -27,10 +31,6 @@ model User {
   documentNumber      String
   documentExpiration  DateTime
   documentIssuer      String
-  exchangeDuration    Int?
-  hostUniversity      University?
-  password            String?
-  role                UserRole
   profileImage        String?
   isVerified          Boolean?     @default(false)
   eventsOrganized     Event[]      @relation("UserEvents")
