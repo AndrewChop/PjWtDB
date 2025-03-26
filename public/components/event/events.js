@@ -75,12 +75,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             eventItems.innerHTML = '';
 
             eventList.forEach(event => {
-                
+
                 const formattedDate = formatDateToItalian(event.date);
                 const formattedEventType = event.eventType
-                .toLowerCase()
-                .replace(/_/g, ' ')
-                .replace(/\b\w/g, char => char.toUpperCase());
+                    .toLowerCase()
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, char => char.toUpperCase());
                 const eventItem = document.createElement('li');
                 eventItem.innerHTML = `
                     <span>${event.name}</span>
@@ -95,14 +95,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    
+
     function formatDateToItalian(dateString) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('it-IT', options);
     }
-    
+
     function filterEvents(query) {
-        const filteredEvents = events.filter(event => {            
+        const filteredEvents = events.filter(event => {
             const formattedDate = formatDateToItalian(event.date);
             const eventDetails = `${event.name} ${event.type} ${formattedDate}`;
             return eventDetails.toLowerCase().includes(query.toLowerCase());
@@ -121,9 +121,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             filterEvents(query);
         }
     });
-    
+
     addEventButton.addEventListener('click', () => {
-        showEventForm(); 
+        showEventForm();
     });
 
     function showEventForm() {
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const eventForm = document.getElementById('event-form');
         eventForm.classList.add('hidden');
     }
-    
+
     function hideEditForm() {
         const eventEditForm = document.getElementById('event-edit-form');
         eventEditForm.classList.add('hidden');
@@ -155,8 +155,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     confirmAddEventButton.addEventListener('click', async () => {
         const eventName = document.getElementById('event-name').value.trim();
         const eventPlace = document.getElementById('event-place').value.trim();
-        const eventAddress = document.getElementById('event-address').value.trim(); 
-        const eventDate = document.getElementById('event-date').value.trim(); 
+        const eventAddress = document.getElementById('event-address').value.trim();
+        const eventDate = document.getElementById('event-date').value.trim();
         const eventTime = document.getElementById('event-time').value.trim();
         const eventDescription = document.getElementById('event-description').value.trim();
         const eventType = document.getElementById('event-type').value.trim();
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             };
 
             await addNewEvent(newEvent);
-            
+
             hideEventForm();
             resetEventFormFields();
 
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 throw new Error('Failed to add event');
             }
             const newEvent = await response.json();
-            events.push(newEvent);
+            /* events.push(newEvent); */
             renderEventList(events);
         } catch (error) {
             console.error('Error adding event:', error);
@@ -285,10 +285,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error removing event:', error);
         }
     }
-    
+
     events = JSON.parse(localStorage.getItem('eventList')) || [];
     renderEventList(events);
-  
+
     function populateEditForm(event) {
         const editName = document.getElementById('edit-name');
         const editPlace = document.getElementById('edit-place');
@@ -309,19 +309,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         editType.value = event.eventType;
         editPrice.value = event.price;
         editNumberParticipant.value = event.participants;
-                
+
         const saveEditButton = document.getElementById('save-edit-button');
         saveEditButton.setAttribute('data-id', event.id);
-    
+
         const eventEditForm = document.getElementById('event-edit-form');
         eventEditForm.classList.remove('hidden');
     }
 
     function handleEventItemClick(event) {
         if (event.target.classList.contains('edit-button')) {
-            let eventId = event.target.getAttribute('data-id'); 
+            let eventId = event.target.getAttribute('data-id');
             const eventToEdit = events.find(event => event.id === parseInt(eventId));
-            
+
             if (eventToEdit) {
                 populateEditForm(eventToEdit);
             }
@@ -340,13 +340,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             date: document.getElementById('edit-date').value.trim(),
             time: document.getElementById('edit-time').value.trim(),
             description: document.getElementById('edit-description').value.trim(),
-            eventType: document.getElementById('edit-type').value, 
-            price: parseFloat(document.getElementById('edit-price').value.trim()), 
+            eventType: document.getElementById('edit-type').value,
+            price: parseFloat(document.getElementById('edit-price').value.trim()),
             participants: parseInt(document.getElementById('edit-number-participant').value.trim())
         };
         updateEvent(editedEvent);
     });
- 
+
     function handleRemoveButtonClick(event) {
         if (event.target.classList.contains('remove-button')) {
             const eventId = event.target.getAttribute('data-id');
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     eventItems.addEventListener('click', handleRemoveButtonClick);
-    
+
     const removeAllButton = document.getElementById('remove-all-button');
 
     removeAllButton.addEventListener('click', () => {
@@ -384,23 +384,23 @@ document.addEventListener('DOMContentLoaded', async function () {
     const menuItems = document.querySelector('.menu-items');
 
     if (addButton && menuItems) {
-        addButton.addEventListener('click', function(event) {
+        addButton.addEventListener('click', function (event) {
             menuItems.style.display = (menuItems.style.display === 'block') ? 'none' : 'block';
             event.stopPropagation();
         });
 
-        document.addEventListener('click', function() {
+        document.addEventListener('click', function () {
             menuItems.style.display = 'none';
         });
 
-        menuItems.addEventListener('click', function(event) {
+        menuItems.addEventListener('click', function (event) {
             event.stopPropagation();
         });
 
         const addEventButton = document.getElementById('add-event-button');
 
         if (addEventButton) {
-            addEventButton.addEventListener('click', function(event) {
+            addEventButton.addEventListener('click', function (event) {
                 event.stopPropagation();
                 showEventForm();
             });
@@ -408,6 +408,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     loadEventsFromAPI();
-    
+
 });
 
